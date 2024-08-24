@@ -1,6 +1,7 @@
 node_modules
 custom
 config
+sverdle
 
 # Output
 .output

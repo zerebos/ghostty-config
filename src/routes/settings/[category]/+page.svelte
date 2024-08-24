@@ -2,30 +2,66 @@
     import Page from "$lib/views/Page.svelte";
 
     import {page} from "$app/stores";
+    import Switch from "$lib/components/settings/Switch.svelte";
+    import Item from "$lib/components/settings/Item.svelte";
+    import Group from "$lib/components/settings/Group.svelte";
+    import Separator from "$lib/components/settings/Separator.svelte";
 
-    console.log($page);
+    import settings from "$lib/data/settings";
+
+    $: category = settings.find(c => c.id === $page.params.category);
 </script>
 
-<Page title="{$page.params.category}">
+<Page title="{category?.name ?? $page.params.category}">
 <div class="text-column">
-    <h1>About this app</h1>
+    {#if category}
+        <Group>
+            {#each category.settings as setting, i (setting.id)}
+                {#if i !== 0}<Separator />{/if}
+                <Item name={setting.name} note={setting.note}>
+                    {#if setting.type === "switch"}
+                        <Switch initial={setting.value} />
+                    {:else if setting.type === "text"}
+                        <input type="text" value={setting.value} />
+                    {/if}
+                </Item>
+                
+            {/each}
+        </Group>
+    {:else}
+        <h1>About this app</h1>
 
-    <p>
-        This is a <a href="https://kit.svelte.dev">SvelteKit</a> app. You can make your own by typing
-        the following into your command line and following the prompts:
-    </p>
+        <Switch initial={true} />
 
-    <pre>npm create svelte@latest</pre>
+        <Item name="Do a specific thing"><Switch initial={true} /></Item>
+        <Item name="How many?" note="Tell us how many and we do things for you so good!"><input type="text" value="seven" /></Item>
 
-    <p>
-        The page you're looking at is purely static HTML, with no client-side interactivity needed.
-        Because of that, we don't need to load any JavaScript. Try viewing the page's source, or
-        opening the devtools network panel and reloading.
-    </p>
 
-    <p>
-        The <a href="/sverdle">Sverdle</a> page illustrates SvelteKit's data loading and form handling.
-        Try using it with JavaScript disabled!
-    </p>
+        <Group>
+            <Item name="Do a specific thing"><Switch initial={true} /></Item>
+            <Separator />
+            <Item name="How many?" note="Tell us how many and we do things for you so good!"><input type="text" value="seven" /></Item>
+        </Group>
+
+        <p>
+            This is a <a href="https://kit.svelte.dev">SvelteKit</a> app. You can make your own by typing
+            the following into your command line and following the prompts:
+        </p>
+    
+        <pre>npm create svelte@latest</pre>
+    
+        <p>
+            The page you're looking at is purely static HTML, with no client-side interactivity needed.
+            Because of that, we don't need to load any JavaScript. Try viewing the page's source, or
+            opening the devtools network panel and reloading.
+        </p>
+    
+        <p>
+            The <a href="/sverdle">Sverdle</a> page illustrates SvelteKit's data loading and form handling.
+            Try using it with JavaScript disabled!
+        </p>
+    {/if}
+
+
 </div>
 </Page>
