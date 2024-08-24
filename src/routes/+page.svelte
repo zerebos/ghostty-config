@@ -1,5 +1,5 @@
 <script>
-    import Counter from "./Counter.svelte";
+    import Page from "$lib/views/Page.svelte";
 </script>
 
 <svelte:head>
@@ -7,12 +7,12 @@
     <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<slot name="title">Home</slot>
 
+<Page title="Ghostty Config">
 <section>
-    <Counter />
-    <Counter />
+	Here you will be able to import/export and maybe launch the terminal preview overlay. Maybe some settings specific to the config tool as well?
 </section>
+</Page>
 
 <style>
     section {

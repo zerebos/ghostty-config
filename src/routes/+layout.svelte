@@ -1,8 +1,24 @@
 <script>
     // import {onMount} from "svelte";
     import {page} from "$app/stores";
+    import Gap from "$lib/components/Gap.svelte";
     import Tab from "$lib/components/Tab.svelte";
+    import User from "$lib/components/User.svelte";
     import "../app.css";
+
+    import application from "$lib/images/tabs/application.png";
+    import clipboard from "$lib/images/tabs/clipboard.png";
+    import window from "$lib/images/tabs/window.png";
+
+    import colors from "$lib/images/tabs/colors.png";
+    import fonts from "$lib/images/tabs/fonts.png";
+
+    import keybinds from "$lib/images/tabs/keybinds.png";
+    import mouse from "$lib/images/tabs/mouse.png";
+
+    import gtk from "$lib/images/tabs/gtk.svg";
+    import linux from "$lib/images/tabs/linux.png";
+    import macos from "$lib/images/tabs/macos.png";
 
     let path;
 
@@ -43,24 +59,64 @@
         <div class="sidebar-header">
             <div class="window-actions-container">
                 <div class="window-actions">
-                    <button class="window-dot" style="background: rgb(242, 95, 88)">x</button>
-                    <button class="window-dot" style="background: rgb(251, 190, 60)">-</button>
-                    <button class="window-dot" style="background: rgb(88, 203, 66)">+</button>
+                    <button class="window-dot" style="background: rgb(242, 95, 88)"><span>×</span></button>
+                    <button class="window-dot" style="background: rgb(251, 190, 60)"><span>-</span></button>
+                    <button class="window-dot" style="background: rgb(88, 203, 66)"><span>+</span></button>
                 </div>
             </div>
         </div>
         <nav id="categories">
-            <Tab route="/"><svg slot="icon" xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="0 -960 960 960" width="100%" fill="#e8eaed"><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg>Home</Tab>
-            <Tab route="/about"><svg slot="icon" xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="0 -960 960 960" width="100%" fill="#e8eaed"><path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>About</Tab>
+            <User route="/" />
+            <Gap />
+            <Tab route="/settings/application">
+                <img slot="icon" src={application} alt="Application Settings" />
+                Application
+            </Tab>
+            <Tab route="/settings/clipboard">
+                <img slot="icon" src={clipboard} alt="Clipboard Settings" />
+                Clipboard
+            </Tab>
+            <Tab route="/settings/window">
+                <img slot="icon" src={window} alt="Window Settings" />
+                Window
+            </Tab>
+            <Gap />
+            <Tab route="/settings/colors">
+                <img slot="icon" src={colors} alt="Color Settings" />
+                Colors
+            </Tab>
+            <Tab route="/settings/fonts">
+                <img slot="icon" src={fonts} alt="Font Settings" />
+                Fonts
+            </Tab>
+            <Gap />
+            <Tab route="/settings/keybinds">
+                <img slot="icon" src={keybinds} alt="Keybind Settings" />
+                Keybinds
+            </Tab>
+            <Tab route="/settings/mouse">
+                <img slot="icon" src={mouse} alt="Mouse Settings" />
+                Mouse
+            </Tab>
+            <Gap />
+            <Tab route="/settings/gtk">
+                <div class="icon-wrapper" slot="icon"><img src={gtk} alt="GTK Settings" /></div>
+                GTK
+            </Tab>
+            <Tab route="/settings/linux">
+                <img slot="icon" src={linux} alt="Linux Settings" />
+                Linux
+            </Tab>
+            <Tab route="/settings/macos">
+                <img slot="icon" src={macos} alt="MacOS Settings" />
+                MacOS
+            </Tab>
+            <Gap />
+            <Tab route="/scroll"><svg slot="icon" xmlns="http://www.w3.org/2000/svg" height="100%" viewBox="0 -960 960 960" width="100%" fill="#e8eaed"><path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></svg>Scroll Test</Tab>
         </nav>
     </div>
     <div id="content-view">
-        <div class="content-header">
-            <div class="history"><button>&lt;</button><button disabled>&gt;</button></div> <slot name="title">Ghostty Configurator</slot>
-        </div>
-        <div class="content">
-            <slot></slot>
-        </div>
+        <slot></slot>
     </div>
 
 </div>
@@ -154,6 +210,14 @@
     color: rgba(0, 0, 0, 0);
 }
 
+.window-dot span {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -3px;
+    margin-right: -1px;
+}
+
 .app-window .window-actions:hover .window-dot {
     /* background: white!important; */
     /* cursor: pointer; */
@@ -164,42 +228,32 @@
 #content-view {
     background: #2C2733;
     flex: 1;
-    padding: 10px 20px;
-}
-
-#content-view .content-header {
     display: flex;
-    align-items: center;
-    /* font-weight: 700; */
-    font-size: 16pt;
-    gap: 20px;
 }
 
-#content-view .content-header .history {
-    display: inline-flex;
-    gap: 10px;
-    z-index: 11;
-}
 
-#content-view .content-header .history button {
-    background: none;
-    border: 0;
-    color: inherit;
-    padding: 0 8px;
-    border-radius: 4px;
-}
-
-#content-view .content-header .history button:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-#content-view .content-header .history button:disabled {
-    opacity: 0.3;
-    background: none!important;
-}
 
 #categories {
     padding: 10px;
+}
+
+#categories img {
+    width: 100%;
+}
+
+#categories .icon-wrapper {
+    background: linear-gradient(#D3E3E9, #908F8C);
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#categories .icon-wrapper img {
+    height: 14px;
+    width: 14px;
 }
 
 /* .app-window .content {

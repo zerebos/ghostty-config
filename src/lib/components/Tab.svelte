@@ -20,9 +20,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 5px;
+        gap: 10px;
         padding: 6px;
         border-radius: 6px;
+        font-weight: 600;
     }
 
     .nav-tab.selected {
@@ -30,11 +31,12 @@
     }
 
     .nav-tab .tab-icon {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
     }
 
     .nav-tab .tab-label {
+        font-size: 1rem;
         flex: 1;
         justify-content: flex-start;
         color: var(--color-text)!important;
