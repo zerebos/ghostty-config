@@ -29,7 +29,7 @@
                         {:else if setting.type === "text"}
                             <Text bind:value={$config[setting.id]} />
                         {:else if setting.type === "number"}
-                            <Number bind:value={$config[setting.id]} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
+                            <Number bind:value={$config[setting.id]} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
                         {:else if setting.type === "dropdown"}
                             <Dropdown bind:value={$config[setting.id]} options={setting.options} />
                         {/if}

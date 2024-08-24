@@ -21,7 +21,9 @@
 }
 
 h2 {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-top: 20px;
 }
 
 h4 {

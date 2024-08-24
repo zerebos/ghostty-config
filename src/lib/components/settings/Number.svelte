@@ -5,9 +5,12 @@
         max?: number;
         step?: number;
         size?: number;
+        range?: boolean;
     };
     // import type { ChangeEventHandler } from "svelte/elements";
-    let {value = $bindable(), min, max, step, size}: Props = $props();
+    let {value = $bindable(), min, max, step, size, range}: Props = $props();
+
+    const inputType = range ? "range" : "number";
 
     // export let value: number;
     // export let min: number;
@@ -19,9 +22,20 @@
     // }
 </script>
 
-<input type="number" bind:value min={min} max={max} step={step} size={size} />
+<div class="input-wrapper">
+    {#if range}
+    <div class="value">{value}</div>
+    {/if}
+    <input type="{inputType}" bind:value min={min} max={max} step={step} size={size} />
+</div>
 
 <style>
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 input {
     background: #2F2935;
     border: 1px solid #443E4B;
@@ -32,7 +46,7 @@ input {
     max-width: 175px;
 }
 
-input:focus {
+input[type="number"]:focus {
     background: #1F1E1F;
     outline: 3px solid #2656C9;
 }

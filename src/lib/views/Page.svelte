@@ -39,6 +39,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    flex: 1;
 }
 
 .content-header {
@@ -75,7 +76,7 @@
 
 .content-container {
     overflow-y: auto;
-    padding: 0 20px 10px 20px;
+    padding: 8px 20px 10px 20px;
     /* padding-top: 60px; */
 }
 </style>

@@ -37,6 +37,7 @@ interface Number extends BaseSettingItem {
     max?: number;
     step?: number;
     size?: number;
+    range?: boolean;
 }
 
 interface DropdownOption {
@@ -58,7 +59,7 @@ export default [
         groups: [
             {
                 id: "general",
-                name: "General",
+                name: "",
                 // type: "group",
                 settings: [
                     {id: "title", name: "Static title for all windows", type: "text", value: ""},
@@ -116,5 +117,149 @@ export default [
                 ]
             },
         ]
-    }
+    },
+    {
+        id: "clipboard",
+        name: "Clipboard",
+        groups: [
+            {
+                id: "main",
+                name: "",
+                settings: [
+                    {id: "clipboardRead", name: "Allow terminal to read clipboard", type: "dropdown", value: "ask", options: ["ask", "allow", "deny"]},
+                    {id: "clipboardWrite", name: "Allow terminal to write clipboard", type: "dropdown", value: "ask", options: ["ask", "allow", "deny"]},
+                    {id: "copyOnSelect", name: "Copy on select", type: "switch", value: true},
+                    {id: "clipboardTrimTrailingSpaces", name: "Trim trailing space on copy", type: "switch", value: true},
+                    {id: "clipboardPasteProtection", name: "Confirm when pasting unsafely", type: "switch", value: true},
+                    {id: "clipboardPasteBracketedSafe", name: "Mark bracketed paste as safe", type: "switch", value: true},
+                    {id: "imageStorageLimit", name: "Image buffer limit (bytes)", type: "number", value: 320000000, min: 0, max: 4294967295, size: 12},
+                ]
+            }
+        ]
+    },
+    {
+        id: "window",
+        name: "Window",
+        groups: [
+            {
+                id: "main",
+                name: "",
+                settings: [
+                    {id: "windowVsync", name: "Enable vsync", type: "switch", value: true},
+                    {id: "windowInheritWorkingDirectory", name: "Inherit working directory", type: "switch", value: true},
+                    {id: "windowInheritFontSize", name: "Inherit font size", type: "switch", value: true},
+                    {id: "windowColorspace", name: "Window colorspace", type: "dropdown", value: "srgb", options: ["srgb", "display-p3"]},
+                    {id: "windowSaveState", name: "Save window state", type: "dropdown", value: "default", options: ["default", "never", "always"]},
+                    // maybe move to application?
+                    {id: "windowNewTabPosition", name: "New tab position", type: "dropdown", value: "current", options: ["current", "end"]},
+                ]
+            },
+            {
+                id: "appearance",
+                name: "Appearance",
+                settings: [
+                    {id: "windowTheme", name: "Window theme", type: "dropdown", value: "auto", options: ["auto", "system", "light", "dark"]},
+                    {id: "windowDecoration", name: "Enable native frames", type: "switch", value: true},
+                    {id: "windowPaddingX", name: "Horizontal window padding", type: "text", value: "2"},
+                    {id: "windowPaddingY", name: "Vertical window padding", type: "text", value: "2"},
+                    {id: "windowPaddingBalance", name: "Auto-balance window padding", type: "switch", value: false},
+                    {id: "windowPaddingColor", name: "Window padding color", type: "dropdown", value: "extend", options: ["background", "extend", "extend-always"]},
+                    
+                    // maybe move to colors
+                    {id: "backgroundOpacity", name: "Background opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
+                    {id: "backgroundBlurRadius", name: "Background blur radius", note: "A value of 20 is reasonable for a good looking blur, going beyond that can cause rendering and performance issues.", type: "number", range: true, value: 0, min: 0, max: 50, step: 1},
+                    {id: "unfocusedSplitOpacity", name: "Unfocused split opacity", type: "number", range: true, value: 0.7, min: 0.15, max: 1, step: 0.01},
+                    {id: "unfocusedSplitFill", name: "Unfocused split fill color", type: "color", value: ""},
+                ]
+            },
+            {
+                id: "resize",
+                name: "Sizing & Resizing",
+                settings: [
+                    {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 4, step: 1, size: 12},
+                    {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 10, step: 1, size: 12},
+                    {id: "windowStepResize", name: "Resize in grid cell increments", type: "switch", value: false},
+                    {id: "resizeOverlay", name: "Show resize overlays", type: "dropdown", value: "after-first", options: ["always", "never", "after-first"]},
+                    {id: "resizeOverlayPosition", name: "Resize overlay position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right"]},
+                    {id: "resizeOverlayDuration", name: "Show resize overlay time", type: "text", value: "750ms"},
+                ]
+            },
+        ]
+    },
+
+
+
+
+
+
+    {
+        id: "mouse",
+        name: "Mouse",
+        groups: [
+            {
+                id: "main",
+                name: "",
+                settings: [
+                    {id: "cursorClickToMove", name: "Enable click to move cursor", type: "switch", value: true},
+                    {id: "mouseHideWhileTyping", name: "Hide mouse while typing", type: "switch", value: false},
+                    {id: "mouseShiftCapture", name: "Allow shift with mouse click", type: "dropdown", value: "false", options: ["true", "false", "always", "never"]},
+                    // Technically the values should be min: 0.01, max: 10000, step: 0.01 but those are insane so instead I'll use sane defaults
+                    {id: "mouseScrollMultiplier", name: "Mouse scroll multiplier", type: "number", range: true, value: 1, min: 0.1, max: 10, step: 0.1},
+                    {id: "focusFollowsMouse", name: "Focus splits on mouse move", type: "switch", value: false},
+                    {id: "clickRepeatInterval", name: "Milliseconds between multi-click", note: "A value of 0 means to use the operating system's default timing.", type: "number", value: 0, min: 0, size: 4},
+                ]
+            }
+        ]
+    },
+    {
+        id: "gtk",
+        name: "GTK",
+        groups: [
+            {
+                id: "main",
+                name: "",
+                settings: [
+                    {id: "class", name: "WM_CLASS class field", note: "This defaults to `com.mitchellh.ghostty`", type: "text", value: ""},
+                    {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to `ghostty`", type: "text", value: ""},
+                    {id: "gtkSingleInstance", name: "Single-instance mode", type: "dropdown", value: "desktop", options: [{name: "detect", value: "desktop"}, "true", "false"]},
+                    {id: "gtkTitlebar", name: "Show titlebar", type: "switch", value: true},
+                    {id: "gtkTabsLocation", name: "Tab location", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left"]},
+                    {id: "gtkWideTabs", name: "Use wide tabs", type: "switch", value: true},
+                    {id: "gtkAdwaita", name: "Enable adwaita theme support", type: "switch", value: true},
+                ]
+            }
+        ]
+    },
+    {
+        id: "linux",
+        name: "Linux",
+        groups: [
+            {
+                id: "main",
+                name: "",
+                settings: [
+                    {id: "linuxCgroup", name: "Use dedicated cgroups", type: "dropdown", value: "single-instance", options: ["single-instance", "always", "never"]},
+                    {id: "linuxCgroupMemoryLimit", name: "Memory limit (bytes)", type: "number", min: 0, max: 4294967295, size: 12},
+                    {id: "linuxCgroupProcessLimit", name: "Max number of processes", type: "number", min: 0, size: 5},
+                    {id: "linuxCgroupHardFail", name: "Hard fail on startup", type: "switch", value: false},
+                ]
+            }
+        ]
+    },
+    {
+        id: "macos",
+        name: "macOS",
+        groups: [
+            {
+                id: "main",
+                name: "",
+                settings: [
+                    {id: "macosNonNativeFullscreen", name: "Use non-native fullscreen", note: "Tabs currently do not work with non-native fullscreen windows", type: "dropdown", value: "false", options: ["visible-menu", "true", "false"]},
+                    {id: "macosTitlebarStyle", name: "Titlebar style", type: "dropdown", value: "transparent", options: ["transparent", "native", "tabs"]},
+                    {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "switch", value: false},
+                    {id: "macosWindowShadow", name: "Show the window shadow", type: "switch", value: true},
+                ]
+            }
+        ]
+    },
 ] as Panel[];
