@@ -9,6 +9,9 @@
 
     import settings from "$lib/data/settings";
     import config from "$lib/stores/config";
+    import Text from "$lib/components/settings/Text.svelte";
+    import Number from "$lib/components/settings/Number.svelte";
+    import Dropdown from "$lib/components/settings/Dropdown.svelte";
 
     $: category = settings.find(c => c.id === $page.params.category);
 </script>
@@ -24,7 +27,11 @@
                         {#if setting.type === "switch"}
                             <Switch bind:checked={$config[setting.id]} />
                         {:else if setting.type === "text"}
-                            <input type="text" value={setting.value} />
+                            <Text bind:value={$config[setting.id]} />
+                        {:else if setting.type === "number"}
+                            <Number bind:value={$config[setting.id]} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
+                        {:else if setting.type === "dropdown"}
+                            <Dropdown bind:value={$config[setting.id]} options={setting.options} />
                         {/if}
                     </Item>
                 {/each}
@@ -36,13 +43,13 @@
         <Switch checked={true} />
 
         <Item name="Do a specific thing"><Switch checked={true} /></Item>
-        <Item name="How many?" note="Tell us how many and we do things for you so good!"><input type="text" value="seven" /></Item>
+        <Item name="How many?" note="Tell us how many and we do things for you so good!"><Text value="seven" /></Item>
 
 
         <Group>
             <Item name="Do a specific thing"><Switch checked={true} /></Item>
             <Separator />
-            <Item name="How many?" note="Tell us how many and we do things for you so good!"><input type="text" value="seven" /></Item>
+            <Item name="How many?" note="Tell us how many and we do things for you so good!"><Text value="seven" /></Item>
         </Group>
 
         <p>

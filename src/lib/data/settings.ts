@@ -36,6 +36,7 @@ interface Number extends BaseSettingItem {
     min?: number;
     max?: number;
     step?: number;
+    size?: number;
 }
 
 interface DropdownOption {
@@ -84,7 +85,7 @@ export default [
                 // type: "group",
                 settings: [
                     {id: "waitAfterCommand", name: "Wait for input after command", type: "switch", value: false},
-                    {id: "abnormalCommandExitRuntime", name: "Abnormal command exit runtime", type: "number", value: 250, min: 0},
+                    {id: "abnormalCommandExitRuntime", name: "Abnormal command exit runtime", type: "number", value: 250, min: 0, size: 5},
                     {id: "confirmCloseSurface", name: "Confirm when closing a surface", type: "switch", value: true},
                     {id: "quitAfterLastWindowClosed", name: "Quit after closing last window", type: "switch", value: false},
                     {id: "quitAfterLastWindowClosedDelay", name: "Delay before auto quitting", type: "text", value: ""},
@@ -96,17 +97,17 @@ export default [
                 // type: "group",
                 settings: [
                     {id: "shellIntegration", name: "Shell integration style", type: "dropdown", value: "detect", options: ["none", "detect", "bash", "elvish", "fish", "zsh"]},
-                    {id: "shellIntegrationFeatures", name: "Shell integration features", type: "checkboxes", value: "", options: ["cursor", "sudo", "title"]},
+                    {id: "shellIntegrationFeatures", name: "Shell integration features", note: "The current available features are cursor, sudo, and title. Including one force enables it, prefixing it with `no-` force disables it, omitting it falls back to default.", type: "text", value: "cursor,no-sudo,title"},
                     {id: "term", name: "TERM environment variable", type: "text", value: "xterm-ghostty"},
                 ]
             },
             {
                 id: "advanced",
                 name: "Advanced",
-                note: "You should only touch these settings if you really know what you're doing, otherwise you could cause major issues with Ghostty!",
+                note: "You should only touch these settings if you know what you're doing, otherwise you could cause major issues with Ghostty!",
                 // type: "group",
                 settings: [
-                    {id: "scrollbackLimit", name: "Scrollback buffer size (bytes)", note: "This buffer exists completely in memory but is allocated lazily.", type: "number", value: 10000000, min: 0},
+                    {id: "scrollbackLimit", name: "Scrollback buffer size (bytes)", note: "This buffer exists completely in memory but is allocated lazily.", type: "number", value: 10000000, min: 0, size: 10},
                     {id: "customShader", name: "Custom shader", note: "This matches the API of Shadertoy.", type: "text", value: ""},
                     {id: "customShaderAnimation", name: "Allow shaders to animate", type: "dropdown", value: "false", options: ["false", "true", "always"]},
                     {id: "enquiryResponse", name: "Reponse to ENQ", type: "text", value: ""},
