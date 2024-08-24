@@ -191,7 +191,23 @@ export default [
 
 
 
-
+    {
+        id: "fonts",
+        name: "Fonts",
+        groups: [
+            {
+                id: "family",
+                name: "Font Families",
+                settings: [
+                    {id: "fontFamily", name: "Main font family", type: "text", value: ""},
+                    {id: "fontFamilyBold", name: "Font family for bold text", type: "text", value: ""},
+                    {id: "fontFamilyItalic", name: "Font family for italic text", type: "text", value: ""},
+                    {id: "fontFamilyBoldItalic", name: "Font family for bold italic text", type: "text", value: ""},
+                    {id: "windowTitleFontFamily", name: "Window title font family", note: "This is currently only supported on macOS", type: "text", value: ""},
+                ]
+            }
+        ]
+    },
     {
         id: "mouse",
         name: "Mouse",

@@ -229,6 +229,7 @@
     background: #2C2733;
     flex: 1;
     display: flex;
+    min-width: 0;
 }
 
 

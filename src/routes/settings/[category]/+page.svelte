@@ -12,12 +12,16 @@
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
+    import FontPreview from "$lib/views/FontPreview.svelte";
 
     $: category = settings.find(c => c.id === $page.params.category);
 </script>
 
 <Page title="{category?.name ?? $page.params.category}">
 <div class="text-column">
+    {#if $page.params.category === "fonts"}
+        <FontPreview />
+    {/if}
     {#if category}
         {#each category.groups as group (group.id)}
             <Group title={group.name} note={group.note}>
