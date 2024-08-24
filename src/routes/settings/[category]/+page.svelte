@@ -8,6 +8,7 @@
     import Separator from "$lib/components/settings/Separator.svelte";
 
     import settings from "$lib/data/settings";
+    import config from "$lib/stores/config";
 
     $: category = settings.find(c => c.id === $page.params.category);
 </script>
@@ -15,30 +16,31 @@
 <Page title="{category?.name ?? $page.params.category}">
 <div class="text-column">
     {#if category}
-        <Group>
-            {#each category.settings as setting, i (setting.id)}
-                {#if i !== 0}<Separator />{/if}
-                <Item name={setting.name} note={setting.note}>
-                    {#if setting.type === "switch"}
-                        <Switch initial={setting.value} />
-                    {:else if setting.type === "text"}
-                        <input type="text" value={setting.value} />
-                    {/if}
-                </Item>
-                
-            {/each}
-        </Group>
+        {#each category.groups as group (group.id)}
+            <Group title={group.name} note={group.note}>
+                {#each group.settings as setting, i (setting.id)}
+                    {#if i !== 0}<Separator />{/if}
+                    <Item name={setting.name} note={setting.note}>
+                        {#if setting.type === "switch"}
+                            <Switch bind:checked={$config[setting.id]} />
+                        {:else if setting.type === "text"}
+                            <input type="text" value={setting.value} />
+                        {/if}
+                    </Item>
+                {/each}
+            </Group>
+        {/each}
     {:else}
         <h1>About this app</h1>
 
-        <Switch initial={true} />
+        <Switch checked={true} />
 
-        <Item name="Do a specific thing"><Switch initial={true} /></Item>
+        <Item name="Do a specific thing"><Switch checked={true} /></Item>
         <Item name="How many?" note="Tell us how many and we do things for you so good!"><input type="text" value="seven" /></Item>
 
 
         <Group>
-            <Item name="Do a specific thing"><Switch initial={true} /></Item>
+            <Item name="Do a specific thing"><Switch checked={true} /></Item>
             <Separator />
             <Item name="How many?" note="Tell us how many and we do things for you so good!"><input type="text" value="seven" /></Item>
         </Group>

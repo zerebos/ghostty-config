@@ -1,19 +1,29 @@
 <script lang="ts">
-    import { writable } from "svelte/store";
+    // import config from "$lib/stores/config";
+    // import {writable} from "svelte/store";
 
-    export let disabled = false;
-    export let initial = false;
+    export let disabled: boolean = false;
+    export let checked: boolean = false;
+    // export let id: string = "";
 
-    const checked = writable(initial);
+    // console.log($config[id]);
+
+    // const checked = writable($config[id]);
 
     function change() {
-        checked.update(current => !current);
+        checked = !checked;
+        // checked.update(current => !current);
+        // config.update(conf => {
+        //     conf[id] = $checked;
+        //     console.log($checked);
+        //     return conf;
+        // });
     }
 </script>
 
 
 <div class="switch" class:checked class:disabled>
-    <input type="checkbox" disabled={disabled} checked={$checked} on:change={change} />
+    <input type="checkbox" disabled={disabled} checked={checked} on:change={change} />
     <div class="switch-body">
         <svg class="switch-slider" viewBox="0 0 16 16" preserveAspectRatio="xMinYMid meet">
             <rect class="switch-handle" fill="white" x="0" y="0" height="16" width="16" rx="8"></rect>
