@@ -12,19 +12,29 @@
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
+    import Color from "$lib/components/settings/Color.svelte";
+    import Palette from "$lib/components/settings/Palette.svelte";
     import FontPreview from "$lib/views/FontPreview.svelte";
+    import BaseColorPreview from "$lib/views/BaseColorPreview.svelte";
+    import CursorPreview from "$lib/views/CursorPreview.svelte";
 
     $: category = settings.find(c => c.id === $page.params.category);
 </script>
 
 <Page title="{category?.name ?? $page.params.category}">
-<div class="text-column">
-    {#if $page.params.category === "fonts"}
-        <FontPreview />
-    {/if}
     {#if category}
+        {#if $page.params.category === "fonts"}
+            <FontPreview />
+        {/if}
         {#each category.groups as group (group.id)}
             <Group title={group.name} note={group.note}>
+                {#if category.id === "colors" && group.id === "base"}
+                    <BaseColorPreview />
+                    <Separator />
+                {:else if category.id === "colors" && group.id === "cursor"}
+                    <CursorPreview />
+                    <Separator />
+                {/if}
                 {#each group.settings as setting, i (setting.id)}
                     {#if i !== 0}<Separator />{/if}
                     <Item name={setting.name} note={setting.note}>
@@ -36,45 +46,17 @@
                             <Number bind:value={$config[setting.id]} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
                         {:else if setting.type === "dropdown"}
                             <Dropdown bind:value={$config[setting.id]} options={setting.options} />
+                        {:else if setting.type === "color"}
+                            <Color bind:value={$config[setting.id]} />
+                        {:else if setting.type === "palette"}
+                            <Palette bind:value={$config[setting.id]} />
                         {/if}
                     </Item>
                 {/each}
             </Group>
         {/each}
     {:else}
-        <h1>About this app</h1>
-
-        <Switch checked={true} />
-
-        <Item name="Do a specific thing"><Switch checked={true} /></Item>
-        <Item name="How many?" note="Tell us how many and we do things for you so good!"><Text value="seven" /></Item>
-
-
-        <Group>
-            <Item name="Do a specific thing"><Switch checked={true} /></Item>
-            <Separator />
-            <Item name="How many?" note="Tell us how many and we do things for you so good!"><Text value="seven" /></Item>
-        </Group>
-
-        <p>
-            This is a <a href="https://kit.svelte.dev">SvelteKit</a> app. You can make your own by typing
-            the following into your command line and following the prompts:
-        </p>
-    
-        <pre>npm create svelte@latest</pre>
-    
-        <p>
-            The page you're looking at is purely static HTML, with no client-side interactivity needed.
-            Because of that, we don't need to load any JavaScript. Try viewing the page's source, or
-            opening the devtools network panel and reloading.
-        </p>
-    
-        <p>
-            The <a href="/sverdle">Sverdle</a> page illustrates SvelteKit's data loading and form handling.
-            Try using it with JavaScript disabled!
-        </p>
+        <h1>What Happened?</h1>
+        <p>You shouldn't be here! If you followed a link, please report the bug on GitHub. Otherwise, go ahead and start browsing on the left.</p>
     {/if}
-
-
-</div>
 </Page>
