@@ -2,13 +2,15 @@
     // import type { ChangeEventHandler } from "svelte/elements";
 
     export let value = "";
+    export let blank = false;
+    export let align: "left" | "right" = "right";
 
     // function change(event: Event & {currentTarget: HTMLInputElement}) {
     //     value = event.currentTarget.value;
     // }
 </script>
 
-<input type="text" bind:value />
+<input class:blank class={align} type="text" bind:value />
 
 <style>
 input {
@@ -24,5 +26,14 @@ input {
 input:focus {
     background: #1F1E1F;
     outline: 3px solid #2656C9;
+}
+
+input.blank {
+    background: none;
+    border: 0;
+}
+
+input.left {
+    text-align: left;
 }
 </style>
