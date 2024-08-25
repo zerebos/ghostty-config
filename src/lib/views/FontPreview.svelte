@@ -13,7 +13,7 @@
 </script>
 
 <div class="font-preview">
-    <Group title="Font Playground" note="Use this section to test your fonts as they may look in the terminal along with colors and glyphs. Note: this playground does not set any actual settings.">
+    <Group title="Font Playground" note={"Use this section to test your fonts as they may look in the terminal along with colors and glyphs.\n\nNote: this playground does not set any actual settings."}>
         <div class="preview" style="background: var(--config-bg); color: var(--config-fg); font-family: {fontFamily}; font-size: {fontSize + "px"}; font-style: {italic ? "italic" : "normal"}; font-weight: {bold ? 700 : 400};">
         <div class="row prompt">
             <span style="color: var(--config-palette-2);">john</span>

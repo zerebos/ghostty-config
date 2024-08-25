@@ -30,6 +30,7 @@ h4 {
     font-size: 0.8rem;
     color: #A7A3AA;
     margin-top: -6px;
+    white-space: preserve;
 }
 
 .settings-items {

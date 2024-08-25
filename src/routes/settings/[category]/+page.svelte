@@ -17,6 +17,7 @@
     import FontPreview from "$lib/views/FontPreview.svelte";
     import BaseColorPreview from "$lib/views/BaseColorPreview.svelte";
     import CursorPreview from "$lib/views/CursorPreview.svelte";
+    import PalettePreview from "$lib/views/PalettePreview.svelte";
 
     $: category = settings.find(c => c.id === $page.params.category);
 </script>
@@ -33,6 +34,9 @@
                     <Separator />
                 {:else if category.id === "colors" && group.id === "cursor"}
                     <CursorPreview />
+                    <Separator />
+                {:else if category.id === "colors" && group.id === "palette"}
+                    <PalettePreview />
                     <Separator />
                 {/if}
                 {#each group.settings as setting, i (setting.id)}
