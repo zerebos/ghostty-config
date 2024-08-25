@@ -1,12 +1,12 @@
-<script>
+<script lang="ts">
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
-</script>
+    import { printDifferences } from "$lib/stores/config";
 
-<svelte:head>
-    <title>Home</title>
-    <meta name="description" content="Svelte demo app" />
-</svelte:head>
+    function debug() {
+        printDifferences();
+    }
+</script>
 
 
 <Page title="Ghostty Config">
@@ -21,6 +21,7 @@
         </div>
     </div>
 	<p>Here you will be able to import/export and maybe launch the terminal preview overlay. Maybe some settings specific to the config tool as well?</p>
+    <button on:click={debug}>debug</button>
 </section>
 </Page>
 
