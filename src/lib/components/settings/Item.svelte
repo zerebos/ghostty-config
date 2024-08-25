@@ -5,7 +5,7 @@
 
 <div class="setting-item">
     <div class="row">
-        <div class="setting-name">{name}</div>
+        {#if name}<div class="setting-name">{name}</div>{/if}
         <div class="setting"><slot /></div>
     </div>
     {#if note}
@@ -31,6 +31,12 @@
 .setting-name {
     /* font-weight: 500; */
     font-size: 1.1rem;
+}
+
+.setting {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 .note {

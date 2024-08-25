@@ -1,3 +1,5 @@
+import type {HexColor} from "$lib/utils/colors";
+
 interface BaseSettingType {
     id: string;
     name: string;
@@ -9,11 +11,11 @@ interface Panel extends BaseSettingType {
 }
 
 interface Group extends BaseSettingType {
-    settings: (Switch | Text | Number | Dropdown)[];
+    settings: (Switch | Text | Number | Dropdown | Color | Palette)[];
     // type: "group";
 }
 
-type SettingType = "switch" | "number" | "dropdown" | "text" | "group";
+type SettingType = "switch" | "number" | "dropdown" | "text" | "color" | "palette";
 
 interface BaseSettingItem extends BaseSettingType {
     type: SettingType;
@@ -49,6 +51,16 @@ interface Dropdown extends BaseSettingItem {
     type: "dropdown";
     value: "string";
     options: (DropdownOption | string)[];
+}
+
+interface Color extends BaseSettingItem {
+    value: HexColor;
+    type: "color";
+}
+
+interface Palette extends BaseSettingItem {
+    value: HexColor[];
+    type: "palette";
 }
 
 export default [
@@ -186,14 +198,61 @@ export default [
             },
         ]
     },
-    // Colors
+    {
+        id: "colors",
+        name: "Colors",
+        groups: [
+            {
+                id: "general",
+                name: "",
+                settings: [
+                    {id: "theme", name: "Color theme", note: "Any colors selected after setting this will overwrite the theme's colors.", type: "text", value: ""},
+                    {id: "boldIsBright", name: "Bold text uses bright colors", type: "switch", value: false},
+                    {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
+                ]
+            },
+            {
+                id: "base",
+                name: "Base Colors",
+                note: "The preview here shows selected text in the second line of the command output.",
+                settings: [
+                    {id: "background", name: "Background color", type: "color", value: "#282c34"},
+                    {id: "foreground", name: "Foreground color", type: "color", value: "#ffffff"},
+                    {id: "selectionBackground", name: "Selection background color", type: "color", value: ""},
+                    {id: "selectionForeground", name: "Selection foreground color", type: "color", value: ""},
+                    {id: "selectionInvertFgBg", name: "Invert selection colors", note: "Enabling this will cause selections to be the inverse of their current colors. This ignores the two selection colors above.", type: "switch", value: false},
+                ]
+            },
+            {
+                id: "cursor",
+                name: "Cursor",
+                note: "The cursor in this preview blinks on and off at 1 second intervals for emphasis, it may not match what you see in Ghostty!",
+                settings: [
+                    {id: "cursorColor", name: "Cursor color", type: "color", value: ""},
+                    {id: "cursorText", name: "Text color under cursor", type: "color", value: ""},
+                    {id: "cursorInvertFgBg", name: "Invert selection colors", note: "Enabling this will cause cells under the cursor to be the inverse of their current colors. This ignores the two selection colors above.", type: "switch", value: false},
+                    {id: "cursorOpacity", name: "Cursor opacity", type: "number", value: 1, range: true, min: 0, max: 1, step: 0.05},
+                    {id: "cursorStyle", name: "Cursor style", type: "dropdown", value: "block", options: ["block", "bar", "underline", {value: "block_hollow", name: "hollow block"}]},
+                    {id: "cursorStyleBlink", name: "Cursor blink style", note: "The `default` option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},
+                ]
+            },
+            {
+                id: "palette",
+                name: "Color Palette",
+                note: "The first 16 colors are the most commonly displayed colors in the terminal with 9-16 typically being the \"bright\" versions of 1-8.",
+                settings: [
+                    {id: "palette", name: "", type: "palette", value: ["#1d1f21","#cc6666","#b5bd68","#f0c674","#81a2be","#b294bb","#8abeb7","#c5c8c6","#666666","#d54e53","#b9ca4a","#e7c547","#7aa6da","#c397d8","#70c0b1","#eaeaea","#000000","#00005f","#000087","#0000af","#0000d7","#0000ff","#005f00","#005f5f","#005f87","#005faf","#005fd7","#005fff","#008700","#00875f","#008787","#0087af","#0087d7","#0087ff","#00af00","#00af5f","#00af87","#00afaf","#00afd7","#00afff","#00d700","#00d75f","#00d787","#00d7af","#00d7d7","#00d7ff","#00ff00","#00ff5f","#00ff87","#00ffaf","#00ffd7","#00ffff","#5f0000","#5f005f","#5f0087","#5f00af","#5f00d7","#5f00ff","#5f5f00","#5f5f5f","#5f5f87","#5f5faf","#5f5fd7","#5f5fff","#5f8700","#5f875f","#5f8787","#5f87af","#5f87d7","#5f87ff","#5faf00","#5faf5f","#5faf87","#5fafaf","#5fafd7","#5fafff","#5fd700","#5fd75f","#5fd787","#5fd7af","#5fd7d7","#5fd7ff","#5fff00","#5fff5f","#5fff87","#5fffaf","#5fffd7","#5fffff","#870000","#87005f","#870087","#8700af","#8700d7","#8700ff","#875f00","#875f5f","#875f87","#875faf","#875fd7","#875fff","#878700","#87875f","#878787","#8787af","#8787d7","#8787ff","#87af00","#87af5f","#87af87","#87afaf","#87afd7","#87afff","#87d700","#87d75f","#87d787","#87d7af","#87d7d7","#87d7ff","#87ff00","#87ff5f","#87ff87","#87ffaf","#87ffd7","#87ffff","#af0000","#af005f","#af0087","#af00af","#af00d7","#af00ff","#af5f00","#af5f5f","#af5f87","#af5faf","#af5fd7","#af5fff","#af8700","#af875f","#af8787","#af87af","#af87d7","#af87ff","#afaf00","#afaf5f","#afaf87","#afafaf","#afafd7","#afafff","#afd700","#afd75f","#afd787","#afd7af","#afd7d7","#afd7ff","#afff00","#afff5f","#afff87","#afffaf","#afffd7","#afffff","#d70000","#d7005f","#d70087","#d700af","#d700d7","#d700ff","#d75f00","#d75f5f","#d75f87","#d75faf","#d75fd7","#d75fff","#d78700","#d7875f","#d78787","#d787af","#d787d7","#d787ff","#d7af00","#d7af5f","#d7af87","#d7afaf","#d7afd7","#d7afff","#d7d700","#d7d75f","#d7d787","#d7d7af","#d7d7d7","#d7d7ff","#d7ff00","#d7ff5f","#d7ff87","#d7ffaf","#d7ffd7","#d7ffff","#ff0000","#ff005f","#ff0087","#ff00af","#ff00d7","#ff00ff","#ff5f00","#ff5f5f","#ff5f87","#ff5faf","#ff5fd7","#ff5fff","#ff8700","#ff875f","#ff8787","#ff87af","#ff87d7","#ff87ff","#ffaf00","#ffaf5f","#ffaf87","#ffafaf","#ffafd7","#ffafff","#ffd700","#ffd75f","#ffd787","#ffd7af","#ffd7d7","#ffd7ff","#ffff00","#ffff5f","#ffff87","#ffffaf","#ffffd7","#ffffff","#080808","#121212","#1c1c1c","#262626","#303030","#3a3a3a","#444444","#4e4e4e","#585858","#626262","#6c6c6c","#767676","#808080","#8a8a8a","#949494","#9e9e9e","#a8a8a8","#b2b2b2","#bcbcbc","#c6c6c6","#d0d0d0","#dadada","#e4e4e4","#eeeeee"]},
+                ]
+            }
+        ]
+    },
     {
         id: "fonts",
         name: "Fonts",
         groups: [
             {
-                id: "other",
-                name: "",
+                id: "general",
+                name: "General Font Settings",
                 settings: [
                     {id: "fontSize", name: "Base font size", type: "number", value: 13, min: 4, max: 60, step: 0.5, range: true},
                     {id: "fontThicken", name: "Thicken fonts", type: "switch", note: "This currently only affects macOS.", value: false},
@@ -253,7 +312,11 @@ export default [
 
         ]
     },
-    // Keybinds
+    {
+        id: "keybinds",
+        name: "Keybinds",
+        groups: []
+    },
     {
         id: "mouse",
         name: "Mouse",
