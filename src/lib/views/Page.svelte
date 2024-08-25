@@ -77,6 +77,7 @@
 .content-container {
     overflow-y: auto;
     padding: 8px 20px 10px 20px;
+    flex: 1;
     /* padding-top: 60px; */
 }
 </style>

@@ -1,16 +1,19 @@
 <script lang="ts">
-    // import type { ChangeEventHandler } from "svelte/elements";
+    interface Props {
+        value: string;
+        blank?: boolean;
+        align?: "right" | "left";
+        change?: (e: Event) => void;
+    }
 
-    export let value = "";
-    export let blank = false;
-    export let align: "left" | "right" = "right";
+    let {value = $bindable(), blank = false, align = "right", change}: Props = $props();
 
-    // function change(event: Event & {currentTarget: HTMLInputElement}) {
-    //     value = event.currentTarget.value;
-    // }
+    function click(event: MouseEvent) {
+        event.stopPropagation();
+    }
 </script>
 
-<input class:blank class={align} type="text" bind:value />
+<input class:blank class={align} type="text" onclick={click} onchange={change} bind:value />
 
 <style>
 input {
@@ -23,7 +26,7 @@ input {
     max-width: 175px;
 }
 
-input:focus {
+input:focus, input.blank:focus {
     background: #1F1E1F;
     outline: 3px solid #2656C9;
 }

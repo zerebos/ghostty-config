@@ -3,6 +3,9 @@
     // this will make it more versatile and easy to customize
     // ideally add checkboxes underneath the preview letting
     // users hide parts of the preview
+
+    // TODO: also extract out the preview window generally
+    // I've used it like 4 times now
 </script>
 
 <div class="font-preview">

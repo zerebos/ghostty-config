@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import Text from "./Text.svelte";
 
     let selected: number[] = $state([]);
@@ -20,22 +19,49 @@
             selected.splice(selected.indexOf(index), 1);
         }
     }
+
+    function addNew() {
+        console.log("ADD NEW");
+        value = [...value, "="];
+    }
+
+    function remove() {
+        console.log(selected.map(i => i))
+        console.log(value.map(v => v))
+        value = value.filter((v, i) => {
+            const shouldRemove = selected.includes(i);
+            console.log(`Filtering ${v} ${i} ${shouldRemove}`)
+            return !shouldRemove;
+        });
+        console.log(value.map(v => v))
+        selected = [];
+    }
+
+
+    function update(index: number, isAction: boolean = false) {
+        return (event: Event) => {
+            const current = value[index].split("=");
+            const indexToUpdate = isAction ? 1 : 0;
+            current[indexToUpdate] = (event.target as HTMLInputElement).value;
+            value[index] = current.join("=");
+        }
+    }
 </script>
 
 <div class="expandable-list">
     <div class="item-list">
-        {#each value as _, i}
+        {#each value as _, i (i)}
             <div class="keybind" class:selected={selected.includes(i)} onclick={select(i)} onkeypress={() => select(i)} role="option" tabindex="0" aria-selected={selected.includes(i)}>
-                <Text value={value[i].split("=")[0]} blank={true} align="left" />
+                <Text value={value[i].split("=")[0]} blank={true} align="left" change={update(i)} />
                 <div class="action">
-                    <Text value={value[i].split("=")[1]} blank={true} />
+                    <Text value={value[i].split("=")[1]} blank={true} change={update(i, true)} />
                 </div>
             </div>
         {/each}
     </div>
     <div class="list-controls">
-        <button>+</button>
-        <button disabled={selected.length === 0}>-</button>
+        <button onclick={addNew}>+</button>
+        <button onclick={remove} disabled={selected.length === 0}>-</button>
     </div>
 </div>
 
@@ -45,6 +71,7 @@
 .expandable-list {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     height: 100%;
     position: relative;
     background: #2F2935;
@@ -82,7 +109,7 @@
 }
 
 .keybind.selected {
-    background: blue;
+    background: #2457C9;
 }
 
 button {
