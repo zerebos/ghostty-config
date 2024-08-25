@@ -186,15 +186,20 @@ export default [
             },
         ]
     },
-
-
-
-
-
+    // Colors
     {
         id: "fonts",
         name: "Fonts",
         groups: [
+            {
+                id: "other",
+                name: "",
+                settings: [
+                    {id: "fontSize", name: "Base font size", type: "number", value: 13, min: 4, max: 60, step: 0.5, range: true},
+                    {id: "fontThicken", name: "Thicken fonts", type: "switch", note: "This currently only affects macOS.", value: false},
+                    {id: "fontFeature", name: "Font ligature settings", type: "text", value: "default"},
+                ]
+            },
             {
                 id: "family",
                 name: "Font Families",
@@ -204,10 +209,51 @@ export default [
                     {id: "fontFamilyItalic", name: "Font family for italic text", type: "text", value: ""},
                     {id: "fontFamilyBoldItalic", name: "Font family for bold italic text", type: "text", value: ""},
                     {id: "windowTitleFontFamily", name: "Window title font family", note: "This is currently only supported on macOS", type: "text", value: ""},
+                    {id: "fontCodepointMap", name: "Unicode-specifc font mapping", note: "", type: "text", value: ""},
                 ]
-            }
+            },
+            {
+                id: "styles",
+                name: "Font Styles",
+                note: "Named font styles for the fields above. For example for `Ioveska Heavy` you would use a style of `Heavy`. Alternately you can set the style to `false` to completely disable the style and revert to default style.",
+                settings: [
+                    {id: "fontStyle", name: "Main font style", type: "text", value: "default"},
+                    {id: "fontStyleBold", name: "Font style for bold text", type: "text", value: "default"},
+                    {id: "fontStyleItalic", name: "Font style for italic text", type: "text", value: "default"},
+                    {id: "fontStyleBoldItalic", name: "Font style for bold italic text", type: "text", value: "default"},
+                ]
+            },
+            {
+                id: "variations",
+                name: "Font Variations",
+                note: "Variable font specific settings, please only touch this if you know what you're doing!",
+                settings: [
+                    {id: "fontVariation", name: "Main font variant", type: "text", value: ""},
+                    {id: "fontVariationBold", name: "Font variant for bold text", type: "text", value: ""},
+                    {id: "fontVariationItalic", name: "Font variant for italic text", type: "text", value: ""},
+                    {id: "fontVariationBoldItalic", name: "Font variant for bold italic text", type: "text", value: ""},
+                ]
+            },
+            {
+                id: "advanced",
+                name: "Advanced Font & Cell Settings",
+                note: "The settings below have very little validation in Ghostty and can cause your terminal to become unusable. Be careful messing with any of these.",
+                settings: [
+                    {id: "adjustCellWidth", name: "Cell width adjustment", type: "text", value: ""},
+                    {id: "adjustCellHeight", name: "Cell height adjustment", type: "text", value: ""},
+                    {id: "adjustFontBaseline", name: "Font baseline adjustment", type: "text", value: ""},
+                    {id: "adjustUnderlinePosition", name: "Underline position adjustment", type: "text", value: ""},
+                    {id: "adjustUnderlineThickness", name: "Underline thickness adjustment", type: "text", value: ""},
+                    {id: "adjustStrikethroughPosition", name: "Strikethrough position adjustment", type: "text", value: ""},
+                    {id: "adjustStrikethroughThickness", name: "Strikethrough thickness adjustment", type: "text", value: ""},
+                    {id: "adjustCursorThickness", name: "Cursor thickness adjustment", type: "text", value: ""},
+                    {id: "graphemeWidthMethod", name: "Grapheme width calculation method", type: "dropdown", value: "unicode", options: ["unicode", "legacy"]},
+                ]
+            },
+
         ]
     },
+    // Keybinds
     {
         id: "mouse",
         name: "Mouse",
