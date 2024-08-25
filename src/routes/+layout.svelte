@@ -19,42 +19,33 @@
     import gtk from "$lib/images/tabs/gtk.svg";
     import linux from "$lib/images/tabs/linux.png";
     import macos from "$lib/images/tabs/macos.png";
+    import config from "$lib/stores/config";
 
-    let path;
+    let cssConfigVars = $derived.by(() => {
+        let str = "";
 
-    $: path = $page.url.pathname;
-    // let left = "";
-	// let top = "";
-    // let mainWindow;
+        const add = (key: string, val: string) => str += `--config-${key}: ${val};`;
 
-    // let moving = false;
-	
-	// function onMouseDown() {
-	// 	moving = true;
-	// }
-	
-	// function onMouseMove(e) {
-	// 	if (moving) {
-	// 		left += e.movementX;
-	// 		top += e.movementY;
-	// 	}
-	// }
-	
-	// function onMouseUp() {
-	// 	moving = false;
-	// }
+        // Add the base colors
+        add("bg", $config.background);
+        add("fg", $config.foreground);
+        add("selection-bg", $config.selectionInvertFgBg ? $config.foreground : $config.selectionBackground || $config.foreground);
+        add("selection-fg", $config.selectionInvertFgBg ? $config.background : $config.selectionForeground || $config.background);
 
-    // onMount(() => {
-    //     const rect = mainWindow.getBoundingClientRect();
-    //     left = rect.left;
-    //     top = rect.top;
-    //     console.log({left, top})
-    // })
+        // Add the palette colors
+        const paletteSize = $config.palette.length;
+        for (let c = 0; c < paletteSize; c++) add(`palette-${c}`, $config.palette[c]);
+
+        // TODO: consider honoring separate fonts for bold/italic and such in previews
+        // Add font settings
+        add("font-family", $config.fontFamily || "monospace");
+        add("font-size", `${$config.fontSize}px`);
+
+        return str;
+    });
 </script>
 
-<!-- bind:this={mainWindow} style="left: {left}px; top: {top}px;" -->
-<div class="app-window" >
-    <!-- <div class="draggable" on:mousedown={onMouseDown}></div> -->
+<div class="app-window" style={cssConfigVars}>
     <div id="sidebar">
         <div class="sidebar-header">
             <div class="window-actions-container">

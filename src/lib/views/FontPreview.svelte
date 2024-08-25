@@ -5,7 +5,6 @@
     import Switch from "$lib/components/settings/Switch.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
-    import config from "$lib/stores/config";
 
     let fontFamily = $state("monospace");
     let fontSize = $state(13);
@@ -15,21 +14,21 @@
 
 <div class="font-preview">
     <Group title="Font Playground" note="Use this section to test your fonts as they may look in the terminal along with colors and glyphs. Note: this playground does not set any actual settings.">
-        <div class="preview" style="background: {$config.background}; color: {$config.foreground}; font-family: {fontFamily}; font-size: {fontSize + "px"}; font-style: {italic ? "italic" : "normal"}; font-weight: {bold ? 700 : 400};">
+        <div class="preview" style="background: var(--config-bg); color: var(--config-fg); font-family: {fontFamily}; font-size: {fontSize + "px"}; font-style: {italic ? "italic" : "normal"}; font-weight: {bold ? 700 : 400};">
         <div class="row prompt">
-            <span style="color: {$config.palette[2]};">john</span>
-            <span style="color: {$config.palette[6]};">@</span>
-            <span style="color: {$config.palette[4]};">doe-pc</span>
-            <span style="color: {$config.palette[1]}; font-weight: 700;">$</span>
+            <span style="color: var(--config-palette-2);">john</span>
+            <span style="color: var(--config-palette-6);">@</span>
+            <span style="color: var(--config-palette-4);">doe-pc</span>
+            <span style="color: var(--config-palette-1); font-weight: 700;">$</span>
             ls
         </div>
-        <div class="row">-rwxr-xr-x 1 root <span style="color: {$config.palette[3]}; font-weight: 700;">Documents</span></div>
-        <div class="row">-rwxr-xr-x 1 root <span style="color: {$config.palette[0]}; background: {$config.palette[2]}; font-weight: 700;">Downloads</span></div>
-        <div class="row">-rwxr-xr-x 1 root <span style="color: {$config.palette[0]}; background: {$config.palette[8]}; font-weight: 700;">Pictures</span></div>
-        <div class="row">-rwxr-xr-x 1 root <span style="color: {$config.palette[12]}; font-weight: 700;">Music</span></div>
-        <div class="row">-rwxr-xr-x 1 root <span style="color: {$config.palette[2]};">実行可能ファイル</span></div>
-        <div class="row">-rwxr-xr-x 1 root <span style="color: {$config.palette[6]};">sym</span> -> <span style="color: {$config.palette[1]};">link</span></div>
-        <div class="row">Icons:     <span style="background-color: {$config.palette[1]}; color: {$config.background};"> Powerline</span><span style="color: {$config.palette[1]};"></span></div>
+        <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-3); font-weight: 700;">Documents</span></div>
+        <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-0); background: var(--config-palette-2); font-weight: 700;">Downloads</span></div>
+        <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-0); background: var(--config-palette-8); font-weight: 700;">Pictures</span></div>
+        <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-12); font-weight: 700;">Music</span></div>
+        <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-2);">実行可能ファイル</span></div>
+        <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-6);">sym</span> -> <span style="color: var(--config-palette-1);">link</span></div>
+        <div class="row">Icons:     <span style="background-color: var(--config-palette-1); color: var(--config-bg);"> Powerline</span><span style="color: var(--config-palette-1);"></span></div>
         </div>
         <Separator />
         <Item name="Font family" note="Due to cross-browser limitations, you'll need to manually type in a font-face currently on your system that you want to try out."><Text bind:value={fontFamily} /></Item>

@@ -16,22 +16,22 @@
     let cursorColor = $derived($config.cursorInvertFgBg ? $config.foreground : ($config.cursorColor || $config.foreground));
     let cursorText = $derived(isCursorVisible ? $config.cursorInvertFgBg ? $config.background : ($config.cursorText || $config.background) : $config.foreground);
     let cursorOpacity = $derived(isCursorVisible ? Math.round($config.cursorOpacity * 255).toString(16) : "00");
-    $inspect(cursorOpacity);
+    // $inspect(cursorOpacity);
 </script>
 
-<div class="preview" style="background: {$config.background}; color: {$config.foreground}; font-family: {$config.fontFamily || "monospace"}; font-size: {$config.fontSize + "px"};">
+<div class="preview" style="background: var(--config-bg); color: var(--config-fg); font-family: var(--config-font-family); font-size: var(--config-font-size);">
     <div class="row prompt">
-        <span style="color: {$config.palette[2]};">john</span>
-        <span style="color: {$config.palette[6]};">@</span>
-        <span style="color: {$config.palette[4]};">doe-pc</span>
-        <span style="color: {$config.palette[1]}; font-weight: 700;">$</span>
+        <span style="color: var(--config-palette-2);">john</span>
+        <span style="color: var(--config-palette-6);">@</span>
+        <span style="color: var(--config-palette-4);">doe-pc</span>
+        <span style="color: var(--config-palette-1); font-weight: 700;">$</span>
         git commit -m "<span class="cursor {$config.cursorStyle}" style="color: {cursorText}; background-color: {cursorColor}{cursorOpacity}; border-color: {cursorColor}{cursorOpacity};">"</span>
     </div>
 </div>
 
 <style>
 .preview {
-    height: 32px;
+    max-height: 60px;
     overflow-y: auto;
     padding: 8px;
     border-radius: 8px;
@@ -46,7 +46,7 @@
 }
 
 .cursor {
-    margin-left: 2px;
+    margin-left: 1px;
 }
 
 .cursor.bar,
@@ -57,17 +57,17 @@
 }
 
 .cursor.bar {
-    border-left: 2px solid transparent;
+    border-left: 1px solid transparent;
     margin-left: 0;
 }
 
 .cursor.underline {
-    border-bottom: 2px solid transparent;
+    border-bottom: 1px solid transparent;
 }
 
 .cursor.block_hollow {
-    border: 2px solid transparent;
-    margin-top: -2px;
+    border: 1px solid transparent;
+    margin-top: -1px;
     margin-left: 0;
 }
 </style>
