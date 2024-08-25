@@ -1,34 +1,39 @@
 <script lang="ts">
-    export let title = "Ghostty Configurator";
-
+    import {onNavigate} from "$app/navigation";
     import History from "$lib/components/History.svelte";
-    import { writable } from "svelte/store";
+    import type {Snippet} from "svelte";
 
-    let isScrolling = writable(false);
-    let bufferHeight = writable(53);
-    // let paddingHeight = writable(0);
+
+    interface Props {
+        children: Snippet;
+        title?: string;
+    }
+
+    let {children, title = "Ghostty Config"}: Props = $props();
+    let isScrolling = $state(false);
+    let bufferHeight = $state(53);
     
     function containerScroll(event: Event) {
-        isScrolling.set((event.target as HTMLDivElement).scrollTop > 0);
+        isScrolling = (event.target as HTMLDivElement).scrollTop > 0;
         const scrollerPos = (event.target as HTMLDivElement).scrollTop;
         if (scrollerPos >= 53) {
-            bufferHeight.set(0);
-            // paddingHeight.set(53);
+            bufferHeight = 0;
         }
         else {
-            bufferHeight.set(53 - scrollerPos);
-            // paddingHeight.set(scrollerPos);
+            bufferHeight = 53 - scrollerPos;
         }
     }
+
+    let scroller: HTMLDivElement;
+    onNavigate(() => {scroller.scrollTop = 0;});
 </script>
 
 <div class="content-page">
-    <div class="content-header" class:scrolling={$isScrolling}>
+    <div class="content-header" class:scrolling={isScrolling}>
         <History /><h1>{title}</h1>
     </div>
-    <!-- <div class="content-buffer" style="min-height: {$bufferHeight}px"></div> -->
-    <div class="content-container" style="margin-top: {$bufferHeight}px" on:scroll={containerScroll}>
-        <slot></slot>
+    <div class="content-container" bind:this={scroller} style="margin-top: {bufferHeight}px" onscroll={containerScroll}>
+        {@render children()}
     </div>
 </div>
 
@@ -45,7 +50,6 @@
 .content-header {
     display: flex;
     align-items: center;
-    /* font-weight: 700; */
     font-size: 16pt;
     gap: 10px;
     padding: 10px 20px 5px 20px;
@@ -58,10 +62,6 @@
     right: 0;
     z-index: 1;
 }
-
-/* .content-buffer {
-    display: flex;
-} */
 
 .content-header.scrolling {
     background: rgba(46, 41, 50, 0.9);
@@ -78,6 +78,5 @@
     overflow-y: auto;
     padding: 8px 20px 10px 20px;
     flex: 1;
-    /* padding-top: 60px; */
 }
 </style>

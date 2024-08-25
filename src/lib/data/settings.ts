@@ -63,7 +63,7 @@ interface Palette extends BaseSettingItem {
     type: "palette";
 }
 
-type KeybindString = `${string}=${string}`;
+export type KeybindString = `${string}=${string}`;
 interface Keybinds extends BaseSettingItem {
     value: KeybindString[];
     type: "keybinds";

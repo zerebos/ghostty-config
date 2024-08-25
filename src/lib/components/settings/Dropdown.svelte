@@ -3,17 +3,8 @@
         value: string;
         options: (string | {name: string, value: string})[]
     };
-    // import type { ChangeEventHandler } from "svelte/elements";
+
     let {value = $bindable(), options}: Props = $props();
-
-    // export let value: number;
-    // export let min: number;
-    // export let max: number;
-    // export let step: number;
-
-    // function change(event: Event & {currentTarget: HTMLInputElement}) {
-    //     value = event.currentTarget.value;
-    // }
 </script>
 
 <select bind:value>
@@ -29,11 +20,11 @@
 <style>
 select {
     background: #2F2935;
-    border: 1px solid #443E4B;
+    border: 0px solid #443E4B;
     border-radius: 4px;
     outline: none;
     color: inherit;
-    /* text-align: right; */
+    text-align: right;
     max-width: 175px;
 }
 

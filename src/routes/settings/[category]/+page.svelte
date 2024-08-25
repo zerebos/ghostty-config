@@ -8,7 +8,7 @@
     import Separator from "$lib/components/settings/Separator.svelte";
 
     import settings from "$lib/data/settings";
-    import config from "$lib/stores/config";
+    import config from "$lib/stores/config.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
@@ -19,10 +19,11 @@
     import CursorPreview from "$lib/views/CursorPreview.svelte";
     import PalettePreview from "$lib/views/PalettePreview.svelte";
 
-    $: category = settings.find(c => c.id === $page.params.category);
+
+    const category = $derived(settings.find(c => c.id === $page.params.category));
 </script>
 
-<Page title="{category?.name ?? $page.params.category}">
+<Page title={category?.name ?? $page.params.category}>
     {#if category}
         {#if $page.params.category === "fonts"}
             <FontPreview />
@@ -43,17 +44,17 @@
                     {#if i !== 0}<Separator />{/if}
                     <Item name={setting.name} note={setting.note}>
                         {#if setting.type === "switch"}
-                            <Switch bind:checked={$config[setting.id]} />
+                            <Switch bind:checked={config[setting.id as keyof typeof config]} />
                         {:else if setting.type === "text"}
-                            <Text bind:value={$config[setting.id]} />
+                            <Text bind:value={config[setting.id as keyof typeof config]} />
                         {:else if setting.type === "number"}
-                            <Number bind:value={$config[setting.id]} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
+                            <Number bind:value={config[setting.id as keyof typeof config]} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
                         {:else if setting.type === "dropdown"}
-                            <Dropdown bind:value={$config[setting.id]} options={setting.options} />
+                            <Dropdown bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
                         {:else if setting.type === "color"}
-                            <Color bind:value={$config[setting.id]} />
+                            <Color bind:value={config[setting.id as keyof typeof config]} />
                         {:else if setting.type === "palette"}
-                            <Palette bind:value={$config[setting.id]} />
+                            <Palette bind:value={config[setting.id as keyof typeof config]} />
                         {/if}
                     </Item>
                 {/each}

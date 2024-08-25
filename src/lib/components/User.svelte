@@ -1,14 +1,10 @@
 <script lang="ts">
-    export let route = "";
-    export let name = "Ghostty Config";
-    export let subtext = "Unofficial Tool";
-
     import {page} from "$app/stores";
     import logo from "$lib/images/ghost.svg";
 
-    let path;
-
-    $: path = $page.url.pathname;
+    
+    const {route = "", name = "Ghostty Config", subtext = "Unofficial Tool"} = $props();
+    const path = $derived($page.url.pathname);
 </script>
 
 

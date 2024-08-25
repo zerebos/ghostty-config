@@ -7,19 +7,10 @@
         size?: number;
         range?: boolean;
     };
-    // import type { ChangeEventHandler } from "svelte/elements";
+
     let {value = $bindable(), min, max, step, size, range}: Props = $props();
 
     const inputType = range ? "range" : "number";
-
-    // export let value: number;
-    // export let min: number;
-    // export let max: number;
-    // export let step: number;
-
-    // function change(event: Event & {currentTarget: HTMLInputElement}) {
-    //     value = event.currentTarget.value;
-    // }
 </script>
 
 <div class="input-wrapper">

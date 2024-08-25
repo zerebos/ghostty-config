@@ -2,7 +2,8 @@
     import type {HexColor} from "$lib/utils/colors";
     import Color from "./Color.svelte";
 
-    export let value: HexColor[] = [];
+    
+    const {value = $bindable([])}: {value: HexColor[]} = $props();
 </script>
 
 <div class="grid-container">

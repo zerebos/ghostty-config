@@ -1,21 +1,21 @@
 <script lang="ts">
-    import config from "$lib/stores/config";
+    import config from "$lib/stores/config.svelte";
     import {onMount} from "svelte";
 
     let isCursorVisible = $state(true);
 
     onMount(() => {
         const interval = setInterval(() => {
-            if ($config.cursorStyleBlink !== "false") isCursorVisible = !isCursorVisible;
+            if (config.cursorStyleBlink !== "false") isCursorVisible = !isCursorVisible;
             else isCursorVisible = true;
         }, 1000);
         return () => clearInterval(interval);
     });
 
     // TODO: make less gross with less ternaries
-    let cursorColor = $derived($config.cursorInvertFgBg ? $config.foreground : ($config.cursorColor || $config.foreground));
-    let cursorText = $derived(isCursorVisible ? $config.cursorInvertFgBg ? $config.background : ($config.cursorText || $config.background) : $config.foreground);
-    let cursorOpacity = $derived(isCursorVisible ? Math.round($config.cursorOpacity * 255).toString(16) : "00");
+    let cursorColor = $derived(config.cursorInvertFgBg ? config.foreground : (config.cursorColor || config.foreground));
+    let cursorText = $derived(isCursorVisible ? config.cursorInvertFgBg ? config.background : (config.cursorText || config.background) : config.foreground);
+    let cursorOpacity = $derived(isCursorVisible ? Math.round(config.cursorOpacity * 255).toString(16) : "00");
     // $inspect(cursorOpacity);
 </script>
 
@@ -25,7 +25,7 @@
         <span style="color: var(--config-palette-6);">@</span>
         <span style="color: var(--config-palette-4);">doe-pc</span>
         <span style="color: var(--config-palette-1); font-weight: 700;">$</span>
-        git commit -m "<span class="cursor {$config.cursorStyle}" style="color: {cursorText}; background-color: {cursorColor}{cursorOpacity}; border-color: {cursorColor}{cursorOpacity};">"</span>
+        git commit -m "<span class="cursor {config.cursorStyle}" style="color: {cursorText}; background-color: {cursorColor}{cursorOpacity}; border-color: {cursorColor}{cursorOpacity};">"</span>
     </div>
 </div>
 

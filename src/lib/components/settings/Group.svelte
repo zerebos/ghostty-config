@@ -1,6 +1,7 @@
 <script lang="ts">
-    export let title = "";
-    export let note = "";
+    import type {Snippet} from "svelte";
+
+    const {title = "", note = "", children}: {title?: string, note?: string, children: Snippet} = $props();
 </script>
 
 <div class="setting-group">
@@ -9,7 +10,7 @@
         {#if note}<h4>{note}</h4>{/if}
     </div>
     <div class="settings-items">
-        <slot />
+        {@render children()}
     </div>
 </div>
 

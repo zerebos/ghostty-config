@@ -1,17 +1,21 @@
 <script lang="ts">
-    export let route = "";
-
     import {page} from "$app/stores";
+    import type {Snippet} from "svelte";
 
-    let path;
 
-    $: path = $page.url.pathname;
+    interface Props {
+        children: Snippet;
+        icon: Snippet;
+        route?: string;
+    }
+    const {children, icon, route = ""}: Props = $props();
+    const path = $derived($page.url.pathname);
 </script>
 
 
 <a href="{route}" class={"nav-tab" + (path === route ? " selected" : "")}>
-    <div class="tab-icon"><slot name="icon" /></div>
-    <div class="tab-label"><slot /></div>
+    <div class="tab-icon">{@render icon()}</div>
+    <div class="tab-label">{@render children()}</div>
 </a>
 
 

@@ -1,6 +1,4 @@
 <script lang="ts">
-    // import {onMount} from "svelte";
-    import {page} from "$app/stores";
     import Gap from "$lib/components/Gap.svelte";
     import Tab from "$lib/components/Tab.svelte";
     import User from "$lib/components/User.svelte";
@@ -19,7 +17,7 @@
     import gtk from "$lib/images/tabs/gtk.svg";
     import linux from "$lib/images/tabs/linux.png";
     import macos from "$lib/images/tabs/macos.png";
-    import config from "$lib/stores/config";
+    import config from "$lib/stores/config.svelte";
 
     let cssConfigVars = $derived.by(() => {
         let str = "";
@@ -27,22 +25,24 @@
         const add = (key: string, val: string) => str += `--config-${key}: ${val};`;
 
         // Add the base colors
-        add("bg", $config.background);
-        add("fg", $config.foreground);
-        add("selection-bg", $config.selectionInvertFgBg ? $config.foreground : $config.selectionBackground || $config.foreground);
-        add("selection-fg", $config.selectionInvertFgBg ? $config.background : $config.selectionForeground || $config.background);
+        add("bg", config.background);
+        add("fg", config.foreground);
+        add("selection-bg", config.selectionInvertFgBg ? config.foreground : config.selectionBackground || config.foreground);
+        add("selection-fg", config.selectionInvertFgBg ? config.background : config.selectionForeground || config.background);
 
         // Add the palette colors
-        const paletteSize = $config.palette.length;
-        for (let c = 0; c < paletteSize; c++) add(`palette-${c}`, $config.palette[c]);
+        const paletteSize = config.palette.length;
+        for (let c = 0; c < paletteSize; c++) add(`palette-${c}`, config.palette[c]);
 
         // TODO: consider honoring separate fonts for bold/italic and such in previews
         // Add font settings
-        add("font-family", $config.fontFamily || "monospace");
-        add("font-size", `${$config.fontSize}px`);
+        add("font-family", config.fontFamily || "monospace");
+        add("font-size", `${config.fontSize}px`);
 
         return str;
     });
+
+    let {children} = $props();
 </script>
 
 <div class="app-window" style={cssConfigVars}>
@@ -60,57 +60,57 @@
             <User route="/" />
             <Gap />
             <Tab route="/settings/application">
-                <img slot="icon" src={application} alt="Application Settings" />
+                {#snippet icon()}<img  src={application} alt="Application Settings" />{/snippet}
                 Application
             </Tab>
             <Tab route="/settings/clipboard">
-                <img slot="icon" src={clipboard} alt="Clipboard Settings" />
+                {#snippet icon()}<img  src={clipboard} alt="Clipboard Settings" />{/snippet}
                 Clipboard
             </Tab>
             <Tab route="/settings/window">
-                <img slot="icon" src={window} alt="Window Settings" />
+                {#snippet icon()}<img  src={window} alt="Window Settings" />{/snippet}
                 Window
             </Tab>
             <Gap />
             <Tab route="/settings/colors">
-                <img slot="icon" src={colors} alt="Color Settings" />
+                {#snippet icon()}<img  src={colors} alt="Color Settings" />{/snippet}
                 Colors
             </Tab>
             <Tab route="/settings/fonts">
-                <img slot="icon" src={fonts} alt="Font Settings" />
+                {#snippet icon()}<img  src={fonts} alt="Font Settings" />{/snippet}
                 Fonts
             </Tab>
             <Gap />
             <Tab route="/settings/keybinds">
-                <img slot="icon" src={keybinds} alt="Keybind Settings" />
+                {#snippet icon()}<img src={keybinds} alt="Keybind Settings" />{/snippet}
                 Keybinds
             </Tab>
             <Tab route="/settings/mouse">
-                <img slot="icon" src={mouse} alt="Mouse Settings" />
+                {#snippet icon()}<img  src={mouse} alt="Mouse Settings" />{/snippet}
                 Mouse
             </Tab>
             <Gap />
             <Tab route="/settings/gtk">
-                <div class="icon-wrapper" slot="icon"><img src={gtk} alt="GTK Settings" /></div>
+                {#snippet icon()}<div class="icon-wrapper"><img src={gtk} alt="GTK Settings" /></div>{/snippet}
                 GTK
             </Tab>
             <Tab route="/settings/linux">
-                <img slot="icon" src={linux} alt="Linux Settings" />
+                {#snippet icon()}<img  src={linux} alt="Linux Settings" />{/snippet}
                 Linux
             </Tab>
             <Tab route="/settings/macos">
-                <img slot="icon" src={macos} alt="MacOS Settings" />
+                {#snippet icon()}<img  src={macos} alt="MacOS Settings" />{/snippet}
                 macOS
             </Tab>
         </nav>
     </div>
     <div id="content-view">
-        <slot></slot>
+        {@render children()}
     </div>
 
 </div>
 
-<!-- <svelte:window on:mouseup={onMouseUp} on:mousemove={onMouseMove} /> -->
+<!-- <svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} /> -->
 
 <style>
 .app-window {
