@@ -9,10 +9,10 @@
         title?: string;
     }
 
-    let {children, title = "Ghostty Config"}: Props = $props();
+    const {children, title = "Ghostty Config"}: Props = $props();
     let isScrolling = $state(false);
     let bufferHeight = $state(53);
-    
+
     function containerScroll(event: Event) {
         isScrolling = (event.target as HTMLDivElement).scrollTop > 0;
         const scrollerPos = (event.target as HTMLDivElement).scrollTop;
@@ -32,7 +32,7 @@
     <div class="content-header" class:scrolling={isScrolling}>
         <History /><h1>{title}</h1>
     </div>
-    <div class="content-container" bind:this={scroller} style="margin-top: {bufferHeight}px" onscroll={containerScroll}>
+    <div class="content-container" bind:this={scroller} style:margin-top="{bufferHeight}px" onscroll={containerScroll}>
         {@render children()}
     </div>
 </div>

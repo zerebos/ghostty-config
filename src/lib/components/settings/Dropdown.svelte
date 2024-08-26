@@ -4,15 +4,16 @@
         options: (string | {name: string, value: string})[]
     };
 
+    // eslint-disable-next-line prefer-const
     let {value = $bindable(), options}: Props = $props();
 </script>
 
 <select bind:value>
-    {#each options as option}
+    {#each options as option, i (i)}
         {#if typeof(option) === "string"}
-            <option value="{option}">{option}</option>
+            <option value={option}>{option}</option>
         {:else}
-            <option value="{option.value}">{option.name}</option>
+            <option value={option.value}>{option.name}</option>
         {/if}
     {/each}
 </select>

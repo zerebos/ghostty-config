@@ -21,15 +21,16 @@
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
+    const title = $derived(category?.name ?? $page.params.category);
 </script>
 
 <svelte:head>
-    <title>Ghostyy Config - {category?.name ?? $page.params.category}</title>
+    <title>Ghostyy Config - {title}</title>
 </svelte:head>
 
-<Page title={category?.name ?? $page.params.category}>
+<Page {title}>
     {#if category}
-        {#if $page.params.category === "fonts"}
+        {#if category.id === "fonts"}
             <FontPreview />
         {/if}
         {#each category.groups as group (group.id)}

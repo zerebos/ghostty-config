@@ -13,7 +13,7 @@
 </script>
 
 
-<a href="{route}" class={"nav-tab" + (path === route ? " selected" : "")}>
+<a href={route} class={"nav-tab" + (path === route ? " selected" : "")}>
     <div class="tab-icon">{@render icon()}</div>
     <div class="tab-label">{@render children()}</div>
 </a>

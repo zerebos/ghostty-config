@@ -4,6 +4,7 @@
     const {title = "", note = "", children}: {title?: string, note?: string, children: Snippet} = $props();
 </script>
 
+<!-- eslint-disable-next-line svelte/no-unused-class-name -->
 <div class="setting-group">
     <div class="group-info">
         {#if title}<h2>{title}</h2>{/if}

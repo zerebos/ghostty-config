@@ -13,24 +13,28 @@
     });
 
     // TODO: make less gross with less ternaries
-    let cursorColor = $derived(config.cursorInvertFgBg ? config.foreground : (config.cursorColor || config.foreground));
-    let cursorText = $derived(isCursorVisible ? config.cursorInvertFgBg ? config.background : (config.cursorText || config.background) : config.foreground);
-    let cursorOpacity = $derived(isCursorVisible ? Math.round(config.cursorOpacity * 255).toString(16) : "00");
+    const cursorColor = $derived(config.cursorInvertFgBg ? config.foreground : (config.cursorColor || config.foreground));
+    const cursorText = $derived(isCursorVisible ? config.cursorInvertFgBg ? config.background : (config.cursorText || config.background) : config.foreground);
+    const cursorOpacity = $derived(isCursorVisible ? Math.round(config.cursorOpacity * 255).toString(16) : "00");
     // $inspect(cursorOpacity);
 </script>
 
-<div class="preview" style="background: var(--config-bg); color: var(--config-fg); font-family: var(--config-font-family); font-size: var(--config-font-size);">
+<div class="preview">
     <div class="row prompt">
-        <span style="color: var(--config-palette-2);">john</span>
-        <span style="color: var(--config-palette-6);">@</span>
-        <span style="color: var(--config-palette-4);">doe-pc</span>
-        <span style="color: var(--config-palette-1); font-weight: 700;">$</span>
-        git commit -m "<span class="cursor {config.cursorStyle}" style="color: {cursorText}; background-color: {cursorColor}{cursorOpacity}; border-color: {cursorColor}{cursorOpacity};">"</span>
+        <span style:color="var(--config-palette-2)">john</span>
+        <span style:color="var(--config-palette-6)">@</span>
+        <span style:color="var(--config-palette-4)">doe-pc</span>
+        <span style:color="var(--config-palette-1)" style:font-weight="700">$</span>
+        git commit -m "<span class="cursor {config.cursorStyle}" style:color={cursorText} style:border-color="{cursorColor}{cursorOpacity}" style:background-color="{cursorColor}{cursorOpacity}">"</span>
     </div>
 </div>
 
 <style>
 .preview {
+    background: var(--config-bg);
+    font-family: var(--config-font-family);
+    font-size: var(--config-font-size);
+    color: var(--config-fg);
     max-height: 60px;
     overflow-y: auto;
     padding: 8px;
@@ -40,7 +44,8 @@
     /* border: 1px solid #4B4652; */
 }
 
-.preview .row {
+.preview .row,
+.prompt {
     display: flex;
     white-space: pre;
 }

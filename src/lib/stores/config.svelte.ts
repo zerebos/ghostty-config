@@ -1,6 +1,6 @@
 import {dev} from "$app/environment";
-import settings, { type KeybindString } from "$lib/data/settings";
-import type { HexColor } from "$lib/utils/colors";
+import settings, {type KeybindString} from "$lib/data/settings";
+import type {HexColor} from "$lib/utils/colors";
 // import defs from "../data/defaults.json";
 
 // TODO: find a good way to properly type the config
@@ -20,11 +20,12 @@ if (dev) {
     console.log(defaults);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const config = $state(Object.assign({}, defaults)) as Record<keyof DefaultConfig, any>;
 
 export function printDifferences() {
     const output: Partial<typeof defaults> = {};
-    
+
     for (const key in config) {
         if (config[key as keyof DefaultConfig] !== defaults[key as keyof DefaultConfig]) output[key as keyof DefaultConfig] = config[key as keyof DefaultConfig];
     }

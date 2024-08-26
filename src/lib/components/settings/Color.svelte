@@ -1,14 +1,15 @@
 <script lang="ts">
     import {luminosity, isDark, type HexColor} from "$lib/utils/colors";
 
+    // eslint-disable-next-line prefer-const
     let {value = $bindable(), size = 20, label = ""}: {value: HexColor, size?: number, label?: string} = $props();
-    let borderColor = $derived(`rgba(255, 255, 255, ${luminosity(value) * 0.0027451 + 0.3})`)
-    let labelColor = $derived(isDark(value) ? `var(--color-text)` : "black");
+    const borderColor = $derived(`rgba(255, 255, 255, ${luminosity(value) * 0.0027451 + 0.3})`);
+    const labelColor = $derived(isDark(value) ? `var(--color-text)` : "black");
 </script>
 
-<div class="color-wrap" style={`background-color: ${value}; border-color: ${borderColor}; width: ${size}px; height: ${size}px`}>
-    {#if label}<span class="label" style="color: {labelColor};">{label}</span>{/if}
-    <input type="color" bind:value style={`width: ${size}px; height: ${size}px`} />
+<div class="color-wrap" style:width="{size}px" style:height="{size}px" style:background-color={value} style:border-color={borderColor}>
+    {#if label}<span class="label" style:color={labelColor}>{label}</span>{/if}
+    <input type="color" bind:value style:width="{size}px" style:height="{size}px" />
 </div>
 
 <style>

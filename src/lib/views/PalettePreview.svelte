@@ -8,8 +8,8 @@
     // I've used it like 4 times now
 </script>
 
-<div class="font-preview">
-    <div class="preview" style="background: var(--config-bg); color: var(--config-fg); font-family: var(--config-font-family); font-size: var(--config-font-size);">
+
+<div class="preview">
     <div class="row prompt">
         <span class="p2 bold">ghostty@macos</span>
         <span class="fg">:</span>
@@ -116,11 +116,14 @@
         <span>&nbsp;</span>
         <span class="p10"> lsix</span>
     </div>
-    </div>
 </div>
 
 <style>
 .preview {
+    background: var(--config-bg);
+    font-family: var(--config-font-family);
+    font-size: var(--config-font-size);
+    color: var(--config-fg);
     max-height: 200px;
     overflow-y: auto;
     padding: 8px;
@@ -129,27 +132,25 @@
     box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
 }
 
-.preview .row {
+.preview .row,
+.prompt,
+.date {
     display: flex;
     white-space: pre;
     /* width: 100%; */
     /* overflow: hidden; */
 }
 
-.date {
-    /* display: none; */
-}
-
 .bold {font-weight: 700;}
 
 .fg {color: var(--config-fg);}
 
-.p0 {color: var(--config-palette-0);}
+/* .p0 {color: var(--config-palette-0);} */
 .p1 {color: var(--config-palette-1);}
 .p2 {color: var(--config-palette-2);}
 .p3 {color: var(--config-palette-3);}
 .p4 {color: var(--config-palette-4);}
-.p5 {color: var(--config-palette-5);}
+/* .p5 {color: var(--config-palette-5);} */
 .p6 {color: var(--config-palette-6);}
 .p7 {color: var(--config-palette-7);}
 .p8 {color: var(--config-palette-8);}
@@ -157,7 +158,7 @@
 .p10 {color: var(--config-palette-10);}
 .p11 {color: var(--config-palette-11);}
 .p12 {color: var(--config-palette-12);}
-.p13 {color: var(--config-palette-13);}
+/* .p13 {color: var(--config-palette-13);}
 .p14 {color: var(--config-palette-14);}
-.p15 {color: var(--config-palette-15);}
+.p15 {color: var(--config-palette-15);} */
 </style>

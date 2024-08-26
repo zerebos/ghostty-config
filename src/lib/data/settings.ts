@@ -182,7 +182,7 @@ export default [
                     {id: "windowPaddingY", name: "Vertical window padding", type: "text", value: "2"},
                     {id: "windowPaddingBalance", name: "Auto-balance window padding", type: "switch", value: false},
                     {id: "windowPaddingColor", name: "Window padding color", type: "dropdown", value: "extend", options: ["background", "extend", "extend-always"]},
-                    
+
                     // maybe move to colors
                     {id: "backgroundOpacity", name: "Background opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
                     {id: "backgroundBlurRadius", name: "Background blur radius", note: "A value of 20 is reasonable for a good looking blur, going beyond that can cause rendering and performance issues.", type: "number", range: true, value: 0, min: 0, max: 50, step: 1},

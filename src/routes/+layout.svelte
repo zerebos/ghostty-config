@@ -19,7 +19,7 @@
     import macos from "$lib/images/tabs/macos.png";
     import config from "$lib/stores/config.svelte";
 
-    let cssConfigVars = $derived.by(() => {
+    const cssConfigVars = $derived.by(() => {
         let str = "";
 
         const add = (key: string, val: string) => str += `--config-${key}: ${val};`;
@@ -42,17 +42,18 @@
         return str;
     });
 
-    let {children} = $props();
+    const {children} = $props();
 </script>
 
+<!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
 <div class="app-window" style={cssConfigVars}>
     <div id="sidebar">
         <div class="sidebar-header">
             <div class="window-actions-container">
                 <div class="window-actions">
-                    <button class="window-dot" style="background: rgb(242, 95, 88)"><span>×</span></button>
-                    <button class="window-dot" style="background: rgb(251, 190, 60)"><span>-</span></button>
-                    <button class="window-dot" style="background: rgb(88, 203, 66)"><span>+</span></button>
+                    <button class="window-dot" style:background="rgb(242, 95, 88)" type="button"><span>×</span></button>
+                    <button class="window-dot" style:background="rgb(251, 190, 60)" type="button"><span>-</span></button>
+                    <button class="window-dot" style:background="rgb(88, 203, 66)" type="button"><span>+</span></button>
                 </div>
             </div>
         </div>
@@ -60,24 +61,24 @@
             <User route="/" />
             <Gap />
             <Tab route="/settings/application">
-                {#snippet icon()}<img  src={application} alt="Application Settings" />{/snippet}
+                {#snippet icon()}<img src={application} alt="Application Settings" />{/snippet}
                 Application
             </Tab>
             <Tab route="/settings/clipboard">
-                {#snippet icon()}<img  src={clipboard} alt="Clipboard Settings" />{/snippet}
+                {#snippet icon()}<img src={clipboard} alt="Clipboard Settings" />{/snippet}
                 Clipboard
             </Tab>
             <Tab route="/settings/window">
-                {#snippet icon()}<img  src={window} alt="Window Settings" />{/snippet}
+                {#snippet icon()}<img src={window} alt="Window Settings" />{/snippet}
                 Window
             </Tab>
             <Gap />
             <Tab route="/settings/colors">
-                {#snippet icon()}<img  src={colors} alt="Color Settings" />{/snippet}
+                {#snippet icon()}<img src={colors} alt="Color Settings" />{/snippet}
                 Colors
             </Tab>
             <Tab route="/settings/fonts">
-                {#snippet icon()}<img  src={fonts} alt="Font Settings" />{/snippet}
+                {#snippet icon()}<img src={fonts} alt="Font Settings" />{/snippet}
                 Fonts
             </Tab>
             <Gap />
@@ -86,7 +87,7 @@
                 Keybinds
             </Tab>
             <Tab route="/settings/mouse">
-                {#snippet icon()}<img  src={mouse} alt="Mouse Settings" />{/snippet}
+                {#snippet icon()}<img src={mouse} alt="Mouse Settings" />{/snippet}
                 Mouse
             </Tab>
             <Gap />
@@ -95,11 +96,11 @@
                 GTK
             </Tab>
             <Tab route="/settings/linux">
-                {#snippet icon()}<img  src={linux} alt="Linux Settings" />{/snippet}
+                {#snippet icon()}<img src={linux} alt="Linux Settings" />{/snippet}
                 Linux
             </Tab>
             <Tab route="/settings/macos">
-                {#snippet icon()}<img  src={macos} alt="MacOS Settings" />{/snippet}
+                {#snippet icon()}<img src={macos} alt="MacOS Settings" />{/snippet}
                 macOS
             </Tab>
         </nav>
@@ -115,7 +116,7 @@
 <style>
 .app-window {
     user-select: none;
-		/* cursor: move; */
+    /* cursor: move; */
     display: flex;
     position: relative;
     flex-direction: row;
@@ -166,7 +167,6 @@
     border-right: 1px solid black;
     display: flex;
     flex-direction: column;
-    
 }
 
 .sidebar-header {

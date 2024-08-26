@@ -8,7 +8,7 @@
         if (event.key === "Escape") selected = [];
         const shouldExpand = event.ctrlKey || event.shiftKey;
         if (!shouldExpand && selected.length) return;
-        if (event.key === "ArrowUp") console.log("up");
+        // if (event.key === "ArrowUp") console.log("up");
     }
 
     function select(index: number) {
@@ -17,23 +17,23 @@
             if (!event.ctrlKey) return selected = [index];
             if (!selected.includes(index)) return selected.push(index);
             selected.splice(selected.indexOf(index), 1);
-        }
+        };
     }
 
     function addNew() {
-        console.log("ADD NEW");
+        // console.log("ADD NEW");
         value = [...value, "="];
     }
 
     function remove() {
-        console.log(selected.map(i => i))
-        console.log(value.map(v => v))
+        // console.log(selected.map(i => i));
+        // console.log(value.map(v => v));
         value = value.filter((v, i) => {
             const shouldRemove = selected.includes(i);
-            console.log(`Filtering ${v} ${i} ${shouldRemove}`)
+            // console.log(`Filtering ${v} ${i} ${shouldRemove}`);
             return !shouldRemove;
         });
-        console.log(value.map(v => v))
+        // console.log(value.map(v => v));
         selected = [];
     }
 
@@ -44,7 +44,7 @@
             const indexToUpdate = isAction ? 1 : 0;
             current[indexToUpdate] = (event.target as HTMLInputElement).value;
             value[index] = current.join("=");
-        }
+        };
     }
 </script>
 
@@ -53,15 +53,13 @@
         {#each value as _, i (i)}
             <div class="keybind" class:selected={selected.includes(i)} onclick={select(i)} onkeypress={() => select(i)} role="option" tabindex="0" aria-selected={selected.includes(i)}>
                 <Text value={value[i].split("=")[0]} blank={true} align="left" change={update(i)} />
-                <div class="action">
-                    <Text value={value[i].split("=")[1]} blank={true} change={update(i, true)} />
-                </div>
+                <Text value={value[i].split("=")[1]} blank={true} change={update(i, true)} />
             </div>
         {/each}
     </div>
     <div class="list-controls">
-        <button onclick={addNew}>+</button>
-        <button onclick={remove} disabled={selected.length === 0}>-</button>
+        <button onclick={addNew} type="button">+</button>
+        <button onclick={remove} disabled={selected.length === 0} type="button">-</button>
     </div>
 </div>
 
@@ -122,7 +120,7 @@ button {
     font-size: 1.5rem;
     position: relative;
 }
-/* 
+/*
 button + button {
     margin-left: 2px;
 } */

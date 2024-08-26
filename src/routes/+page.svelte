@@ -24,8 +24,8 @@
             <div class="user-subtext">Unofficial Tool</div>
         </div>
     </div>
-	<p>Here you will be able to import/export and maybe launch the terminal preview overlay. Maybe some settings specific to the config tool as well?</p>
-    <button onclick={debug}>debug</button>
+    <p>Here you will be able to import/export and maybe launch the terminal preview overlay. Maybe some settings specific to the config tool as well?</p>
+    <button onclick={debug} type="button">debug</button>
 </section>
 </Page>
 

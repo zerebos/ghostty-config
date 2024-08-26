@@ -2,13 +2,13 @@
     import type {HexColor} from "$lib/utils/colors";
     import Color from "./Color.svelte";
 
-    
+
     const {value = $bindable([])}: {value: HexColor[]} = $props();
 </script>
 
 <div class="grid-container">
     <div class="color-grid">
-        {#each value as _, i}
+        {#each value as _, i (i)}
             <Color bind:value={value[i]} size={40} label={(i + 1).toString()} />
         {/each}
     </div>
@@ -32,6 +32,6 @@
 
     /* align-items: center; */
     /* align-content: space-evenly; */
-    grid-row-gap: 14px; 
+    grid-row-gap: 14px;
 }
 </style>

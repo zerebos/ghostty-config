@@ -6,6 +6,7 @@
         change?: (e: Event) => void;
     }
 
+    // eslint-disable-next-line prefer-const
     let {value = $bindable(), blank = false, align = "right", change}: Props = $props();
 
     function click(event: MouseEvent) {

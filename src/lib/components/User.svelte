@@ -2,13 +2,13 @@
     import {page} from "$app/stores";
     import logo from "$lib/images/ghost.svg";
 
-    
+
     const {route = "", name = "Ghostty Config", subtext = "Unofficial Tool"} = $props();
     const path = $derived($page.url.pathname);
 </script>
 
 
-<a href="{route}" class={"user-tab" + (path === route ? " selected" : "")}>
+<a href={route} class={"user-tab" + (path === route ? " selected" : "")}>
     <div class="user-avatar">
         <img src={logo} alt="Ghostty Logo" />
     </div>

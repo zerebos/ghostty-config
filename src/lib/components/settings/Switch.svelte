@@ -1,4 +1,5 @@
 <script lang="ts">
+    // eslint-disable-next-line prefer-const
     let {disabled = false, checked = $bindable(false)}: {disabled?: boolean, checked?: boolean} = $props();
 
     function change() {
@@ -7,8 +8,8 @@
 </script>
 
 
-<div class="switch" class:checked class:disabled>
-    <input type="checkbox" disabled={disabled} checked={checked} onchange={change} />
+<div class="switch" class:disabled>
+    <input type="checkbox" {disabled} {checked} onchange={change} />
     <div class="switch-body">
         <svg class="switch-slider" viewBox="0 0 16 16" preserveAspectRatio="xMinYMid meet">
             <rect class="switch-handle" fill="white" x="0" y="0" height="16" width="16" rx="8"></rect>

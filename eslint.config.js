@@ -28,7 +28,7 @@ export default [
         }
     },
     {
-        ignores: ["build/", ".svelte-kit/", "dist/", "custom/", "config/"]
+        ignores: ["build/", ".svelte-kit/", "dist/", "custom/", "config/", "sverdle/"]
     },
     {
         rules: {
@@ -108,6 +108,93 @@ export default [
             "wrap-iife": ["error", "inside"],
             "yield-star-spacing": "error",
             "yoda": "error"
+        },
+    },
+    {
+        rules: {
+            "@typescript-eslint/no-unused-vars": ["error", {argsIgnorePattern: "^_", varsIgnorePattern: "^_"}]
+        }
+    },
+    {
+        rules: {
+            // Errors
+            "svelte/infinite-reactive-loop": "error",
+            "svelte/no-dom-manipulating": "off",
+            "svelte/no-dupe-else-if-blocks": "error",
+            "svelte/no-dupe-on-directives": "error",
+            "svelte/no-dupe-style-properties": "error",
+            "svelte/no-dupe-use-directives": "error",
+            "svelte/no-dynamic-slot-name": "error",
+            "svelte/no-export-load-in-svelte-module-in-kit-pages": "error",
+            "svelte/no-not-function-handler": "error",
+            "svelte/no-object-in-text-mustaches": "error",
+            "svelte/no-reactive-reassign": "error",
+            "svelte/no-shorthand-style-property-overrides": "error",
+            "svelte/no-store-async": "error",
+            "svelte/no-unknown-style-directive-property": "error",
+            "svelte/require-store-callbacks-use-set-param": "error",
+            "svelte/require-store-reactive-access": "error",
+            "svelte/valid-compile": "error",
+            "svelte/valid-prop-names-in-kit-pages": "error",
+
+            // Security
+            "svelte/no-at-html-tags": "error",
+            "svelte/no-target-blank": "error",
+
+            // Best Practices
+            "svelte/block-lang": ["error", {script: "ts"}],
+            "svelte/button-has-type": "error",
+            "svelte/no-at-debug-tags": "error",
+            "svelte/no-ignored-unsubscribe": "error",
+            "svelte/no-immutable-reactive-statements": "error",
+            "svelte/no-inline-styles": "off",
+            "svelte/no-reactive-functions": "error",
+            "svelte/no-reactive-literals": "error",
+            "svelte/no-svelte-internal": "error",
+            "svelte/no-unused-class-name": "error",
+            "svelte/no-unused-svelte-ignore": "error",
+            "svelte/no-useless-mustaches": "error",
+            "svelte/prefer-destructured-store-props": "error",
+            "svelte/require-each-key": "error",
+            "svelte/require-event-dispatcher-types": "error",
+            "svelte/require-optimized-style-attribute": "error",
+            "svelte/require-stores-init": "error",
+            "svelte/valid-each-key": "error",
+
+            // Stylistic Issues
+            "svelte/derived-has-same-inputs-outputs": "error",
+            "svelte/first-attribute-linebreak": ["error", {multiline: "below", singleline: "beside"}],
+            "svelte/html-closing-bracket-spacing": "error",
+            "svelte/html-quotes": ["error", {prefer: "double"}],
+            "svelte/html-self-closing": ["error", {"void": "always", "component": "always", "svelte": "always", "normal": "ignore"}],
+            "svelte/indent": "off",
+            "svelte/max-attributes-per-line": "off",
+            "svelte/mustache-spacing": "error",
+            "svelte/no-extra-reactive-curlies": "error",
+            // "svelte/no-restricted-html-elements": "error",
+            "svelte/no-spaces-around-equal-signs-in-attribute": "error",
+            "svelte/prefer-class-directive": ["error", {prefer: "always"}],
+            "svelte/prefer-style-directive": "error",
+            "svelte/shorthand-attribute": "error",
+            "svelte/shorthand-directive": "error",
+            "svelte/sort-attributes": "off",
+            "svelte/spaced-html-comment": "error",
+
+            // Extension Rules
+            "svelte/no-inner-declarations": "error",
+            "svelte/no-trailing-spaces": "error",
+
+            // SvelteKit
+            "svelte/no-goto-without-base": "error",
+
+            // System
+            "svelte/comment-directive": ["error", {reportUnusedDisableDirectives: true}],
+            "svelte/system": "error",
+        },
+        languageOptions: {
+            globals: {
+                $state: false
+            }
         }
     }
 ];
