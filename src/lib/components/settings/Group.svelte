@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {Snippet} from "svelte";
 
-    const {title = "", note = "", children}: {title?: string, note?: string, children: Snippet} = $props();
+    const {title = "", note = "", children, flex = ""}: {title?: string, note?: string, children: Snippet, flex?: string|number} = $props();
 </script>
 
 <div class="setting-group">
@@ -9,7 +9,7 @@
         {#if title}<h2>{title}</h2>{/if}
         {#if note}<h4>{note}</h4>{/if}
     </div>
-    <div class="settings-items">
+    <div class="settings-items" style:flex style:height={flex ? "100%" : null}>
         {@render children()}
     </div>
 </div>
@@ -20,6 +20,7 @@
     flex-direction: column;
     flex: 1;
     width: 100%;
+    height: 100%;
 }
 
 .group-info {
@@ -46,11 +47,12 @@ h4 {
 }
 
 .settings-items {
+    display: flex;
+    flex-direction: column;
     background: #2F2935;
     border-radius: 8px;
     border: 1px solid #4B4652;
     padding: 12px;
     margin-bottom: 12px;
-    flex: 1;
 }
 </style>

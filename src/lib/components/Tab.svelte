@@ -14,10 +14,12 @@
     const isExternal = route.startsWith("http");
     const target = isExternal ? "_blank" : "";
     const rel = isExternal ? "noopener noreferer" : "";
+
+    const selected = $derived(path === route);
 </script>
 
 
-<a href={route} class={"nav-tab" + (path === route ? " selected" : "")} {target} {rel}>
+<a href={route} class="nav-tab" class:selected {target} {rel}>
     <div class="tab-icon">{@render icon()}</div>
     <div class="tab-label">{@render children()}</div>
     {#if isExternal}

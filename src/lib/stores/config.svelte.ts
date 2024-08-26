@@ -23,18 +23,55 @@ if (dev) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const config = $state(Object.assign({}, defaults)) as Record<keyof DefaultConfig, any>;
 
-export function printDifferences() {
-    const output: Partial<typeof defaults> = {};
 
-    for (const key in config) {
-        if (config[key as keyof DefaultConfig] !== defaults[key as keyof DefaultConfig]) output[key as keyof DefaultConfig] = config[key as keyof DefaultConfig];
+export function keyToConfig(key: string) {
+    return key.replaceAll(/([A-Z])/g, "-$1").toLowerCase();
+}
+
+export function diff() {
+    // TODO: more elegance
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const output: Partial<Record<keyof typeof defaults|string, any>> = {};
+
+    for (const k in config) {
+        const key = k as keyof DefaultConfig;
+        if (Array.isArray(config[key]) && key === "keybind") {
+            const toAdd = config[key].filter(c => !defaults[key].includes(c));
+            if (toAdd.length) output[keyToConfig(key)] = toAdd;
+        }
+        else if (Array.isArray(config[key]) && key === "palette") {
+            const toAdd = [];
+            for (let p = 0; p < defaults[key].length; p++) {
+                if (config[key][p] === defaults[key][p]) continue;
+                toAdd.push(`${p}=${config[key][p]}`);
+            }
+            // const toAdd = config[key].filter(c => !defaults[key].includes(c));
+            if (toAdd.length) output[keyToConfig(key)] = toAdd;
+        }
+        else if (config[key] != defaults[key]) {
+            output[keyToConfig(key)] = config[key];
+        }
     }
 
-    // eslint-disable-next-line no-console
-    console.log(config);
+    return output;
+}
 
-    // eslint-disable-next-line no-console
-    console.log(output);
+export function load(conf: Partial<typeof config>) {
+    for (const key in conf) {
+        if (!(key in config)) continue;
+        if (key !== "keybind" && key !== "palette") {
+            config[key as keyof typeof config] = conf[key as keyof typeof config];
+        }
+        else if (key === "keybind") {
+            config.keybind = [...config.keybind, ...conf.keybind];
+        }
+        else if (key === "palette") {
+            for (let p = 0; p < conf.palette.length; p++) {
+                if (!conf.palette[p]) continue;
+                config.palette[p] = conf.palette[p];
+            }
+        }
+    }
 }
 
 export default config;

@@ -2,12 +2,13 @@
     import {dev} from "$app/environment";
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
-    import {printDifferences} from "$lib/stores/config.svelte";
+    import {diff} from "$lib/stores/config.svelte";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
 
     function debug() {
-        printDifferences();
+        // eslint-disable-next-line no-console
+        console.log(diff());
     }
 </script>
 
@@ -31,7 +32,7 @@
         You've found your way here before things are ready. Feel free to play around with the settings and check back later to see the tool when it is more complete.
     </Admonition>
     <div class="group-wrapper">
-        <Group title="Roadmap">
+        <Group title="Roadmap" flex={1}>
             <ul>
                 <li>Import/export of settings</li>
                 <li>Validation of keybindings</li>
@@ -53,7 +54,10 @@
             <li>Cancelling a "null" color will set it to <code>#000000</code> (black).</li>
         </ul>
     </Group>
-    {#if dev}<button onclick={debug} type="button">debug</button>{/if}
+    {#if dev}
+    <button onclick={debug} type="button">debug</button>
+    <a href="/app/import-export">import/export</a>
+    {/if}
 </section>
 </Page>
 

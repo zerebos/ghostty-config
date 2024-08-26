@@ -75,6 +75,8 @@
 }
 
 .content-container {
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
     padding: 8px 20px 10px 20px;
     flex: 1;
