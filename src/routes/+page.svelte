@@ -26,12 +26,12 @@
             <img src={logo} alt="Ghostty Logo" />
         </div>
         <div class="user-label">
-            <div class="user-name">Ghostty Config</div>
+            <div class="user-name">Ghostty Config<sup>𝛼</sup></div>
             <div class="user-subtext">Unofficial Tool</div>
         </div>
     </div>
     <Admonition>
-        This tool is still in an alpha/beta stage so there <em>will</em> be bugs! If you run into any, please report them <a href="https://github.com/zerebos/ghostty-config" target="_blank" rel="noopener noreferrer">on GitHub</a>.
+        This tool is still in an alpha stage so there <em>will</em> be bugs! If you run into any, please report them <a href="https://github.com/zerebos/ghostty-config" target="_blank" rel="noopener noreferrer">on GitHub</a>.
     </Admonition>
     <Group>
         <LinkItem name="Import & Export" href="/app/import-export" icon={sync} />
@@ -45,17 +45,15 @@
     <div class="group-wrapper">
         <Group title="Roadmap" flex={1}>
             <ul>
-                <li>Import/export of settings</li>
                 <li>Validation of keybindings</li>
                 <li>Custom color picker</li>
-                <li>Working history buttons</li>
+                <li>Help documentation</li>
             </ul>
         </Group>
         <Group title="Potential Ideas">
             <ul>
                 <li>Custom setting types to more closely match Ghostty's config</li>
                 <li>Add a way to reset individual settings</li>
-                <li>Add help documentation to each category</li>
             </ul>
         </Group>
     </div>
@@ -110,11 +108,19 @@
     }
 
     .user-name {
+        position: relative;
         display: flex;
         justify-content: center;
         font-size: 1.3rem;
         color: var(--color-text);
         font-weight: 600;
+    }
+
+    sup {
+        position: absolute;
+        color: var(--color-theme-1);
+        right: -11px;
+        top: -5px;
     }
 
     .user-subtext {
