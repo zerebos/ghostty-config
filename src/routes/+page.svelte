@@ -2,9 +2,11 @@
     import {dev} from "$app/environment";
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
+    import sync from "$lib/images/tabs/sync.png";
     import {diff} from "$lib/stores/config.svelte";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
+    import LinkItem from "$lib/components/settings/LinkItem.svelte";
 
     function debug() {
         // eslint-disable-next-line no-console
@@ -29,8 +31,17 @@
         </div>
     </div>
     <Admonition>
-        You've found your way here before things are ready. Feel free to play around with the settings and check back later to see the tool when it is more complete.
+        This tool is still in an alpha/beta stage so there <em>will</em> be bugs! If you run into any, please report them <a href="https://github.com/zerebos/ghostty-config" target="_blank" rel="noopener noreferrer">on GitHub</a>.
     </Admonition>
+    <Group>
+        <LinkItem name="Import & Export" href="/app/import-export" icon={sync} />
+    </Group>
+    <Group title="Known Issues">
+        <ul>
+            <li>Most settings do not allow for multiple entries like multiple <code>font-family</code> entries for fallback fonts.</li>
+            <li>Cancelling a "null" color will set it to <code>#000000</code> (black).</li>
+        </ul>
+    </Group>
     <div class="group-wrapper">
         <Group title="Roadmap" flex={1}>
             <ul>
@@ -48,15 +59,9 @@
             </ul>
         </Group>
     </div>
-    <Group title="Known Issues">
-        <ul>
-            <li>Most settings do not allow for multiple entries like multiple <code>font-family</code> entries for fallback fonts.</li>
-            <li>Cancelling a "null" color will set it to <code>#000000</code> (black).</li>
-        </ul>
-    </Group>
+
     {#if dev}
-    <button onclick={debug} type="button">debug</button>
-    <a href="/app/import-export">import/export</a>
+        <button onclick={debug} type="button">debug</button>
     {/if}
 </section>
 </Page>

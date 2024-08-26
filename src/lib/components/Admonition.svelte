@@ -19,6 +19,7 @@
     display: flex;
     align-items: stretch;
     gap: 8px;
+    margin-bottom: 20px;
 }
 
 .icon, .info {
@@ -33,6 +34,8 @@
 .info {
     /* flex: 1; */
     /* color: #A4A0A6; */
+    display: inline;
     font-size: 0.9rem;
+    line-height: 1.5;
 }
 </style>
