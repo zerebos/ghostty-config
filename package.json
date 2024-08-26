@@ -1,6 +1,13 @@
 {
     "name": "ghostty-config",
     "version": "0.0.1",
+    "description": "A beautiful config generator for Ghostty terminal.",
+    "author": "Zerebos",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zerebos/ghostty-config"
+    },
+    "license": "Apache-2.0",
     "scripts": {
         "dev": "vite dev",
         "build": "vite build",

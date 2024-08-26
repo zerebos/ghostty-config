@@ -7,3 +7,7 @@
 <Page title="Keybinds">
     <Keybinds bind:value={config.keybind} />
 </Page>
+
+<svelte:head>
+    <title>Ghostyy Config - Keybinds</title>
+</svelte:head>
