@@ -7,6 +7,7 @@
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
     import LinkItem from "$lib/components/settings/LinkItem.svelte";
+    import ColorPicker from "$lib/components/ColorPicker.svelte";
 
     function debug() {
         // eslint-disable-next-line no-console
@@ -59,7 +60,8 @@
     </div>
 
     {#if dev}
-        <button onclick={debug} type="button">debug</button>
+        <button onclick={debug} type="button">debug</button><br />
+        <ColorPicker value="#00FF00" />
     {/if}
 </section>
 </Page>
