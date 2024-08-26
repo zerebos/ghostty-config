@@ -20,9 +20,11 @@
         };
     }
 
+    let scroller: HTMLDivElement;
     function addNew() {
         // console.log("ADD NEW");
         value = [...value, "="];
+        setTimeout(() => scroller.scrollTop = scroller.scrollHeight, 1);
     }
 
     function remove() {
@@ -49,7 +51,7 @@
 </script>
 
 <div class="expandable-list">
-    <div class="item-list">
+    <div class="item-list" bind:this={scroller}>
         {#each value as _, i (i)}
             <div class="keybind" class:selected={selected.includes(i)} onclick={select(i)} onkeypress={() => select(i)} role="option" tabindex="0" aria-selected={selected.includes(i)}>
                 <Text value={value[i].split("=")[0]} blank={true} align="left" change={update(i)} />

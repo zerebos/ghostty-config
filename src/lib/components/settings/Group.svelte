@@ -4,7 +4,6 @@
     const {title = "", note = "", children}: {title?: string, note?: string, children: Snippet} = $props();
 </script>
 
-<!-- eslint-disable-next-line svelte/no-unused-class-name -->
 <div class="setting-group">
     <div class="group-info">
         {#if title}<h2>{title}</h2>{/if}
@@ -16,11 +15,22 @@
 </div>
 
 <style>
+.setting-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+}
+
 .group-info {
     display: flex;
     flex-direction: column;
     padding-left: 12px;
 }
+
+/* .setting-group:first-child h2 {
+    margin-top: 10px;
+} */
 
 h2 {
     font-size: 1.05rem;
@@ -41,5 +51,6 @@ h4 {
     border: 1px solid #4B4652;
     padding: 12px;
     margin-bottom: 12px;
+    flex: 1;
 }
 </style>

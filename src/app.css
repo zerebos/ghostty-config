@@ -89,7 +89,8 @@ pre {
 }
 
 input,
-button {
+button,
+select {
     font-size: inherit;
     font-family: inherit;
 }

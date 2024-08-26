@@ -17,6 +17,10 @@
     import gtk from "$lib/images/tabs/gtk.svg";
     import linux from "$lib/images/tabs/linux.png";
     import macos from "$lib/images/tabs/macos.png";
+
+    import github from "$lib/images/tabs/github.svg";
+    import ghostty from "$lib/images/tabs/ghostty.png";
+
     import config from "$lib/stores/config.svelte";
 
     const cssConfigVars = $derived.by(() => {
@@ -51,9 +55,9 @@
         <div class="sidebar-header">
             <div class="window-actions-container">
                 <div class="window-actions">
-                    <button class="window-dot" style:background="rgb(242, 95, 88)" type="button"><span>×</span></button>
-                    <button class="window-dot" style:background="rgb(251, 190, 60)" type="button"><span>-</span></button>
-                    <button class="window-dot" style:background="rgb(88, 203, 66)" type="button"><span>+</span></button>
+                    <button class="window-dot" type="button"><span>×</span></button>
+                    <button class="window-dot" type="button"><span>-</span></button>
+                    <button class="window-dot" type="button"><span>+</span></button>
                 </div>
             </div>
         </div>
@@ -102,6 +106,15 @@
             <Tab route="/settings/macos">
                 {#snippet icon()}<img src={macos} alt="MacOS Settings" />{/snippet}
                 macOS
+            </Tab>
+            <Gap expand={true} />
+            <Tab route="https://github.com/zerebos/ghostty-config">
+                {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
+                GitHub
+            </Tab>
+            <Tab route="https://github.com/ghostty-org">
+                {#snippet icon()}<img src={ghostty} alt="Ghostty GitHub" />{/snippet}
+                Ghostty
             </Tab>
         </nav>
     </div>
@@ -213,6 +226,17 @@
     color: rgba(0, 0, 0, 0.5);
 }
 
+.window-dot {
+    background-color: rgb(251, 190, 60);
+}
+
+.window-dot:first-of-type {
+    background-color: rgb(242, 95, 88);
+}
+
+.window-dot:last-of-type {
+    background-color: rgb(88, 203, 66);
+}
 
 #content-view {
     background: #2C2733;
@@ -224,6 +248,9 @@
 
 
 #categories {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     padding: 10px;
 }
 
@@ -244,6 +271,16 @@
 #categories .icon-wrapper img {
     height: 14px;
     width: 14px;
+}
+
+#categories .icon-wrapper.github {
+    background: linear-gradient(#9C45A9, #3B1E68);
+}
+
+#categories .icon-wrapper.github img {
+    filter: invert(100%);
+    height: 18px;
+    width: 18px;
 }
 
 /* .app-window .content {

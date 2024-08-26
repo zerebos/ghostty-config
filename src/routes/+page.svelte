@@ -1,7 +1,10 @@
 <script lang="ts">
+    import {dev} from "$app/environment";
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
     import {printDifferences} from "$lib/stores/config.svelte";
+    import Admonition from "$lib/components/Admonition.svelte";
+    import Group from "$lib/components/settings/Group.svelte";
 
     function debug() {
         printDifferences();
@@ -24,8 +27,33 @@
             <div class="user-subtext">Unofficial Tool</div>
         </div>
     </div>
-    <p>Here you will be able to import/export and maybe launch the terminal preview overlay. Maybe some settings specific to the config tool as well?</p>
-    <button onclick={debug} type="button">debug</button>
+    <Admonition>
+        You've found your way here before things are ready. Feel free to play around with the settings and check back later to see the tool when it is more complete.
+    </Admonition>
+    <div class="group-wrapper">
+        <Group title="Roadmap">
+            <ul>
+                <li>Import/export of settings</li>
+                <li>Validation of keybindings</li>
+                <li>Custom color picker</li>
+                <li>Working history buttons</li>
+            </ul>
+        </Group>
+        <Group title="Potential Ideas">
+            <ul>
+                <li>Custom setting types to more closely match Ghostty's config</li>
+                <li>Add a way to reset individual settings</li>
+                <li>Add help documentation to each category</li>
+            </ul>
+        </Group>
+    </div>
+    <Group title="Known Issues">
+        <ul>
+            <li>Most settings do not allow for multiple entries like multiple <code>font-family</code> entries for fallback fonts.</li>
+            <li>Cancelling a "null" color will set it to <code>#000000</code> (black).</li>
+        </ul>
+    </Group>
+    {#if dev}<button onclick={debug} type="button">debug</button>{/if}
 </section>
 </Page>
 
@@ -44,7 +72,7 @@
         justify-content: center;
         align-items: center;
         gap: 8px;
-        margin-top: 20px;
+        margin: 20px 0;
     }
 
     .user-avatar img {
@@ -85,5 +113,30 @@
         justify-content: center;
         font-size: 1.1rem;
         /* color: #A7A3AA; */
+    }
+
+    .group-wrapper {
+        display: flex;
+        width: 100%;
+        gap: 12px;
+    }
+
+    ul,
+    .group-wrapper ul {
+        /* list-style: "↪ "; */
+        list-style: "🠶 ";
+        padding-left: 15px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: space-between;
+    }
+
+    code {
+        background: #1F1E1F;
+        padding: 2px 4px;
+        border: 1px solid #443E4B;
+        border-radius: 6px;
     }
 </style>
