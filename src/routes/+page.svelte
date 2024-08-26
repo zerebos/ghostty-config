@@ -8,11 +8,15 @@
     import Group from "$lib/components/settings/Group.svelte";
     import LinkItem from "$lib/components/settings/LinkItem.svelte";
     import ColorPicker from "$lib/components/ColorPicker.svelte";
+    import type {HexColor} from "$lib/utils/colors";
 
     function debug() {
         // eslint-disable-next-line no-console
         console.log(diff());
     }
+
+    let test: HexColor = $state("#ffffff");
+    $inspect(test);
 </script>
 
 <!-- Do this more elegantly, maybe a $state -->
@@ -61,7 +65,7 @@
 
     {#if dev}
         <button onclick={debug} type="button">debug</button><br />
-        <ColorPicker value="#00FF00" />
+        <ColorPicker defaultValue="#458A83" bind:value={test} />
     {/if}
 </section>
 </Page>

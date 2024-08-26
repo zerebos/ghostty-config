@@ -70,3 +70,9 @@ export function rgbToHex(red: number, green: number, blue: number): HexColor {
     const get = (color: number) => color.toString(16).padStart(2, "0").toUpperCase();
     return `#${get(red)}${get(green)}${get(blue)}`;
 }
+
+export function hexToRgb(string: HexColor): RgbArray {
+    const hex = string.slice(1);
+    const get = (s: number, e: number) => parseInt(hex.substring(s, e), 16);
+    return [get(0, 2), get(2, 4), get(4,6)];
+}

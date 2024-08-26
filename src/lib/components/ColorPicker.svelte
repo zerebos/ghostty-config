@@ -1,168 +1,73 @@
 <script lang="ts">
-    import {hsvToRgb, rgbToHex, rgbToHsv, type HexColor} from "$lib/utils/colors";
+    import {hexToRgb, hsvToRgb, rgbToHex, rgbToHsv, type HexColor} from "$lib/utils/colors";
 
 
-    const {value = "#FF0000", change}: {value: HexColor, change?: (c: HexColor) => void} = $props();
+    // eslint-disable-next-line prefer-const
+    let {defaultValue = "#FF0000", value = $bindable(defaultValue)}: {defaultValue: HexColor, value?: HexColor} = $props();
+
+    let {hue, saturation, value: brightness} = $state(rgbToHsv(...hexToRgb(defaultValue)));
+    const [red, green, blue] = $derived.by(() => hsvToRgb(hue, saturation, brightness));
+    const hueField = $derived(`rgb(${hsvToRgb(hue, 1, 1).join(", ")})`);
+    const csgTop = $derived((1 - brightness) * 100);
+    const csgLeft = $derived(saturation * 100);
+    const hgLeft = $derived(hue * 100);
+    const hexValue = $derived(rgbToHex(...hsvToRgb(hue, saturation, brightness)));
 
     let tracked: HTMLDivElement|null;
-    let h = $state(1);
-    let s = $state(1);
-    let v = $state(1);
-    let r = $state(255);
-    let g = $state(0);
-    let b = $state(0);
-    let hexValue = $state(value);
 
-    $effect(() => void setTimeout(setStartColor, 1));
-
-    function setStartColor() {
-        const hex = value.replace("#","");
-        if (hex.length !== 6 && hex.length !== 3 && !hex.match(/([^A-F0-9])/gi)) {
-            alert("Invalid property value (startColor)");
-            return;
-        }
-        let hexFiltered = "";
-        if (hex.length === 3) {hex.split("").forEach(c => {hexFiltered += c + c;});}
-        else {hexFiltered = hex;}
-        hexValue = "#" + hexFiltered;
-        r = parseInt(hexFiltered.substring(0,2), 16);
-        g = parseInt(hexFiltered.substring(2,4), 16);
-        b = parseInt(hexFiltered.substring(4,6), 16);
-        const result = rgbToHsv(r, g, b);
-        h = result.hue;
-        s = result.saturation;
-        v = result.value;
-        hueChange();
-        updateCsPicker();
-        updateHuePicker();
-    }
-
-    function updateCsPicker() {
-        const csPicker = document.querySelector("#colorsquare-picker") as HTMLDivElement;
-        const xPercentage = s * 100;
-        const yPercentage = (1 - v) * 100;
-        csPicker.style.top = yPercentage + "%";
-        csPicker.style.left = xPercentage + "%";
-    }
-
-    function updateHuePicker() {
-        const huePicker = document.querySelector("#hue-picker") as HTMLDivElement;
-        const xPercentage = h * 100;
-        huePicker.style.left = xPercentage + "%";
-    }
-
-    function colorChangeCallback() {
-        change?.(rgbToHex(r, g, b));
-    }
-
-    function mouseMove(event: MouseEvent) {
+    function moveGrabber(event: MouseEvent) {
         if (!tracked) return;
 
         const mouseX = event.clientX;
         const mouseY = event.clientY;
         const trackedPos = tracked.getBoundingClientRect();
-        let xPercentage, yPercentage, picker;
 
-        switch (tracked.id) {
-            case "colorsquare-event":
-                xPercentage = (mouseX - trackedPos.x) / 240 * 100;
-                yPercentage = (mouseY - trackedPos.y) / 160 * 100;
-                if (xPercentage > 100) xPercentage = 100;
-                if (xPercentage < 0) xPercentage = 0;
-                if (yPercentage > 100) yPercentage = 100;
-                if (yPercentage < 0) yPercentage = 0;
-                // (xPercentage > 100) ? xPercentage = 100 : (xPercentage < 0) ? xPercentage = 0 : null;
-                // (yPercentage > 100) ? yPercentage = 100 : (yPercentage < 0) ? yPercentage = 0 : null;
-                picker = document.querySelector("#colorsquare-picker") as HTMLDivElement;
-                // yPercentage = yPercentage.toFixed(2);
-                // xPercentage = xPercentage.toFixed(2);
-                picker.style.top = yPercentage.toFixed(2) + "%";
-                picker.style.left = xPercentage.toFixed(2) + "%";
-                s = xPercentage / 100;
-                v = 1 - yPercentage / 100;
-                colorChange();
-                break;
-            case "hue-event":
-                xPercentage = (mouseX - 10 - trackedPos.x) / 220 * 100;
-                if (xPercentage > 100) xPercentage = 100;
-                if (xPercentage < 0) xPercentage = 0;
-                // (xPercentage > 100) ? xPercentage = 100 : (xPercentage < 0) ? xPercentage = 0 : null;
-                // xPercentage = xPercentage.toFixed(2);
-                picker = document.querySelector("#hue-picker") as HTMLDivElement;
-                picker.style.left = xPercentage.toFixed(2) + "%";
-                h = xPercentage / 100;
-                hueChange();
-                break;
+        const correction = tracked.id === "colorspace" ? 3 : -1;
+        let xPercentage = (mouseX - trackedPos.x + correction) / trackedPos.width * 100;
+        let yPercentage = (mouseY - trackedPos.y + correction) / trackedPos.height * 100;
+
+        if (xPercentage > 100) xPercentage = 100;
+        if (xPercentage < 0) xPercentage = 0;
+        if (yPercentage > 100) yPercentage = 100;
+        if (yPercentage < 0) yPercentage = 0;
+
+        if (tracked.id === "colorspace") {
+            saturation = xPercentage / 100;
+            brightness = 1 - yPercentage / 100;
         }
+        else if (tracked.id === "hue-selector") {
+            hue = xPercentage / 100;
+        }
+
+        // Update the customColor which should be bound for change
+        value = hexValue;
     }
 
-    function csDown(event: MouseEvent) {
+    function mouseMove(event: MouseEvent) {
+        if (!tracked) return;
+        moveGrabber(event);
+    }
+
+    function mouseDown(event: MouseEvent) {
         tracked = event.currentTarget as HTMLDivElement;
-        const xPercentage = ((event.offsetX + 1) / 240) * 100;
-        const yPercentage = ((event.offsetY + 1) / 160) * 100;
-        // yPercentage = yPercentage.toFixed(2);
-        // xPercentage = xPercentage.toFixed(2);
-        const picker = document.querySelector("#colorsquare-picker") as HTMLDivElement;
-        picker.style.top = yPercentage.toFixed(2) + "%";
-        picker.style.left = xPercentage.toFixed(2) + "%";
-        s = xPercentage / 100;
-        v = 1 - yPercentage / 100;
-        colorChange();
-    }
-
-    function mouseUp(_: MouseEvent) {
-        tracked = null;
-    }
-
-    function hueDown(event: MouseEvent) {
-        tracked = event.currentTarget as HTMLDivElement;
-        const xPercentage = ((event.offsetX - 9) / 220) * 100;
-        // xPercentage = xPercentage.toFixed(2);
-        const picker = document.querySelector("#hue-picker") as HTMLDivElement;
-        picker.style.left = xPercentage.toFixed(2) + "%";
-        h = xPercentage / 100;
-        hueChange();
-    }
-
-    function hueChange() {
-        const rgb = hsvToRgb(h, 1, 1);
-        const colorsquare = document.querySelector(".colorsquare") as HTMLDivElement;
-        colorsquare.style.background = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
-        colorChange();
-    }
-
-    function colorChange() {
-        const rgb = hsvToRgb(h, s, v);
-        r = rgb[0];
-        g = rgb[1];
-        b = rgb[2];
-        hexValue = rgbToHex(r, g, b);
-        const pickedColor = document.querySelector(".color-picked") as HTMLDivElement;
-        pickedColor.style.background = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
-        colorChangeCallback();
+        moveGrabber(event);
     }
 </script>
 
-<svelte:document onmouseup={mouseUp} onmousemove={mouseMove} />
+<svelte:document onmouseup={() => tracked = null} onmousemove={mouseMove} />
 
 <div class="main-container">
-    <div class="colorsquare" style:background="">
-        <div class="saturation-gradient">
-            <div class="value-gradient">
-                <div id="colorsquare-picker"></div>
-                <div id="colorsquare-event" onmousedown={csDown} role="slider" aria-valuenow="0" tabindex="0"></div>
-            </div>
-        </div>
+    <div id="colorspace" style:background={hueField} onmousedown={mouseDown} role="slider" aria-valuenow={saturation} tabindex="0">
+        <div id="colorsquare-picker" style:top={csgTop + "%"} style:left={csgLeft + "%"}></div>
     </div>
 
-    <div class="hue-selector">
-        <div id="hue-picker"></div>
-        <div id="hue-event" onmousedown={hueDown} role="slider" aria-valuenow="0" tabindex="0"></div>
+    <div id="hue-selector" onmousedown={mouseDown} role="slider" aria-valuenow={hue} tabindex="0">
+        <div id="hue-picker" style:left={hgLeft + "%"}></div>
     </div>
 
     <div class="color-info-box">
         <div class="color-picked-bg">
-        <div class="color-picked"></div>
+        <div class="color-picked" style:background="rgb({red}, {green}, {blue})"></div>
         </div>
 
         <div class="hex-text-block">
@@ -171,17 +76,17 @@
 
         <div class="rgb-text-div">
         <div class="rgb-text-block">
-            <p class="text">{r}</p>
+            <p class="text">{red}</p>
             <p class="text-label">R</p>
         </div>
 
         <div class="rgb-text-block">
-            <p class="text">{g}</p>
+            <p class="text">{green}</p>
             <p class="text-label">G</p>
         </div>
 
         <div class="rgb-text-block">
-            <p class="text">{b}</p>
+            <p class="text">{blue}</p>
             <p class="text-label">B</p>
         </div>
         </div>
@@ -195,31 +100,10 @@
     height: 265px;
     background: #f2f2f2;
     border-radius: 1px;
-    -webkit-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.51);
-    -moz-box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.51);
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.51);
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-            user-select: none;
 }
 
-.saturation-gradient {
-    background: linear-gradient(to right, rgb(255, 255, 255), rgba(255, 255, 255, 0));
-    width: 240px;
-    height: 160px;
-}
-
-.value-gradient {
-    background: linear-gradient(to top, rgb(0, 0, 0), rgba(0, 0, 0, 0));
-    overflow: hidden;
-    width: 240px;
-    height: 160px;
-}
-
-.hue-selector {
+#hue-selector {
     background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
     margin: 15px 10px 10px 10px;
     border-radius: 10px;
@@ -234,22 +118,37 @@
     left: 0%;
     position: relative;
     cursor: default;
+    pointer-events: none;
     transform: translate(-5px, -1px);
-    -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.67);
-    -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.67);
     box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.67);
 }
 
-#hue-event {
-    width: 236px;
-    height: 14px;
-    transform: translate(-8px, -14px);
-    cursor: default;
-    touch-action: none;
+#colorspace {
+    background: rgb(255, 0, 0);
+    width: 240px;
+    height: 160px;
+    position: relative;
+    overflow: hidden;
 }
 
-.colorsquare {
-    background: rgb(255, 0, 0);
+#colorspace::before,
+#colorspace::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#colorspace::before {
+    background: linear-gradient(to right, rgb(255, 255, 255), rgba(255, 255, 255, 0));
+    z-index: 1;
+}
+
+#colorspace::after {
+    background: linear-gradient(to top, rgb(0, 0, 0), rgba(0, 0, 0, 0));
+    z-index: 2;
 }
 
 #colorsquare-picker {
@@ -262,14 +161,8 @@
     position: relative;
     transform: translate(-9px, -9px);
     left: 100%;
-}
-
-#colorsquare-event {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform: translate(0, -16px);
-    touch-action: none;
+    pointer-events: none;
+    z-index: 3;
 }
 
 .color-info-box {
