@@ -40,6 +40,7 @@
         border-radius: 6px;
         font-weight: 600;
         position: relative;
+        text-decoration: none;
     }
 
     .nav-tab.selected {

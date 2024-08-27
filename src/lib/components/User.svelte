@@ -70,4 +70,8 @@
         font-size: 0.7rem;
         color: #A7A3AA;
     }
+
+    .selected .user-subtext {
+        color: var(--color-text);
+    }
 </style>

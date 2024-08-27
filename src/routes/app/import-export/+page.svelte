@@ -118,16 +118,16 @@
         <Separator />
         <Item name="Import">
             <div class="button-group">
-                <button type="button" onclick={pasteConfig}>{pasteConfigText}</button>
+                <button type="button" onclick={pasteConfig} name="Paste">{pasteConfigText}</button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <button type="button" onclick={openFilePicker}>File...</button>
+                <button type="button" onclick={openFilePicker} name="Upload">File...</button>
             </div>
         </Item>
         <Separator />
         <Item name="Export">
             <div class="button-group">
-                <button type="button" onclick={copyConfig}>{copyConfigText}</button>
-                <button type="button" onclick={downloadConfig}>File...</button>
+                <button type="button" onclick={copyConfig} name="Copy">{copyConfigText}</button>
+                <button type="button" onclick={downloadConfig} name="Download">File...</button>
             </div>
         </Item>
     </Group>

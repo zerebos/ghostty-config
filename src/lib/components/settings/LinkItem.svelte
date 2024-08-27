@@ -6,7 +6,7 @@
 <a class="setting-item" {href}>
     <div class="row">
         <div class="setting-name">
-            {#if icon}<img src={icon} alt={name} />{/if}
+            {#if icon}<img src={icon} alt={`${name} Submenu`} />{/if}
             <span>{name}</span>
         </div>
         <div class="setting">

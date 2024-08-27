@@ -55,9 +55,9 @@
         <div class="sidebar-header">
             <div class="window-actions-container">
                 <div class="window-actions">
-                    <button class="window-dot" type="button"><span>×</span></button>
-                    <button class="window-dot" type="button"><span>-</span></button>
-                    <button class="window-dot" type="button"><span>+</span></button>
+                    <button class="window-dot" type="button" name="Fake Window Close"><span>×</span></button>
+                    <button class="window-dot" type="button" name="Fake Window Minimize"><span>-</span></button>
+                    <button class="window-dot" type="button" name="Fake Window Maximize"><span>+</span></button>
                 </div>
             </div>
         </div>
