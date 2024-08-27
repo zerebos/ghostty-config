@@ -16,9 +16,37 @@
     font-family: var(--font-body);
     color: var(--color-text);
 	font-size: 14px;
+    --scroll-bar-color: #c5c5c5;
+    --scroll-bar-bg-color: #f6f6f6;
 }
 
 * {box-sizing: border-box;}
+
+
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+::-webkit-scrollbar:hover {
+    background-color: #171717;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    display: initial;
+    border-radius: 10px;
+    background-color: #959595;
+    border: 2px solid #2C2733;
+    /* padding: 12px; */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    border-width: 0;
+}
+
 
 body {
     min-height: 100vh;

@@ -1,22 +1,10 @@
 <script lang="ts">
-    import {dev} from "$app/environment";
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
     import sync from "$lib/images/tabs/sync.png";
-    import {diff} from "$lib/stores/config.svelte";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
     import LinkItem from "$lib/components/settings/LinkItem.svelte";
-    import ColorPicker from "$lib/components/ColorPicker.svelte";
-    import type {HexColor} from "$lib/utils/colors";
-
-    function debug() {
-        // eslint-disable-next-line no-console
-        console.log(diff());
-    }
-
-    let test: HexColor = $state("#ffffff");
-    // $inspect(test);
 </script>
 
 <!-- Do this more elegantly, maybe a $state -->
@@ -36,37 +24,38 @@
         </div>
     </div>
     <Admonition>
-        This tool is still in an alpha stage so there <em>will</em> be bugs! If you run into any, please report them <a href="https://github.com/zerebos/ghostty-config" target="_blank" rel="noopener noreferrer">on GitHub</a>.
+        This tool is still in an alpha stage so there <em>will</em> be bugs! If you run into any, please report them <a href="https://github.com/zerebos/ghostty-config/issues" target="_blank" rel="noopener noreferrer">on GitHub</a>.
     </Admonition>
     <Group>
         <LinkItem name="Import & Export" href="/app/import-export" icon={sync} />
     </Group>
     <Group title="Known Issues">
         <ul>
-            <li>Most settings do not allow for multiple entries like multiple <code>font-family</code> entries for fallback fonts.</li>
-            <li>Cancelling a "null" color will set it to <code>#000000</code> (black).</li>
+            <li>Importing and exporting from clipboard give very little user feedback.</li>
+            <li>For most settings, the UI does not allow for setting multiple entries like having multiple <code>font-family</code> entries for fallback fonts.</li>
         </ul>
     </Group>
     <div class="group-wrapper">
         <Group title="Roadmap" flex={1}>
             <ul>
                 <li>Validation of keybindings</li>
-                <li>Custom color picker</li>
                 <li>Help documentation</li>
+                <li>Allow manual color input</li>
+                <li>Add theme presets</li>
+                <li>Unit testing import/export</li>
+                <li>Unify color scheme</li>
+                <li>Refactor & cleanup code</li>
             </ul>
         </Group>
         <Group title="Potential Ideas">
             <ul>
                 <li>Custom setting types to more closely match Ghostty's config</li>
                 <li>Add a way to reset individual settings</li>
+                <li>Change color picker to be popover style instead of modal style</li>
+                <li>Add a more detailed terminal preview and playground</li>
             </ul>
         </Group>
     </div>
-
-    {#if dev}
-        <button onclick={debug} type="button">debug</button><br />
-        <ColorPicker defaultValue="#458A83" bind:value={test} />
-    {/if}
 </section>
 </Page>
 
@@ -151,7 +140,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        justify-content: space-between;
+        justify-content: space-evenly;
     }
 
     code {
