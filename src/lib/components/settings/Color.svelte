@@ -1,18 +1,85 @@
 <script lang="ts">
     import {luminosity, isDark, type HexColor} from "$lib/utils/colors";
+    import ColorPicker from "$lib/components/ColorPicker.svelte";
 
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), size = 20, label = ""}: {value: HexColor, size?: number, label?: string} = $props();
+    let {value = $bindable(), size = 20, label = "", defaultValue}: {value: HexColor, size?: number, label?: string, defaultValue?: HexColor} = $props();
     const borderColor = $derived(`rgba(255, 255, 255, ${luminosity(value) * 0.0027451 + 0.3})`);
     const labelColor = $derived(isDark(value) ? `var(--color-text)` : "black");
+    let popoutOpen = $state(false);
+
+    function click(event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        popoutOpen = !popoutOpen;
+    }
+
+    function reset(event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (defaultValue !== undefined) value = defaultValue;
+    }
 </script>
+
 
 <div class="color-wrap" style:width="{size}px" style:height="{size}px" style:background-color={value} style:border-color={borderColor}>
     {#if label}<span class="label" style:color={labelColor}>{label}</span>{/if}
-    <input type="color" bind:value style:width="{size}px" style:height="{size}px" />
+    <input type="color" bind:value style:width="{size}px" style:height="{size}px" onclick={click} oncontextmenu={reset} />
 </div>
 
+{#if popoutOpen}
+<div class="shadow" onclick={click} role="none"></div>
+<div class="picker-container">
+    <ColorPicker bind:value />
+    <button class="close" onclick={click} type="button"><span>×</span></button>
+</div>
+{/if}
+
+
 <style>
+/* .color-wrap-container {
+    position: relative;
+} */
+.shadow {
+    background: rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.picker-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+.picker-container .close {
+    background: #D54E53;
+    color: white;
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    border-radius: 50%;
+    height: 16px;
+    width: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    padding: 0;
+    cursor: pointer;
+    border: 0;
+    outline: 0;
+}
+
+.picker-container .close span {
+    margin-top: -1.5px;
+}
+
 .color-wrap {
     position: relative;
     display: flex;

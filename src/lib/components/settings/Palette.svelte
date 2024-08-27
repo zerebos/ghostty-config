@@ -3,13 +3,13 @@
     import Color from "./Color.svelte";
 
 
-    const {value = $bindable([])}: {value: HexColor[]} = $props();
+    const {value = $bindable([]), defaultValue}: {value: HexColor[], defaultValue: HexColor[]} = $props();
 </script>
 
 <div class="grid-container">
     <div class="color-grid">
         {#each value as _, i (i)}
-            <Color bind:value={value[i]} size={40} label={(i + 1).toString()} />
+            <Color defaultValue={defaultValue[i]} bind:value={value[i]} size={40} label={(i + 1).toString()} />
         {/each}
     </div>
 </div>

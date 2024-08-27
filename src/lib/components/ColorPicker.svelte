@@ -3,9 +3,9 @@
 
 
     // eslint-disable-next-line prefer-const
-    let {defaultValue = "#FF0000", value = $bindable(defaultValue)}: {defaultValue: HexColor, value?: HexColor} = $props();
+    let {defaultValue = "#FF0000", value = $bindable(defaultValue)}: {defaultValue?: HexColor, value?: HexColor} = $props();
 
-    let {hue, saturation, value: brightness} = $state(rgbToHsv(...hexToRgb(defaultValue)));
+    let {hue, saturation, value: brightness} = $state(rgbToHsv(...hexToRgb(value)));
     const [red, green, blue] = $derived.by(() => hsvToRgb(hue, saturation, brightness));
     const hueField = $derived(`rgb(${hsvToRgb(hue, 1, 1).join(", ")})`);
     const csgTop = $derived((1 - brightness) * 100);

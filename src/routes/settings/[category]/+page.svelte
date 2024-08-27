@@ -18,6 +18,7 @@
     import BaseColorPreview from "$lib/views/BaseColorPreview.svelte";
     import CursorPreview from "$lib/views/CursorPreview.svelte";
     import PalettePreview from "$lib/views/PalettePreview.svelte";
+    import Admonition from "$lib/components/Admonition.svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -32,6 +33,8 @@
     {#if category}
         {#if category.id === "fonts"}
             <FontPreview />
+        {:else if category.id === "colors"}
+            <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
         {/if}
         {#each category.groups as group (group.id)}
             <Group title={group.name} note={group.note}>
@@ -57,9 +60,9 @@
                         {:else if setting.type === "dropdown"}
                             <Dropdown bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
                         {:else if setting.type === "color"}
-                            <Color bind:value={config[setting.id as keyof typeof config]} />
+                            <Color defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config]} />
                         {:else if setting.type === "palette"}
-                            <Palette bind:value={config[setting.id as keyof typeof config]} />
+                            <Palette defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config]} />
                         {/if}
                     </Item>
                 {/each}
