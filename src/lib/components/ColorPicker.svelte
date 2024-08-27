@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {hexToRgb, hsvToRgb, rgbToHex, rgbToHsv, type HexColor} from "$lib/utils/colors";
+    import {hexToRgb, hsvToRgb, rgbToHex, rgbToHsv, luminosity, type HexColor} from "$lib/utils/colors";
 
 
     // eslint-disable-next-line prefer-const
@@ -12,6 +12,7 @@
     const csgLeft = $derived(saturation * 100);
     const hgLeft = $derived(hue * 100);
     const hexValue = $derived(rgbToHex(...hsvToRgb(hue, saturation, brightness)));
+    const borderColor = $derived(`rgba(255, 255, 255, ${luminosity(value) * 0.0027451 + 0.3})`);
 
     let tracked: HTMLDivElement|null;
 
@@ -22,9 +23,8 @@
         const mouseY = event.clientY;
         const trackedPos = tracked.getBoundingClientRect();
 
-        const correction = tracked.id === "colorspace" ? 3 : -1;
-        let xPercentage = (mouseX - trackedPos.x + correction) / trackedPos.width * 100;
-        let yPercentage = (mouseY - trackedPos.y + correction) / trackedPos.height * 100;
+        let xPercentage = (mouseX - trackedPos.x) / trackedPos.width * 100;
+        let yPercentage = (mouseY - trackedPos.y) / trackedPos.height * 100;
 
         if (xPercentage > 100) xPercentage = 100;
         if (xPercentage < 0) xPercentage = 0;
@@ -35,7 +35,7 @@
             saturation = xPercentage / 100;
             brightness = 1 - yPercentage / 100;
         }
-        else if (tracked.id === "hue-selector") {
+        else if (tracked.id === "huespace") {
             hue = xPercentage / 100;
         }
 
@@ -56,79 +56,77 @@
 
 <svelte:document onmouseup={() => tracked = null} onmousemove={mouseMove} />
 
-<div class="main-container">
+<div class="picker-container">
     <div id="colorspace" style:background={hueField} onmousedown={mouseDown} role="slider" aria-valuenow={saturation} tabindex="0">
-        <div id="colorsquare-picker" style:top={csgTop + "%"} style:left={csgLeft + "%"}></div>
+        <div class="colorspace-grabber" style:top={csgTop + "%"} style:left={csgLeft + "%"}></div>
     </div>
 
-    <div id="hue-selector" onmousedown={mouseDown} role="slider" aria-valuenow={hue} tabindex="0">
-        <div id="hue-picker" style:left={hgLeft + "%"}></div>
+    <div id="huespace" onmousedown={mouseDown} role="slider" aria-valuenow={hue} tabindex="0">
+        <div class="huespace-grabber" style:left={hgLeft + "%"}></div>
     </div>
 
-    <div class="color-info-box">
-        <div class="color-picked-bg">
-        <div class="color-picked" style:background="rgb({red}, {green}, {blue})"></div>
-        </div>
+    <div class="color-info">
+        <div class="info-split">
+            <div class="color-picked" style:background="rgb({red}, {green}, {blue})" style:border-color={borderColor}></div>
 
-        <div class="hex-text-block">
-        <p class="text">{hexValue}</p>
-        </div>
+            <div class="color-values">
+                <div class="hex-value">{hexValue}</div>
 
-        <div class="rgb-text-div">
-        <div class="rgb-text-block">
-            <p class="text">{red}</p>
-            <p class="text-label">R</p>
-        </div>
+                <div class="rgb-values">
+                    <div class="rgb-value">
+                        <div class="value">{red}</div>
+                        <div>R</div>
+                    </div>
 
-        <div class="rgb-text-block">
-            <p class="text">{green}</p>
-            <p class="text-label">G</p>
-        </div>
+                    <div class="rgb-value">
+                        <div class="value">{green}</div>
+                        <div>G</div>
+                    </div>
 
-        <div class="rgb-text-block">
-            <p class="text">{blue}</p>
-            <p class="text-label">B</p>
-        </div>
+                    <div class="rgb-value">
+                        <div class="value">{blue}</div>
+                        <div>B</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 
 <style>
-.main-container {
-    width: 240px;
-    height: 265px;
-    background: #f2f2f2;
-    border-radius: 1px;
-    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.51);
-}
-
-#hue-selector {
-    background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
-    margin: 15px 10px 10px 10px;
-    border-radius: 10px;
-    height: 10px;
-}
-
-#hue-picker {
-    background: #FFF;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    left: 0%;
+.picker-container {
     position: relative;
-    cursor: default;
+    background: #231E2A;
+    border-radius: 1px;
+    border: 1px solid black;
+    box-shadow: 0 0 20px -1px rgba(0,0,0,0.7);
+    padding: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.picker-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    box-shadow: 0 0 1px white inset;
+    border-radius: inherit;
+    z-index: 2;
     pointer-events: none;
-    transform: translate(-5px, -1px);
-    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.67);
 }
 
 #colorspace {
-    background: rgb(255, 0, 0);
     width: 240px;
     height: 160px;
     position: relative;
     overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid #65626A;
+    box-shadow: 0 0 3px 0px black;
 }
 
 #colorspace::before,
@@ -151,97 +149,107 @@
     z-index: 2;
 }
 
-#colorsquare-picker {
+.colorspace-grabber {
     margin: 0;
     padding: 0;
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    border: 2px solid #FFFB;
+    border: 2px solid black;
+    background: white;
     position: relative;
-    transform: translate(-9px, -9px);
+    transform: translate(-50%, -50%);
     left: 100%;
     pointer-events: none;
     z-index: 3;
 }
 
-.color-info-box {
-    margin: 10px;
-    width: 100%;
-    height: 22px;
-    vertical-align: middle;
+#huespace {
+    background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+    margin: 15px 10px 10px 10px;
+    border-radius: 10px;
+    height: 10px;
+}
+
+.huespace-grabber {
+    background: white;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid black;
+    transform: translate(-50%, -1px);
+    left: 0%;
     position: relative;
+    cursor: default;
+    pointer-events: none;
+}
+
+.color-info {
+    display: flex;
+    padding: 10px;
+    /* padding-top: 10px; */
+    width: 100%;
+    position: relative;
+}
+
+.info-split {
+    display: flex;
+    width: 100%;
+    gap: 20px;
 }
 
 .color-picked {
-    width: 18px;
-    height: 18px;
+    display: flex;
+    flex: 1 1 50%;
+    min-height: 100%;
     border-radius: 2px;
-    background: rgba(255, 0, 0, 1);
-    display: inline-block;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 1);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 1) inset;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 3px 0px black;
 }
 
-.color-picked-bg {
-    background-image: linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%);
-    background-size: 10px 10px;
-    background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
-    border: 2px solid #FFF;
+.color-values {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 50%;
+    gap: 12px;
+}
+
+.hex-value {
+    display: flex;
+    justify-content: center;
+    background: #1F1E1F;
+    border-radius: 2px;
+    padding: 2px;
+    border: 1px solid #443E4B;
     border-radius: 4px;
-    width: 18px;
-    height: 18px;
-    color: #fff;
-    display: inline-block;
+    width: 100%;
 }
 
-.hex-text-block {
-    display: inline-block;
-    background: white;
+.rgb-values {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.rgb-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.value {
+    display: flex;
+    justify-content: center;
+    background: #1F1E1F;
     border-radius: 2px;
     padding: 2px;
-    border: 1px solid #e3e3e3;
-    height: 16px;
-    width: 54px;
-    vertical-align: top;
-    text-align: center;
-}
-
-.rgb-text-block {
-    display: inline-block;
-    background: white;
-    border-radius: 2px;
-    padding: 2px;
-    margin: 0 1px;
-    border: 1px solid #dcdcdc;
-    height: 16px;
-    width: 23px;
-    vertical-align: top;
-    text-align: center;
-}
-
-.rgb-text-div {
-    right: 10%;
-    display: inline-block;
-    vertical-align: top;
-    position: absolute;
-}
-
-.text-label {
-    position: relative;
-    top: -12px;
-    font-family: sans-serif;
-    font-size: small;
-    color:#888;
-}
-
-.text {
-    display: inline;
-    font-family: sans-serif;
-    margin: 0;
-    display: inline-block;
-    font-size: 12px;
-    font-size-adjust: 0.50;
-    position: relative;
-    top: -1px;
-    vertical-align: middle;
+    border: 1px solid #443E4B;
+    border-radius: 4px;
+    width: 30px;
 }
 </style>

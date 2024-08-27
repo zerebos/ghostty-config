@@ -16,7 +16,7 @@
     }
 
     let test: HexColor = $state("#ffffff");
-    $inspect(test);
+    // $inspect(test);
 </script>
 
 <!-- Do this more elegantly, maybe a $state -->
