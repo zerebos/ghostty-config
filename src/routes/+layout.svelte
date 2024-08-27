@@ -35,7 +35,7 @@
         add("selection-fg", config.selectionInvertFgBg ? config.background : config.selectionForeground || config.background);
 
         // Add the palette colors
-        const paletteSize = config.palette.length;
+        const paletteSize = 16; // config.palette.length;
         for (let c = 0; c < paletteSize; c++) add(`palette-${c}`, config.palette[c]);
 
         // TODO: consider honoring separate fonts for bold/italic and such in previews
