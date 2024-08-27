@@ -3,18 +3,21 @@
 
 
     // eslint-disable-next-line prefer-const
-    let {defaultValue = "#FF0000", value = $bindable(defaultValue)}: {defaultValue?: HexColor, value?: HexColor} = $props();
+    let {defaultValue = "#408080", value = $bindable(defaultValue)}: {defaultValue?: HexColor, value?: HexColor|""} = $props();
 
-    let {hue, saturation, value: brightness} = $state(rgbToHsv(...hexToRgb(value)));
+    let {hue, saturation, value: brightness} = $state(rgbToHsv(...hexToRgb(value || defaultValue)));
     const [red, green, blue] = $derived.by(() => hsvToRgb(hue, saturation, brightness));
     const hueField = $derived(`rgb(${hsvToRgb(hue, 1, 1).join(", ")})`);
     const csgTop = $derived((1 - brightness) * 100);
     const csgLeft = $derived(saturation * 100);
     const hgLeft = $derived(hue * 100);
     const hexValue = $derived(rgbToHex(...hsvToRgb(hue, saturation, brightness)));
-    const borderColor = $derived(`rgba(255, 255, 255, ${luminosity(value) * 0.0027451 + 0.3})`);
+    const borderColor = $derived(`rgba(255, 255, 255, ${luminosity(value || defaultValue) * 0.0027451 + 0.3})`);
+    const isEmpty = $derived(value === "");
 
     let tracked: HTMLDivElement|null;
+
+    $inspect(defaultValue, value);
 
     function moveGrabber(event: MouseEvent) {
         if (!tracked) return;
@@ -67,24 +70,24 @@
 
     <div class="color-info">
         <div class="info-split">
-            <div class="color-picked" style:background="rgb({red}, {green}, {blue})" style:border-color={borderColor}></div>
+            <div class="color-picked" class:empty={isEmpty} style:background="rgb({red}, {green}, {blue})" style:border-color={borderColor}></div>
 
             <div class="color-values">
-                <div class="hex-value">{hexValue}</div>
+                <div class="hex-value">{isEmpty ? "-" : hexValue}</div>
 
                 <div class="rgb-values">
                     <div class="rgb-value">
-                        <div class="value">{red}</div>
+                        <div class="value">{isEmpty ? "-" : red}</div>
                         <div>R</div>
                     </div>
 
                     <div class="rgb-value">
-                        <div class="value">{green}</div>
+                        <div class="value">{isEmpty ? "-" : green}</div>
                         <div>G</div>
                     </div>
 
                     <div class="rgb-value">
-                        <div class="value">{blue}</div>
+                        <div class="value">{isEmpty ? "-" : blue}</div>
                         <div>B</div>
                     </div>
                 </div>
@@ -252,4 +255,17 @@
     border-radius: 4px;
     width: 30px;
 }
+
+
+.color-picked.empty {
+    background: #1F1E1F!important;
+    border-color: #443E4B!important;
+    box-shadow: none!important;
+    /* opacity: 0; */
+}
+
+/* .empty .hex-value, */
+/* .empty .value {
+    color: transparent;
+} */
 </style>
