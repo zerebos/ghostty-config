@@ -31,7 +31,7 @@
 <div class="shadow" onclick={click} role="none"></div>
 <div class="picker-container">
     <ColorPicker bind:value />
-    <button class="close" onclick={click} type="button" name="Close"><span>×</span></button>
+    <button class="close" onclick={click} type="button" title="Close"><span>×</span></button>
 </div>
 {/if}
 

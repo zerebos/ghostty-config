@@ -60,8 +60,8 @@
         {/each}
     </div>
     <div class="list-controls">
-        <button onclick={addNew} type="button" name="Add Keybind">+</button>
-        <button onclick={remove} disabled={selected.length === 0} type="button" name="Remove Selected">-</button>
+        <button onclick={addNew} type="button" title="Add Keybind">+</button>
+        <button onclick={remove} disabled={selected.length === 0} type="button" title="Remove Selected">-</button>
     </div>
 </div>
 
