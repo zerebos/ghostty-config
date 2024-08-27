@@ -4,22 +4,22 @@
     import User from "$lib/components/User.svelte";
     import "../app.css";
 
-    import application from "$lib/images/tabs/application.png";
-    import clipboard from "$lib/images/tabs/clipboard.png";
-    import window from "$lib/images/tabs/window.png";
+    import application from "$lib/images/tabs/application.webp";
+    import clipboard from "$lib/images/tabs/clipboard.webp";
+    import window from "$lib/images/tabs/window.webp";
 
-    import colors from "$lib/images/tabs/colors.png";
-    import fonts from "$lib/images/tabs/fonts.png";
+    import colors from "$lib/images/tabs/colors.webp";
+    import fonts from "$lib/images/tabs/fonts.webp";
 
-    import keybinds from "$lib/images/tabs/keybinds.png";
-    import mouse from "$lib/images/tabs/mouse.png";
+    import keybinds from "$lib/images/tabs/keybinds.webp";
+    import mouse from "$lib/images/tabs/mouse.webp";
 
     import gtk from "$lib/images/tabs/gtk.svg";
-    import linux from "$lib/images/tabs/linux.png";
-    import macos from "$lib/images/tabs/macos.png";
+    import linux from "$lib/images/tabs/linux.webp";
+    import macos from "$lib/images/tabs/macos.webp";
 
     import github from "$lib/images/tabs/github.svg";
-    import ghostty from "$lib/images/tabs/ghostty.png";
+    import ghostty from "$lib/images/tabs/ghostty.webp";
 
     import config from "$lib/stores/config.svelte";
 

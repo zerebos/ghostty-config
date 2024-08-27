@@ -60,7 +60,7 @@ body {
             rgba(255, 255, 255, 0) 100%
         ),
         linear-gradient(180deg, var(--color-bg-0) 0%, var(--color-bg-1) 15%, var(--color-bg-2) 50%); */
-	background-image: url("$lib/images/monterey.jpg");
+	background-image: url("$lib/images/monterey.webp");
 	background-attachment: fixed;
 	background-size: cover;
 	background-position: center center;

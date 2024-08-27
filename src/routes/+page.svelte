@@ -1,7 +1,7 @@
 <script lang="ts">
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
-    import sync from "$lib/images/tabs/sync.png";
+    import sync from "$lib/images/tabs/sync.webp";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
     import LinkItem from "$lib/components/settings/LinkItem.svelte";

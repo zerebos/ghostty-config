@@ -33,5 +33,6 @@
     /* align-items: center; */
     /* align-content: space-evenly; */
     grid-row-gap: 14px;
+    margin-bottom: 12px;
 }
 </style>
