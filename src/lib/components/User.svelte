@@ -28,13 +28,13 @@
         align-items: center;
         gap: 8px;
         padding: 6px;
-        border-radius: 6px;
+        border-radius: var(--radius-level-4);
         text-decoration: none!important;
         font-weight: 600;
     }
 
     .user-tab.selected {
-        background: #2C56B9;
+        background: var(--selected-color);
     }
 
     .user-avatar img {
@@ -63,15 +63,15 @@
 
     .user-name {
         font-size: 1rem;
-        color: var(--color-text);
+        color: var(--font-color);
     }
 
     .user-subtext {
         font-size: 0.7rem;
-        color: #A7A3AA;
+        color: var(--font-color-muted);
     }
 
     .selected .user-subtext {
-        color: var(--color-text);
+        color: var(--font-color);
     }
 </style>

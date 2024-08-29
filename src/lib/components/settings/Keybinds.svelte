@@ -74,18 +74,18 @@
     justify-content: space-between;
     height: 100%;
     position: relative;
-    background: #2F2935;
-    border-radius: 8px;
-    border: 1px solid #4B4652;
+    background: var(--bg-level-2);
+    border-radius: var(--radius-level-3);
+    border: 1px solid var(--border-level-2);
     overflow: hidden;
 }
 
 .list-controls {
     border-radius: 0 0 8px 8px;
-    background: #3A3541;
+    background: var(--bg-level-4);
     min-height: 30px;
     max-height: 30px;
-    border-top: 1px solid #433D49;
+    border-top: 1px solid var(--border-level-4);
     display: flex;
     align-items: center;
     padding-left: 10px;
@@ -105,7 +105,7 @@
 }
 
 .keybind:nth-of-type(even) {
-    background: #3A3541;
+    background: var(--bg-level-4);
 }
 
 .keybind.selected {
@@ -118,7 +118,7 @@ button {
     align-items: center;
     border: 0;
     background: transparent;
-    color: var(--color-text);
+    color: var(--font-color);
     font-size: 1.5rem;
     position: relative;
 }
@@ -133,7 +133,7 @@ button + button::before {
     left: -6px;
     top: 5px;
     bottom: 5px;
-    background: #4B4652;
+    background: var(--border-level-2);
     width: 2px;
 }
 

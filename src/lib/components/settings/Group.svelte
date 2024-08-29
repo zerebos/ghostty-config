@@ -41,7 +41,7 @@ h2 {
 
 h4 {
     font-size: 0.8rem;
-    color: #A7A3AA;
+    color: var(--font-color-muted);
     margin-top: -6px;
     white-space: preserve;
 }
@@ -49,9 +49,9 @@ h4 {
 .settings-items {
     display: flex;
     flex-direction: column;
-    background: #2F2935;
-    border-radius: 8px;
-    border: 1px solid #4B4652;
+    background: var(--bg-level-2);
+    border-radius: var(--radius-level-3);
+    border: 1px solid var(--border-level-2);
     padding: 12px;
     margin-bottom: 12px;
 }

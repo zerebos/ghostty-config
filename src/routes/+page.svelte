@@ -103,13 +103,13 @@
         display: flex;
         justify-content: center;
         font-size: 1.3rem;
-        color: var(--color-text);
+        color: var(--font-color);
         font-weight: 600;
     }
 
     sup {
         position: absolute;
-        color: var(--color-theme-1);
+        color: var(--accent-color);
         right: -11px;
         top: -5px;
     }
@@ -118,7 +118,6 @@
         display: flex;
         justify-content: center;
         font-size: 1.1rem;
-        /* color: #A7A3AA; */
     }
 
     .group-wrapper {
@@ -140,9 +139,9 @@
     }
 
     code {
-        background: #1F1E1F;
+        background: var(--bg-input-focus);
         padding: 2px 4px;
-        border: 1px solid #443E4B;
-        border-radius: 6px;
+        border: 1px solid var(--border-input);
+        border-radius: var(--radius-level-4);
     }
 </style>

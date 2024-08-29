@@ -6,7 +6,7 @@
     // eslint-disable-next-line prefer-const
     let {value = $bindable(), size = 20, label = "", defaultValue}: {value: HexColor, size?: number, label?: string, defaultValue?: HexColor} = $props();
     const borderColor = $derived(`rgba(255, 255, 255, ${luminosity(value) * 0.0027451 + 0.3})`);
-    const labelColor = $derived(isDark(value) ? `var(--color-text)` : "black");
+    const labelColor = $derived(isDark(value) ? `var(--font-color)` : "black");
     let popoutOpen = $state(false);
 
     function click(event: Event) {
@@ -66,7 +66,7 @@
     z-index: 1000;
 }
 .picker-container .close {
-    background: #D54E53;
+    background: var(--color-danger);
     color: white;
     position: absolute;
     top: -4px;
@@ -117,7 +117,7 @@ input {
 }
 
 input:focus {
-    outline: 3px solid #2656C9;
+    outline: var(--border-input-focus);
 }
 
 .label {

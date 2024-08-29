@@ -37,10 +37,9 @@
     max-height: 60px;
     overflow-y: auto;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: var(--radius-level-3);
     border: 1px solid rgba(0, 0, 0, 0.5);
     box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
-    /* border: 1px solid #4B4652; */
 }
 
 .preview .row,
