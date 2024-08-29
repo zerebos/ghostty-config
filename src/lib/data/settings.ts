@@ -395,7 +395,7 @@ export default [
                 settings: [
                     {id: "macosNonNativeFullscreen", name: "Use non-native fullscreen", note: "Tabs currently do not work with non-native fullscreen windows", type: "dropdown", value: "false", options: ["visible-menu", "true", "false"]},
                     {id: "macosTitlebarStyle", name: "Titlebar style", type: "dropdown", value: "transparent", options: ["transparent", "native", "tabs"]},
-                    {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "switch", value: false},
+                    {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "dropdown", value: "false", options: ["true", "false", "left", "right"]},
                     {id: "macosWindowShadow", name: "Show the window shadow", type: "switch", value: true},
                 ]
             }
