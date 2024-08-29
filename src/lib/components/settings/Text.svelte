@@ -14,7 +14,7 @@
     }
 </script>
 
-<input class:blank class={align} type="text" onclick={click} onchange={change} bind:value />
+<input class:blank class:empty={value === ""} class={align} type="text" onclick={click} onchange={change} bind:value />
 
 <style>
 input {
@@ -25,6 +25,7 @@ input {
     color: inherit;
     text-align: right;
     max-width: 175px;
+    padding: 0 4px 2px 0;
 }
 
 input:focus, input.blank:focus {
@@ -34,7 +35,11 @@ input:focus, input.blank:focus {
 
 input.blank {
     background: none;
-    border: 0;
+    border-width: 0;
+}
+
+input.blank.empty {
+    border-width: 1px;
 }
 
 input.left {

@@ -44,7 +44,7 @@
     }
 
     .nav-tab.selected {
-        background: var(--selected-color);
+        background: var(--color-selected);
     }
 
     .nav-tab .tab-icon {

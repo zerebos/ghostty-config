@@ -99,7 +99,6 @@
 .picker-container {
     position: relative;
     background: var(--bg-modal);
-    border-radius: 1px;
     border: 1px solid black;
     box-shadow: 0 0 20px -1px rgba(0,0,0,0.7);
     padding: 12px;
@@ -203,7 +202,6 @@
     display: flex;
     flex: 1 1 50%;
     min-height: 100%;
-    border-radius: 2px;
     border-radius: var(--radius-level-3);
     border: 1px solid rgba(0, 0, 0, 1);
     box-shadow: 0 0 1px rgba(255, 255, 255, 1) inset;
@@ -223,7 +221,6 @@
     display: flex;
     justify-content: center;
     background: var(--bg-input-focus);
-    border-radius: 2px;
     padding: 2px;
     border: 1px solid var(--border-input);
     border-radius: var(--radius-level-5);
@@ -247,7 +244,6 @@
     display: flex;
     justify-content: center;
     background: var(--bg-input-focus);
-    border-radius: 2px;
     padding: 2px;
     border: 1px solid var(--border-input);
     border-radius: var(--radius-level-5);

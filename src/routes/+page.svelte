@@ -109,7 +109,7 @@
 
     sup {
         position: absolute;
-        color: var(--accent-color);
+        color: var(--font-color-accent);
         right: -11px;
         top: -5px;
     }

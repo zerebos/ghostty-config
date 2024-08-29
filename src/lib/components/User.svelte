@@ -34,7 +34,7 @@
     }
 
     .user-tab.selected {
-        background: var(--selected-color);
+        background: var(--color-selected);
     }
 
     .user-avatar img {

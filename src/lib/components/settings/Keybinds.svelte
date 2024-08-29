@@ -81,11 +81,11 @@
 }
 
 .list-controls {
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 var(--radius-level-3) var(--radius-level-3);
     background: var(--bg-level-4);
     min-height: 30px;
     max-height: 30px;
-    border-top: 1px solid var(--border-level-4);
+    border-top: 2px solid var(--border-level-4);
     display: flex;
     align-items: center;
     padding-left: 10px;
@@ -105,7 +105,7 @@
 }
 
 .keybind:nth-of-type(even) {
-    background: var(--bg-level-4);
+    background: rgba(255, 255, 255, 0.05)
 }
 
 .keybind.selected {

@@ -52,6 +52,7 @@ h4 {
     background: var(--bg-level-2);
     border-radius: var(--radius-level-3);
     border: 1px solid var(--border-level-2);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
     padding: 12px;
     margin-bottom: 12px;
 }

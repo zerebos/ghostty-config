@@ -16,6 +16,7 @@
 .admonition {
     background: var(--bg-level-3);
     border: 1px solid var(--border-level-3);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
     border-radius: var(--radius-level-3);
     padding: 12px;
     display: flex;

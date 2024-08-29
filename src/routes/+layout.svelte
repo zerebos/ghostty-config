@@ -185,15 +185,12 @@
 }
 
 #sidebar {
-    width: 215px;
+    width: var(--sidebar-width);
     /* black: #272329; white: #544F57; */
-    /* background: #272329; */
-    /* background: rgba(62, 57, 64, 0.6); */
-    /* background: rgba(39, 35, 41, 0.7); */
     background: rgba(50, 46, 52, 0.7);
     backdrop-filter: blur(10px);
     padding: 5px;
-    border-right: 1px solid var(--border-level-1);
+    border-right: 2px solid var(--border-level-1);
     display: flex;
     flex-direction: column;
 }

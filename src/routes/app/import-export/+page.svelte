@@ -146,6 +146,7 @@
     border: 1px solid rgba(0, 0, 0, 0.5);
     box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
     flex: 1;
+    user-select: text;
 }
 
 .preview .row {
@@ -190,7 +191,7 @@
 /* TODO: extract to a separate component for usage elsewhere */
 button {
     background: var(--bg-basic-button);
-    border-radius: var(--radius-level-3);
+    border-radius: var(--radius-level-4);
     border: 0;
     color: inherit;
     padding: 2px 10px;
