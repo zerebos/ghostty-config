@@ -1,8 +1,9 @@
 <script lang="ts">
     import {onNavigate} from "$app/navigation";
+    import {fly} from "svelte/transition";
     import History from "$lib/components/History.svelte";
+    import app from "$lib/stores/state.svelte";
     import type {Snippet} from "svelte";
-
 
     interface Props {
         children: Snippet;
@@ -10,6 +11,9 @@
     }
 
     const {children, title = "Ghostty Config"}: Props = $props();
+
+    $effect(() => {app.title = title;});
+
     let isScrolling = $state(false);
     let bufferHeight = $state(53);
 
@@ -24,17 +28,25 @@
         }
     }
 
-    let scroller: HTMLDivElement;
-    onNavigate(() => {scroller.scrollTop = 0;});
+    let scroller: HTMLDivElement|undefined = $state();
+    onNavigate(() => {
+        isScrolling = false;
+        bufferHeight = 53;
+        if (scroller) scroller.scrollTop = 0;
+    });
 </script>
+
+
 
 <div class="content-page">
     <div class="content-header" class:scrolling={isScrolling}>
-        <History /><h1>{title}</h1>
+        <History /><h1>{app.title}</h1>
     </div>
-    <div class="content-container" bind:this={scroller} style:margin-top="{bufferHeight}px" onscroll={containerScroll}>
+    {#key app.title}
+    <div class="content-container" in:fly={{y: 30, duration: 200}} bind:this={scroller} style:margin-top="{bufferHeight}px" onscroll={containerScroll}>
         {@render children()}
     </div>
+    {/key}
 </div>
 
 

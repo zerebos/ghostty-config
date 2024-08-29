@@ -25,9 +25,6 @@
     const title = $derived(category?.name ?? $page.params.category);
 </script>
 
-<svelte:head>
-    <title>Ghostyy Config - {title}</title>
-</svelte:head>
 
 <Page {title}>
     {#if category}

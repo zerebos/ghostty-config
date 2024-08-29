@@ -7,10 +7,6 @@
     import LinkItem from "$lib/components/settings/LinkItem.svelte";
 </script>
 
-<!-- Do this more elegantly, maybe a $state -->
-<svelte:head>
-    <title>Ghostyy Config</title>
-</svelte:head>
 
 <Page title="Ghostty Config">
 <section>

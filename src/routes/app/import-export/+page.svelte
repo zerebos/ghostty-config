@@ -133,10 +133,6 @@
     </Group>
 </Page>
 
-<svelte:head>
-    <title>Ghostyy Config - Import & Export</title>
-</svelte:head>
-
 <style>
 .preview {
     background: var(--config-bg);

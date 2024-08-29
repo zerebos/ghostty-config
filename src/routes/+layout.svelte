@@ -22,6 +22,7 @@
     import ghostty from "$lib/images/tabs/ghostty.webp";
 
     import config from "$lib/stores/config.svelte";
+    import app from "$lib/stores/state.svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -47,7 +48,21 @@
     });
 
     const {children} = $props();
+
+
+
+
+    const htmlTitle = $derived.by(() => {
+        const name = app.title === "Ghostty Config" ? "" : app.title;
+        let title = "Ghostty Config";
+        if (name) title = `${title} - ${name}`;
+        return title;
+    });
 </script>
+
+<svelte:head>
+    <title>{htmlTitle}</title>
+</svelte:head>
 
 <!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
 <div class="app-window" style={cssConfigVars}>
