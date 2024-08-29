@@ -17,8 +17,6 @@
 
     let tracked: HTMLDivElement|null;
 
-    $inspect(defaultValue, value);
-
     function moveGrabber(event: MouseEvent) {
         if (!tracked) return;
 
@@ -261,6 +259,18 @@
     background: #1F1E1F!important;
     border-color: #443E4B!important;
     box-shadow: none!important;
+    background: linear-gradient(to top left,
+             rgba(0,0,0,0) 0%,
+             rgba(0,0,0,0) calc(50% - 1px),
+             #D54E53 50%,
+             rgba(0,0,0,0) calc(50% + 1px),
+             rgba(0,0,0,0) 100%),
+         linear-gradient(to top right,
+             rgba(0,0,0,0) 0%,
+             rgba(0,0,0,0) calc(50% - 1px),
+             #D54E53 50%,
+             rgba(0,0,0,0) calc(50% + 1px),
+             rgba(0,0,0,0) 100%) #1F1E1F!important;
     /* opacity: 0; */
 }
 

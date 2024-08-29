@@ -16,7 +16,6 @@
     const cursorColor = $derived(config.cursorInvertFgBg ? config.foreground : (config.cursorColor || config.foreground));
     const cursorText = $derived(isCursorVisible ? config.cursorInvertFgBg ? config.background : (config.cursorText || config.background) : config.foreground);
     const cursorOpacity = $derived(isCursorVisible ? Math.round(config.cursorOpacity * 255).toString(16) : "00");
-    // $inspect(cursorOpacity);
 </script>
 
 <div class="preview">

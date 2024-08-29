@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {fade, fly} from "svelte/transition";
     import {luminosity, isDark, type HexColor} from "$lib/utils/colors";
     import ColorPicker from "$lib/components/ColorPicker.svelte";
 
@@ -8,7 +9,7 @@
     const labelColor = $derived(isDark(value) ? `var(--color-text)` : "black");
     let popoutOpen = $state(false);
 
-    function click(event: MouseEvent) {
+    function click(event: Event) {
         event.preventDefault();
         event.stopPropagation();
         popoutOpen = !popoutOpen;
@@ -19,8 +20,15 @@
         event.stopPropagation();
         if (defaultValue !== undefined) value = defaultValue;
     }
+
+    function keydown(event: KeyboardEvent) {
+        if (!popoutOpen) return;
+        if (event.key === "Escape") click(event);
+    }
 </script>
 
+
+<svelte:document onkeydown={keydown} />
 
 <div class="color-wrap" style:width="{size}px" style:height="{size}px" style:background-color={value} style:border-color={borderColor}>
     {#if label}<span class="label" style:color={labelColor}>{label}</span>{/if}
@@ -28,8 +36,8 @@
 </div>
 
 {#if popoutOpen}
-<div class="shadow" onclick={click} role="none"></div>
-<div class="picker-container">
+<div class="shadow" onclick={click} transition:fade={{duration: 200}} role="none"></div>
+<div class="picker-container" transition:fly={{y: 32, duration: 200}}>
     <ColorPicker bind:value />
     <button class="close" onclick={click} type="button" title="Close"><span>×</span></button>
 </div>
