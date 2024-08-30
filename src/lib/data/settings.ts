@@ -194,8 +194,8 @@ export default [
                 id: "resize",
                 name: "Sizing & Resizing",
                 settings: [
-                    {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 4, step: 1, size: 12},
-                    {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 10, step: 1, size: 12},
+                    {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 4, step: 1, size: 4},
+                    {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 10, step: 1, size: 4},
                     {id: "windowStepResize", name: "Resize in grid cell increments", type: "switch", value: false},
                     {id: "resizeOverlay", name: "Show resize overlays", type: "dropdown", value: "after-first", options: ["always", "never", "after-first"]},
                     {id: "resizeOverlayPosition", name: "Resize overlay position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right"]},

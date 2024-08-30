@@ -25,30 +25,26 @@
 }
 
 .switch-body {
-    --switch-color: #453F4C;
-    --symbol1path: path('M5.13231 6.72963L6.7233 5.13864L14.855 13.2704L13.264 14.8614L5.13231 6.72963Z');
-    --symbol2path: path('M13.2704 5.13864L14.8614 6.72963L6.72963 14.8614L5.13864 13.2704L13.2704 5.13864Z');
-
     border-radius: 14px;
     width: 32px;
     height: 20px;
-    background-color: var(--switch-color);
-    transition: 250ms cubic-bezier(0, 0.3, 0.7, 1) background-color;
+    background-color: var(--switch-body-color);
+    transition: 250ms cubic-bezier(0, 0.3, 0.7, 1) background-color, 250ms cubic-bezier(0, 0.3, 0.7, 1) box-shadow;
     position: relative;
+    box-shadow: 0 0 1px transparent inset;
 }
 
 .switch input:active + .switch-body {
-    --switch-color: #514b5a;
+    background-color: var(--switch-active-body-color);
 }
 
 .switch input:checked + .switch-body {
-    --switch-color: #3973D3;
-    --symbol1path: path('M7.89561 14.8538L6.30462 13.2629L14.3099 5.25755L15.9009 6.84854L7.89561 14.8538Z');
-    --symbol2path: path('M4.08643 11.0903L5.67742 9.49929L9.4485 13.2704L7.85751 14.8614L4.08643 11.0903Z');
+    background-color: var(--switch-checked-color);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
 }
 
 .switch input:checked:active + .switch-body {
-    --switch-color: #4181e9;
+    background-color: var(--switch-active-checked-color);
 }
 
 .switch input {

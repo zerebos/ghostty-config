@@ -22,6 +22,7 @@
     import ghostty from "$lib/images/tabs/ghostty.webp";
 
     import config from "$lib/stores/config.svelte";
+    import app from "$lib/stores/state.svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -47,7 +48,21 @@
     });
 
     const {children} = $props();
+
+
+
+
+    const htmlTitle = $derived.by(() => {
+        const name = app.title === "Ghostty Config" ? "" : app.title;
+        let title = "Ghostty Config";
+        if (name) title = `${title} - ${name}`;
+        return title;
+    });
 </script>
+
+<svelte:head>
+    <title>{htmlTitle}</title>
+</svelte:head>
 
 <!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
 <div class="app-window" style={cssConfigVars}>
@@ -136,12 +151,12 @@
     height: 100%;
     /* margin: 20px auto; */
     width: 90%;
-    max-width: 715px;
-    height: 700px;
-    border: 1px solid black;
+    max-width: var(--app-width);
+    height: var(--app-height);
+    border: 1px solid var(--border-level-1);
     /* box-shadow: 0 0 1px white inset; */
     box-shadow: 0 0 20px -1px rgba(0,0,0,0.7);
-    border-radius: 15px;
+    border-radius: var(--radius-level-1);
     overflow: hidden;
 }
 
@@ -155,6 +170,7 @@
     z-index: 10;
 } */
 
+/* TODO: try this without pseudoelement using outline */
 .app-window::before {
     content: "";
     position: absolute;
@@ -169,15 +185,12 @@
 }
 
 #sidebar {
-    width: 215px;
+    width: var(--sidebar-width);
     /* black: #272329; white: #544F57; */
-    /* background: #272329; */
-    /* background: rgba(62, 57, 64, 0.6); */
-    /* background: rgba(39, 35, 41, 0.7); */
     background: rgba(50, 46, 52, 0.7);
     backdrop-filter: blur(10px);
     padding: 5px;
-    border-right: 1px solid black;
+    border-right: 2px solid var(--border-level-1);
     display: flex;
     flex-direction: column;
 }
@@ -227,19 +240,19 @@
 }
 
 .window-dot {
-    background-color: rgb(251, 190, 60);
+    background-color: var(--color-warning);
 }
 
 .window-dot:first-of-type {
-    background-color: rgb(242, 95, 88);
+    background-color: var(--color-danger);
 }
 
 .window-dot:last-of-type {
-    background-color: rgb(88, 203, 66);
+    background-color: var(--color-success);
 }
 
 #content-view {
-    background: #2C2733;
+    background: var(--bg-level-1);
     flex: 1;
     display: flex;
     min-width: 0;
@@ -262,7 +275,7 @@
     background: linear-gradient(#D3E3E9, #908F8C);
     width: 20px;
     height: 20px;
-    border-radius: 6px;
+    border-radius: var(--radius-level-4);
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -282,84 +295,4 @@
     height: 18px;
     width: 18px;
 }
-
-/* .app-window .content {
-    flex: 1;
-}
-
-.app-window .sidebar-header {
-    display: flex;
-    align-items: center;
-    background: #444950;
-    border-radius: 12px 12px 0 0;
-    overflow: hidden;
-    padding: 10px 16px;
-    min-height: 49px;
-}
-
-.app-window .window-dot {
-    border-radius: 50%;
-    display: inline-block;
-    height: 12px;
-    margin-right: 6px;
-    margin-top: 4px;
-    width: 12px;
-}
-
-.app-window .address-bar {
-    display: flex;
-    align-items: center;
-    background-color: #1B1B1D;
-    border-radius: 12.5px;
-    color: #DADDE1;
-    flex: 1 0;
-    font: 400 13px Arial, sans-serif;
-    margin: 0 1rem 0 .5rem;
-    padding: 5px 15px;
-}
-
-.app-window .burger-bar {
-    background-color: #aaa;
-    display: block;
-    height: 3px;
-    margin: 3px 0;
-    width: 17px;
-}
-
-.app-window .content {
-    background: #292c30;
-    display: flex;
-    border: 3px solid #444950;
-    border-top: 0;
-    border-radius: 0 0 12px 12px;
-    padding: 20px;
-}
-
-
-.app-window .browser-tabs {
-    background: #444950;
-    display: flex;
-    padding: 0 10px;
-    gap: 10px;
-    user-select: none;
-}
-
-.app-window .browser-tabs .browser-tab {
-    background: #1B1B1D;
-    display: flex;
-    border-radius: 12px 12px 0 0;
-    padding: 6px 10px 3px 10px;
-    align-items: center;
-    gap: 6px;
-    line-height: 1.5;
-}
-
-.app-window .browser-tabs .browser-tab:hover {
-    background: rgba(0, 0, 0, 0.5);
-    cursor: pointer;
-}
-
-.app-window .browser-tabs .browser-tab.active {
-    background: #292C30;
-} */
 </style>

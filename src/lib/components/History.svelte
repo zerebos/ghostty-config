@@ -34,9 +34,12 @@
     align-items: center;
     background: none;
     border: 0;
-    color: inherit;
     padding: 4px 4px 4px 12px;
-    border-radius: 4px;
+    border-radius: var(--radius-level-5);
+}
+
+.history button svg {
+    fill: var(--font-color-muted);
 }
 
 .history button.forward {

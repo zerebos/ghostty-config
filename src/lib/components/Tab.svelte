@@ -37,14 +37,14 @@
         align-items: center;
         gap: 10px;
         padding: 6px;
-        border-radius: 6px;
+        border-radius: var(--radius-level-4);
         font-weight: 600;
         position: relative;
         text-decoration: none;
     }
 
     .nav-tab.selected {
-        background: #2C56B9;
+        background: var(--color-selected);
     }
 
     .nav-tab .tab-icon {
@@ -56,7 +56,7 @@
         font-size: 1rem;
         flex: 1;
         justify-content: flex-start;
-        color: var(--color-text)!important;
+        color: var(--font-color)!important;
         text-decoration: none !important;
     }
 

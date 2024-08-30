@@ -133,10 +133,6 @@
     </Group>
 </Page>
 
-<svelte:head>
-    <title>Ghostyy Config - Import & Export</title>
-</svelte:head>
-
 <style>
 .preview {
     background: var(--config-bg);
@@ -146,10 +142,11 @@
     min-height: 200px;
     overflow-y: auto;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: var(--radius-level-3);
     border: 1px solid rgba(0, 0, 0, 0.5);
     box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
     flex: 1;
+    user-select: text;
 }
 
 .preview .row {
@@ -191,11 +188,10 @@
     gap: 12px;
 }
 
-/* modal bg #231E2A */
 /* TODO: extract to a separate component for usage elsewhere */
 button {
-    background: #625D67;
-    border-radius: 7px;
+    background: var(--bg-basic-button);
+    border-radius: var(--radius-level-4);
     border: 0;
     color: inherit;
     padding: 2px 10px;

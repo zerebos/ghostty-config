@@ -98,12 +98,11 @@
 <style>
 .picker-container {
     position: relative;
-    background: #231E2A;
-    border-radius: 1px;
+    background: var(--bg-modal);
     border: 1px solid black;
     box-shadow: 0 0 20px -1px rgba(0,0,0,0.7);
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--radius-level-2);
     overflow: hidden;
 }
 
@@ -125,8 +124,8 @@
     height: 160px;
     position: relative;
     overflow: hidden;
-    border-radius: 8px;
-    border: 1px solid #65626A;
+    border-radius: var(--radius-level-3);
+    border: 1px solid var(--border-input);
     box-shadow: 0 0 3px 0px black;
 }
 
@@ -203,8 +202,7 @@
     display: flex;
     flex: 1 1 50%;
     min-height: 100%;
-    border-radius: 2px;
-    border-radius: 8px;
+    border-radius: var(--radius-level-3);
     border: 1px solid rgba(0, 0, 0, 1);
     box-shadow: 0 0 1px rgba(255, 255, 255, 1) inset;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -222,11 +220,10 @@
 .hex-value {
     display: flex;
     justify-content: center;
-    background: #1F1E1F;
-    border-radius: 2px;
+    background: var(--bg-input-focus);
     padding: 2px;
-    border: 1px solid #443E4B;
-    border-radius: 4px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-level-5);
     width: 100%;
 }
 
@@ -246,31 +243,30 @@
 .value {
     display: flex;
     justify-content: center;
-    background: #1F1E1F;
-    border-radius: 2px;
+    background: var(--bg-input-focus);
     padding: 2px;
-    border: 1px solid #443E4B;
-    border-radius: 4px;
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-level-5);
     width: 30px;
 }
 
 
 .color-picked.empty {
-    background: #1F1E1F!important;
-    border-color: #443E4B!important;
+    background: var(--bg-input-focus)!important;
+    border-color: var(--border-input)!important;
     box-shadow: none!important;
     background: linear-gradient(to top left,
              rgba(0,0,0,0) 0%,
              rgba(0,0,0,0) calc(50% - 1px),
-             #D54E53 50%,
+             var(--color-danger) 50%,
              rgba(0,0,0,0) calc(50% + 1px),
              rgba(0,0,0,0) 100%),
          linear-gradient(to top right,
              rgba(0,0,0,0) 0%,
              rgba(0,0,0,0) calc(50% - 1px),
-             #D54E53 50%,
+             var(--color-danger) 50%,
              rgba(0,0,0,0) calc(50% + 1px),
-             rgba(0,0,0,0) 100%) #1F1E1F!important;
+             rgba(0,0,0,0) 100%) var(--bg-input-focus)!important;
     /* opacity: 0; */
 }
 

@@ -41,7 +41,7 @@
 }
 
 .note {
-    color: #A7A3AA;
+    color: var(--font-color-muted);
     font-size: 0.9rem;
 }
 </style>

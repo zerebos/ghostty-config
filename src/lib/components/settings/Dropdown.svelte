@@ -20,9 +20,9 @@
 
 <style>
 select {
-    background: #2F2935;
-    border: 0px solid #443E4B;
-    border-radius: 4px;
+    background: var(--bg-level-2);
+    border: 0px solid var(--border-input);
+    border-radius: var(--radius-level-5);
     outline: none;
     color: inherit;
     text-align: right;
@@ -30,7 +30,7 @@ select {
 }
 
 select:focus {
-    background: #1F1E1F;
-    outline: 3px solid #2656C9;
+    background: var(--bg-input-focus);
+    outline: var(--border-input-focus);
 }
 </style>

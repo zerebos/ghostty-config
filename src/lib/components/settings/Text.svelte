@@ -14,27 +14,32 @@
     }
 </script>
 
-<input class:blank class={align} type="text" onclick={click} onchange={change} bind:value />
+<input class:blank class:empty={value === ""} class={align} type="text" onclick={click} onchange={change} bind:value />
 
 <style>
 input {
-    background: #2F2935;
-    border: 1px solid #443E4B;
-    border-radius: 4px;
+    background: var(--bg-level-2);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-level-5);
     outline: none;
     color: inherit;
     text-align: right;
     max-width: 175px;
+    padding: 0 4px 2px 0;
 }
 
 input:focus, input.blank:focus {
-    background: #1F1E1F;
-    outline: 3px solid #2656C9;
+    background:var(--bg-input-focus);
+    outline: var(--border-input-focus);
 }
 
 input.blank {
     background: none;
-    border: 0;
+    border-width: 0;
+}
+
+input.blank.empty {
+    border-width: 1px;
 }
 
 input.left {
