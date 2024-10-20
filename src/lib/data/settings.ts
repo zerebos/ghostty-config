@@ -70,9 +70,28 @@ interface Keybinds extends BaseSettingItem {
     type: "keybinds";
 }
 
+interface ThemeResponse {
+  "type": string;
+  "encoding": string;
+  "size": number;
+  "name": string;
+  "path": string;
+  "content": string;
+  "sha": string;
+  "url": string;
+  "git_url": string;
+  "html_url": string;
+  "download_url": string;
+  "_links": {
+    "git": string;
+    "self": string;
+    "html": string;
+  }
+}
+
 const {themeFiles} = await load();
 
-const themeFileNames = themeFiles.map((file: { name: string; }) => file.name.replace(".txt", ""));
+const themeFileNames = themeFiles.map((file: ThemeResponse) => file.name);
 
 export default [
     {
