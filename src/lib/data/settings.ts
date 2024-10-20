@@ -1,4 +1,5 @@
 import type {HexColor} from "$lib/utils/colors";
+import {load} from "../../routes/+page";
 
 interface BaseSettingType {
     id: string;
@@ -68,6 +69,10 @@ interface Keybinds extends BaseSettingItem {
     value: KeybindString[];
     type: "keybinds";
 }
+
+const {themeFiles} = await load();
+
+const themeFileNames = themeFiles.map((file: { name: string; }) => file.name.replace(".txt", ""));
 
 export default [
     {
@@ -212,7 +217,14 @@ export default [
                 id: "general",
                 name: "",
                 settings: [
-                    {id: "theme", name: "Color theme", note: "Any colors selected after setting this will overwrite the theme's colors.", type: "text", value: ""},
+                    {
+                        id: "theme",
+                        name: "Color theme",
+                        note: "Any colors selected after setting this will overwrite the theme's colors.",
+                        type: "dropdown",
+                        value: "",
+                        options: ["", ...themeFileNames]
+                    },
                     {id: "boldIsBright", name: "Bold text uses bright colors", type: "switch", value: false},
                     {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
                 ]
