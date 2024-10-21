@@ -143,7 +143,7 @@ const parseColorScheme = (input: string): ColorScheme => {
           colorScheme.cursorColor = `#${value}`;
           break;
         case "selection-background":
-          colorScheme.selectionBackground = `#${value}`;;
+          colorScheme.selectionBackground = `#${value}`;
           break;
         case "selection-foreground":
           colorScheme.selectionForeground = `#${value}`;
