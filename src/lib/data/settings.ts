@@ -88,6 +88,15 @@ interface ThemeResponse {
   }
 }
 
+interface ColorScheme {
+  palette: { [key: string]: string };
+  background?: string;
+  foreground?: string;
+  cursorColor?: string;
+  selectionBackground?: string;
+  selectionForeground?: string;
+}
+
 const fetchThemeFiles = async () => {
     const apiUrl = "https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty";
 
@@ -102,9 +111,75 @@ const fetchThemeFiles = async () => {
     return {themeFiles};
 };
 
-const {themeFiles} = await fetchThemeFiles();
+// Function to convert raw string data into a JSON object
+const parseColorScheme = (input: string): ColorScheme => {
+  const colorScheme: ColorScheme = {palette: {}};
 
+  // Split input by lines
+  const lines = input.split("\n");
+
+  lines.forEach((line) => {
+    if (line.startsWith("palette")) {
+      const [, rest] = line.split("palette =").map(part => part.trim());
+
+      if (rest) {
+        const [paletteIndex, color] = rest.split("=");
+        if (paletteIndex && color) {
+          colorScheme.palette[paletteIndex.trim()] = color.trim();
+        }
+      }
+    }
+    else {
+      const [key, value] = line.split("=").map(part => part.trim());
+
+      switch (key) {
+        case "background":
+          colorScheme.background = `#${value}`;
+          break;
+        case "foreground":
+          colorScheme.foreground = `#${value}`;
+          break;
+        case "cursor-color":
+          colorScheme.cursorColor = `#${value}`;
+          break;
+        case "selection-background":
+          colorScheme.selectionBackground = `#${value}`;;
+          break;
+        case "selection-foreground":
+          colorScheme.selectionForeground = `#${value}`;
+          break;
+        default:
+          break;
+      }
+    }
+  });
+
+  return colorScheme;
+};
+
+const fetchColorScheme = async (theme: string) => {
+    const apiUrl = `https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty${theme ? "/" + theme : ""}`;
+
+    const response = await fetch(apiUrl,{
+        headers: {
+            Accept: "application/vnd.github.raw+json"
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+
+    const colorSchemeResponse = await response.text();
+
+    return {colorSchemeResponse};
+};
+
+const {themeFiles} = await fetchThemeFiles();
 const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
+
+const {colorSchemeResponse} = await fetchColorScheme("Abernathy");
+const colorScheme = parseColorScheme(colorSchemeResponse);
 
 export default [
     {
