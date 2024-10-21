@@ -1,5 +1,4 @@
 import type {HexColor} from "$lib/utils/colors";
-import {load} from "../../routes/+page";
 
 interface BaseSettingType {
     id: string;
@@ -89,9 +88,23 @@ interface ThemeResponse {
   }
 }
 
-const {themeFiles} = await load();
+const fetchThemeFiles = async () => {
+    const apiUrl = "https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty";
 
-const themeFileNames = themeFiles.map((file: ThemeResponse) => file.name);
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+
+    const themeFiles = await response.json();
+
+    return {themeFiles};
+};
+
+const {themeFiles} = await fetchThemeFiles();
+
+const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
 
 export default [
     {
