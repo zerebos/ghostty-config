@@ -182,10 +182,13 @@ export const fetchColorScheme = async (theme: string) => {
     return {colorSchemeResponse};
 };
 
-const {themeFiles} = await fetchThemeFiles();
-const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
+fetchThemeFiles().then(({themeFiles}) => {
+    const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
+    const themeSetting = settings.find(p => p.id === "colors")?.groups.find(g => g.id === "general")?.settings.find(s => s.type === "theme");
+    themeSetting?.options.push(...themeFileNames);
+});
 
-export default [
+const settings = [
     {
         id: "application",
         name: "Application",
@@ -334,7 +337,7 @@ export default [
                         note: "Any colors selected after setting this will overwrite the theme's colors.",
                         type: "theme",
                         value: "",
-                        options: ["", ...themeFileNames]
+                        options: [{name: "Custom", value: ""}]
                     },
                     {id: "boldIsBright", name: "Bold text uses bright colors", type: "switch", value: false},
                     {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
@@ -525,3 +528,6 @@ export default [
         ]
     },
 ] as Panel[];
+
+
+export default settings;
