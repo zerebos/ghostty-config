@@ -11,11 +11,11 @@ interface Panel extends BaseSettingType {
 }
 
 interface Group extends BaseSettingType {
-    settings: (Switch | Text | Number | Dropdown | Color | Palette | Keybinds)[];
+    settings: (Switch | Text | Number | Dropdown | Color | Palette | Keybinds | Theme)[];
     // type: "group";
 }
 
-type SettingType = "switch" | "number" | "dropdown" | "text" | "color" | "palette" | "keybinds";
+type SettingType = "switch" | "number" | "dropdown" | "text" | "color" | "palette" | "keybinds" | "theme";
 
 interface BaseSettingItem extends BaseSettingType {
     type: SettingType;
@@ -49,6 +49,12 @@ interface DropdownOption {
 
 interface Dropdown extends BaseSettingItem {
     type: "dropdown";
+    value: "string";
+    options: (DropdownOption | string)[];
+}
+
+interface Theme extends BaseSettingItem {
+    type: "theme";
     value: "string";
     options: (DropdownOption | string)[];
 }
@@ -88,13 +94,13 @@ interface ThemeResponse {
   }
 }
 
-interface ColorScheme {
-  palette: { [key: string]: string };
-  background?: string;
-  foreground?: string;
-  cursorColor?: string;
-  selectionBackground?: string;
-  selectionForeground?: string;
+export interface ColorScheme {
+  palette: HexColor[];
+  background?: HexColor;
+  foreground?: HexColor;
+  cursorColor?: HexColor;
+  selectionBackground?: HexColor;
+  selectionForeground?: HexColor;
 }
 
 const fetchThemeFiles = async () => {
@@ -112,8 +118,8 @@ const fetchThemeFiles = async () => {
 };
 
 // Function to convert raw string data into a JSON object
-const parseColorScheme = (input: string): ColorScheme => {
-  const colorScheme: ColorScheme = {palette: {}};
+export const parseColorScheme = (input: string): ColorScheme => {
+  const colorScheme: ColorScheme = {palette: Array(256)};
 
   // Split input by lines
   const lines = input.split("\n");
@@ -125,7 +131,8 @@ const parseColorScheme = (input: string): ColorScheme => {
       if (rest) {
         const [paletteIndex, color] = rest.split("=");
         if (paletteIndex && color) {
-          colorScheme.palette[paletteIndex.trim()] = color.trim();
+          const index = parseInt(paletteIndex.trim());
+          colorScheme.palette[index] = color.trim() as HexColor;
         }
       }
     }
@@ -157,7 +164,7 @@ const parseColorScheme = (input: string): ColorScheme => {
   return colorScheme;
 };
 
-const fetchColorScheme = async (theme: string) => {
+export const fetchColorScheme = async (theme: string) => {
     const apiUrl = `https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty${theme ? "/" + theme : ""}`;
 
     const response = await fetch(apiUrl,{
@@ -178,8 +185,8 @@ const fetchColorScheme = async (theme: string) => {
 const {themeFiles} = await fetchThemeFiles();
 const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
 
-const {colorSchemeResponse} = await fetchColorScheme("Abernathy");
-const colorScheme = parseColorScheme(colorSchemeResponse);
+// const {colorSchemeResponse} = await fetchColorScheme("Abernathy");
+// const colorScheme = parseColorScheme(colorSchemeResponse);
 
 export default [
     {
@@ -328,7 +335,7 @@ export default [
                         id: "theme",
                         name: "Color theme",
                         note: "Any colors selected after setting this will overwrite the theme's colors.",
-                        type: "dropdown",
+                        type: "theme",
                         value: "",
                         options: ["", ...themeFileNames]
                     },
