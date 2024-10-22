@@ -97,13 +97,14 @@
 body {
     min-height: 100vh;
     margin: 0;
-	background-image: url("$lib/images/monterey.webp");
-	background-attachment: fixed;
-	background-size: cover;
-	background-position: center center;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+    overscroll-behavior: none; /* This line */
+    background-image: url("$lib/images/monterey.webp");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 a {
