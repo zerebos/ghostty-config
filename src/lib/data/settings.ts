@@ -11,11 +11,11 @@ interface Panel extends BaseSettingType {
 }
 
 interface Group extends BaseSettingType {
-    settings: (Switch | Text | Number | Dropdown | Color | Palette | Keybinds)[];
+    settings: (Switch | Text | Number | Dropdown | Color | Palette | Keybinds | Theme)[];
     // type: "group";
 }
 
-type SettingType = "switch" | "number" | "dropdown" | "text" | "color" | "palette" | "keybinds";
+type SettingType = "switch" | "number" | "dropdown" | "text" | "color" | "palette" | "keybinds" | "theme";
 
 interface BaseSettingItem extends BaseSettingType {
     type: SettingType;
@@ -53,6 +53,12 @@ interface Dropdown extends BaseSettingItem {
     options: (DropdownOption | string)[];
 }
 
+interface Theme extends BaseSettingItem {
+    type: "theme";
+    value: "string";
+    options: (DropdownOption | string)[];
+}
+
 interface Color extends BaseSettingItem {
     value: HexColor;
     type: "color";
@@ -68,6 +74,116 @@ interface Keybinds extends BaseSettingItem {
     value: KeybindString[];
     type: "keybinds";
 }
+
+interface ThemeResponse {
+  "type": string;
+  "encoding": string;
+  "size": number;
+  "name": string;
+  "path": string;
+  "content": string;
+  "sha": string;
+  "url": string;
+  "git_url": string;
+  "html_url": string;
+  "download_url": string;
+  "_links": {
+    "git": string;
+    "self": string;
+    "html": string;
+  }
+}
+
+export interface ColorScheme {
+  palette: HexColor[];
+  background?: HexColor;
+  foreground?: HexColor;
+  cursorColor?: HexColor;
+  selectionBackground?: HexColor;
+  selectionForeground?: HexColor;
+}
+
+const fetchThemeFiles = async () => {
+    const apiUrl = "https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty";
+
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+
+    const themeFiles = await response.json();
+
+    return {themeFiles};
+};
+
+// Function to convert raw string data into a JSON object
+export const parseColorScheme = (input: string): ColorScheme => {
+  const colorScheme: ColorScheme = {palette: Array(256)};
+
+  // Split input by lines
+  const lines = input.split("\n");
+
+  lines.forEach((line) => {
+    if (line.startsWith("palette")) {
+      const [, rest] = line.split("palette =").map(part => part.trim());
+
+      if (rest) {
+        const [paletteIndex, color] = rest.split("=");
+        if (paletteIndex && color) {
+          const index = parseInt(paletteIndex.trim());
+          colorScheme.palette[index] = color.trim() as HexColor;
+        }
+      }
+    }
+    else {
+      const [key, value] = line.split("=").map(part => part.trim());
+
+      switch (key) {
+        case "background":
+          colorScheme.background = `#${value}`;
+          break;
+        case "foreground":
+          colorScheme.foreground = `#${value}`;
+          break;
+        case "cursor-color":
+          colorScheme.cursorColor = `#${value}`;
+          break;
+        case "selection-background":
+          colorScheme.selectionBackground = `#${value}`;
+          break;
+        case "selection-foreground":
+          colorScheme.selectionForeground = `#${value}`;
+          break;
+        default:
+          break;
+      }
+    }
+  });
+
+  return colorScheme;
+};
+
+export const fetchColorScheme = async (theme: string) => {
+    const apiUrl = `https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty${theme ? "/" + theme : ""}`;
+
+    const response = await fetch(apiUrl,{
+        headers: {
+            Accept: "application/vnd.github.raw+json"
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+
+    const colorSchemeResponse = await response.text();
+
+    return {colorSchemeResponse};
+};
+
+const {themeFiles} = await fetchThemeFiles();
+const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
 
 export default [
     {
@@ -212,7 +328,14 @@ export default [
                 id: "general",
                 name: "",
                 settings: [
-                    {id: "theme", name: "Color theme", note: "Any colors selected after setting this will overwrite the theme's colors.", type: "text", value: ""},
+                    {
+                        id: "theme",
+                        name: "Color theme",
+                        note: "Any colors selected after setting this will overwrite the theme's colors.",
+                        type: "theme",
+                        value: "",
+                        options: ["", ...themeFileNames]
+                    },
                     {id: "boldIsBright", name: "Bold text uses bright colors", type: "switch", value: false},
                     {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
                 ]

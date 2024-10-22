@@ -19,6 +19,7 @@
     import CursorPreview from "$lib/views/CursorPreview.svelte";
     import PalettePreview from "$lib/views/PalettePreview.svelte";
     import Admonition from "$lib/components/Admonition.svelte";
+    import Theme from "$lib/components/settings/Theme.svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -56,6 +57,8 @@
                             <Number bind:value={config[setting.id as keyof typeof config]} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
                         {:else if setting.type === "dropdown"}
                             <Dropdown bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
+                        {:else if setting.type === "theme"}
+                            <Theme bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
                         {:else if setting.type === "color"}
                             <Color defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config]} />
                         {:else if setting.type === "palette"}
