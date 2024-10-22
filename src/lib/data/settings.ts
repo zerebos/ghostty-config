@@ -185,9 +185,6 @@ export const fetchColorScheme = async (theme: string) => {
 const {themeFiles} = await fetchThemeFiles();
 const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
 
-// const {colorSchemeResponse} = await fetchColorScheme("Abernathy");
-// const colorScheme = parseColorScheme(colorSchemeResponse);
-
 export default [
     {
         id: "application",
