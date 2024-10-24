@@ -94,6 +94,7 @@ interface ThemeResponse {
     }
 }
 
+// TODO: unify config typing across repo
 export interface ColorScheme {
     palette: HexColor[];
     background?: HexColor;
@@ -113,54 +114,6 @@ export const fetchColorScheme = async (theme: string) => {
     const response = await fetch(`https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/ghostty/${theme}`);
     if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
     return await response.text();
-};
-
-// TODO: merge this with the pre-existing parser
-// Function to convert raw string data into a JSON object
-export const parseColorScheme = (input: string): ColorScheme => {
-    const colorScheme: ColorScheme = {palette: Array(256)};
-
-    // Split input by lines
-    const lines = input.split("\n");
-
-    lines.forEach((line) => {
-        if (line.startsWith("palette")) {
-            const [, rest] = line.split("palette =").map(part => part.trim());
-
-            if (rest) {
-            const [paletteIndex, color] = rest.split("=");
-            if (paletteIndex && color) {
-                const index = parseInt(paletteIndex.trim());
-                colorScheme.palette[index] = color.trim() as HexColor;
-            }
-            }
-        }
-        else {
-            const [key, value] = line.split("=").map(part => part.trim());
-
-            switch (key) {
-            case "background":
-                colorScheme.background = `#${value}`;
-                break;
-            case "foreground":
-                colorScheme.foreground = `#${value}`;
-                break;
-            case "cursor-color":
-                colorScheme.cursorColor = `#${value}`;
-                break;
-            case "selection-background":
-                colorScheme.selectionBackground = `#${value}`;
-                break;
-            case "selection-foreground":
-                colorScheme.selectionForeground = `#${value}`;
-                break;
-            default:
-                break;
-            }
-        }
-    });
-
-    return colorScheme;
 };
 
 fetchThemeFiles().then((themeFiles: ThemeResponse[] | null) => {
@@ -344,7 +297,7 @@ const settings = [
                 settings: [
                     {id: "cursorColor", name: "Cursor color", type: "color", value: ""},
                     {id: "cursorText", name: "Text color under cursor", type: "color", value: ""},
-                    {id: "cursorInvertFgBg", name: "Invert selection colors", note: "Enabling this will cause cells under the cursor to be the inverse of their current colors. This ignores the two selection colors above.", type: "switch", value: false},
+                    {id: "cursorInvertFgBg", name: "Invert cursor cell colors", note: "Enabling this will cause cells under the cursor to be the inverse of their current colors. This ignores the two cursor colors above.", type: "switch", value: false},
                     {id: "cursorOpacity", name: "Cursor opacity", type: "number", value: 1, range: true, min: 0, max: 1, step: 0.05},
                     {id: "cursorStyle", name: "Cursor style", type: "dropdown", value: "block", options: ["block", "bar", "underline", {value: "block_hollow", name: "hollow block"}]},
                     {id: "cursorStyleBlink", name: "Cursor blink style", note: "The `default` option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},

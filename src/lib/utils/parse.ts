@@ -3,6 +3,8 @@ import type {HexColor} from "./colors";
 
 const re = /^\s*([a-z-]+)[\s]*=\s*(.*)\s*$/;
 
+const colors = ["background", "foreground", "cursor-color", "selection-background", "selection-foreground"];
+
 export default function(configString: string) {
     const lines = configString.split("\n");
 
@@ -37,7 +39,13 @@ export default function(configString: string) {
                 newKey += split[s].charAt(0).toUpperCase();
                 newKey += split[s].substring(1);
             }
-            results[newKey] = value;
+
+            if (colors.includes(key) && value.length === 6 && !value.startsWith("#")) {
+                results[newKey] = `#${value}`;
+            }
+            else {
+                results[newKey] = value;
+            }
         }
     }
 

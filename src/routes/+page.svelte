@@ -37,7 +37,6 @@
                 <li>Validation of keybindings</li>
                 <li>Help documentation</li>
                 <li>Allow manual color input</li>
-                <li>Add theme presets</li>
                 <li>Unit testing import/export</li>
                 <li>Unify color scheme</li>
                 <li>Refactor & cleanup code</li>
@@ -47,8 +46,8 @@
             <ul>
                 <li>Custom setting types to more closely match Ghostty's config</li>
                 <li>Add a way to reset individual settings</li>
-                <li>Change color picker to be popover style instead of modal style</li>
-                <li>Add a more detailed terminal preview and playground</li>
+                <li>Change color picker from modal to popout</li>
+                <li>A detailed terminal preview and playground</li>
             </ul>
         </Group>
     </div>

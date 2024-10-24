@@ -1,6 +1,7 @@
 import {dev} from "$app/environment";
-import settings, {fetchColorScheme, parseColorScheme, type KeybindString, type ColorScheme} from "$lib/data/settings";
+import settings, {fetchColorScheme, type KeybindString} from "$lib/data/settings";
 import type {HexColor} from "$lib/utils/colors";
+import parse from "$lib/utils/parse";
 // import defs from "../data/defaults.json";
 
 // TODO: find a good way to properly type the config
@@ -77,21 +78,19 @@ export function load(conf: Partial<typeof config>) {
 export async function setColorScheme(name: string) {
     if (name === "") return resetColorScheme();
     const colorSchemeResponse = await fetchColorScheme(name);
-    const colorScheme = parseColorScheme(colorSchemeResponse);
-    const keys = ["background", "foreground", "cursorColor", "selectionBackground", "selectionForeground"] as (keyof ColorScheme)[];
-    for (const key of keys) {
-        if (!colorScheme[key]) continue;
-        config[key] = colorScheme[key];
+    try {
+        const parsed = parse(colorSchemeResponse);
+        load(parsed);
     }
-
-    for (let c = 0; c < colorScheme.palette.length; c++) {
-        if (!colorScheme.palette[c]) continue;
-        config.palette[c] = colorScheme.palette[c];
+    catch (error) {
+        // TODO: give feedback to user maybe?
+        console.error(error); // eslint-disable-line no-console
     }
 }
 
 export async function resetColorScheme() {
     const keys = ["background", "foreground", "cursorColor", "selectionBackground", "selectionForeground"] as (keyof DefaultConfig)[];
+
     for (const key of keys) {
         config[key] = defaults[key];
     }
