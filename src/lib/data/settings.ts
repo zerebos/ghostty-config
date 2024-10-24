@@ -76,116 +76,98 @@ interface Keybinds extends BaseSettingItem {
 }
 
 interface ThemeResponse {
-  "type": string;
-  "encoding": string;
-  "size": number;
-  "name": string;
-  "path": string;
-  "content": string;
-  "sha": string;
-  "url": string;
-  "git_url": string;
-  "html_url": string;
-  "download_url": string;
-  "_links": {
-    "git": string;
-    "self": string;
-    "html": string;
-  }
+    type: string;
+    encoding: string;
+    size: number;
+    name: string;
+    path: string;
+    content: string;
+    sha: string;
+    url: string;
+    git_url: string;
+    html_url: string;
+    download_url: string;
+    _links: {
+        git: string;
+        self: string;
+        html: string;
+    }
 }
 
 export interface ColorScheme {
-  palette: HexColor[];
-  background?: HexColor;
-  foreground?: HexColor;
-  cursorColor?: HexColor;
-  selectionBackground?: HexColor;
-  selectionForeground?: HexColor;
+    palette: HexColor[];
+    background?: HexColor;
+    foreground?: HexColor;
+    cursorColor?: HexColor;
+    selectionBackground?: HexColor;
+    selectionForeground?: HexColor;
 }
 
 const fetchThemeFiles = async () => {
-    const apiUrl = "https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty";
-
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-        throw new Error(`Error fetching data: ${response.statusText}`);
-    }
-
-    const themeFiles = await response.json();
-
-    return {themeFiles};
-};
-
-// Function to convert raw string data into a JSON object
-export const parseColorScheme = (input: string): ColorScheme => {
-  const colorScheme: ColorScheme = {palette: Array(256)};
-
-  // Split input by lines
-  const lines = input.split("\n");
-
-  lines.forEach((line) => {
-    if (line.startsWith("palette")) {
-      const [, rest] = line.split("palette =").map(part => part.trim());
-
-      if (rest) {
-        const [paletteIndex, color] = rest.split("=");
-        if (paletteIndex && color) {
-          const index = parseInt(paletteIndex.trim());
-          colorScheme.palette[index] = color.trim() as HexColor;
-        }
-      }
-    }
-    else {
-      const [key, value] = line.split("=").map(part => part.trim());
-
-      switch (key) {
-        case "background":
-          colorScheme.background = `#${value}`;
-          break;
-        case "foreground":
-          colorScheme.foreground = `#${value}`;
-          break;
-        case "cursor-color":
-          colorScheme.cursorColor = `#${value}`;
-          break;
-        case "selection-background":
-          colorScheme.selectionBackground = `#${value}`;
-          break;
-        case "selection-foreground":
-          colorScheme.selectionForeground = `#${value}`;
-          break;
-        default:
-          break;
-      }
-    }
-  });
-
-  return colorScheme;
+    const response = await fetch("https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty");
+    if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    return await response.json();
 };
 
 export const fetchColorScheme = async (theme: string) => {
-    const apiUrl = `https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty${theme ? "/" + theme : ""}`;
+    const response = await fetch(`https://raw.githubusercontent.com/mbadolato/iTerm2-Color-Schemes/master/ghostty/${theme}`);
+    if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    return await response.text();
+};
 
-    const response = await fetch(apiUrl,{
-        headers: {
-            Accept: "application/vnd.github.raw+json"
+// TODO: merge this with the pre-existing parser
+// Function to convert raw string data into a JSON object
+export const parseColorScheme = (input: string): ColorScheme => {
+    const colorScheme: ColorScheme = {palette: Array(256)};
+
+    // Split input by lines
+    const lines = input.split("\n");
+
+    lines.forEach((line) => {
+        if (line.startsWith("palette")) {
+            const [, rest] = line.split("palette =").map(part => part.trim());
+
+            if (rest) {
+            const [paletteIndex, color] = rest.split("=");
+            if (paletteIndex && color) {
+                const index = parseInt(paletteIndex.trim());
+                colorScheme.palette[index] = color.trim() as HexColor;
+            }
+            }
+        }
+        else {
+            const [key, value] = line.split("=").map(part => part.trim());
+
+            switch (key) {
+            case "background":
+                colorScheme.background = `#${value}`;
+                break;
+            case "foreground":
+                colorScheme.foreground = `#${value}`;
+                break;
+            case "cursor-color":
+                colorScheme.cursorColor = `#${value}`;
+                break;
+            case "selection-background":
+                colorScheme.selectionBackground = `#${value}`;
+                break;
+            case "selection-foreground":
+                colorScheme.selectionForeground = `#${value}`;
+                break;
+            default:
+                break;
+            }
         }
     });
 
-    if (!response.ok) {
-        throw new Error(`Error fetching data: ${response.statusText}`);
-    }
-
-    const colorSchemeResponse = await response.text();
-
-    return {colorSchemeResponse};
+    return colorScheme;
 };
 
-fetchThemeFiles().then(({themeFiles}) => {
-    const themeFileNames = themeFiles && themeFiles.map((file: ThemeResponse) => file.name);
+fetchThemeFiles().then((themeFiles: ThemeResponse[] | null) => {
+    if (!themeFiles) return;
+    const themeNames = themeFiles.map((file: ThemeResponse) => file.name);
     const themeSetting = settings.find(p => p.id === "colors")?.groups.find(g => g.id === "general")?.settings.find(s => s.type === "theme");
-    themeSetting?.options.push(...themeFileNames);
+    themeSetting?.options.push(...themeNames);
 });
 
 const settings = [

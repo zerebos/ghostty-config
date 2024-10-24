@@ -76,7 +76,7 @@ export function load(conf: Partial<typeof config>) {
 
 export async function setColorScheme(name: string) {
     if (name === "") return resetColorScheme();
-    const {colorSchemeResponse} = await fetchColorScheme(name);
+    const colorSchemeResponse = await fetchColorScheme(name);
     const colorScheme = parseColorScheme(colorSchemeResponse);
     const keys = ["background", "foreground", "cursorColor", "selectionBackground", "selectionForeground"] as (keyof ColorScheme)[];
     for (const key of keys) {
