@@ -2,9 +2,11 @@
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
     import sync from "$lib/images/tabs/sync.webp";
+    import fonts from "$lib/images/tabs/font-playground.webp";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
     import LinkItem from "$lib/components/settings/LinkItem.svelte";
+    import Separator from "$lib/components/settings/Separator.svelte";
 </script>
 
 
@@ -24,6 +26,8 @@
     </Admonition>
     <Group>
         <LinkItem name="Import & Export" href="/app/import-export" icon={sync} />
+        <Separator />
+        <LinkItem name="Font Playground" href="/app/font-playground" icon={fonts} />
     </Group>
     <Group title="Known Issues">
         <ul>

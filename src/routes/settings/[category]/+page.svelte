@@ -14,7 +14,6 @@
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
     import Color from "$lib/components/settings/Color.svelte";
     import Palette from "$lib/components/settings/Palette.svelte";
-    import FontPreview from "$lib/views/FontPreview.svelte";
     import BaseColorPreview from "$lib/views/BaseColorPreview.svelte";
     import CursorPreview from "$lib/views/CursorPreview.svelte";
     import PalettePreview from "$lib/views/PalettePreview.svelte";
@@ -30,7 +29,7 @@
 <Page {title}>
     {#if category}
         {#if category.id === "fonts"}
-            <FontPreview />
+            <Admonition size="1.5rem">The font playground has moved to a <a href="/app/font-playground/">separate page</a>.</Admonition>
         {:else if category.id === "colors"}
             <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
         {/if}

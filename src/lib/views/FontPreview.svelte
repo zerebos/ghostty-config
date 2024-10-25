@@ -17,7 +17,7 @@
 
 
 <!-- eslint-disable-next-line svelte/no-useless-mustaches -->
-<Group title="Font Playground" note={"Use this section to test your fonts as they may look in the terminal along with colors and glyphs.\n\nNote: this playground does not set any actual settings."}>
+<Group title="" note={"Use this page to test your locally installed fonts as they may look in the terminal along with colors and glyphs.\n\nNote: this playground does not set any actual settings."}>
     <div class="preview" style="font-family: {fontFamily}; font-size: {fontSize + "px"}; font-style: {italic ? "italic" : "normal"}; font-weight: {bold ? 700 : 400};">
     <div class="row prompt">
         <span style="color: var(--config-palette-2);">john</span>
