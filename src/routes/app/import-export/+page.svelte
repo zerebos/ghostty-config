@@ -150,9 +150,7 @@
 }
 
 .preview .row {
-    display: flex;
     white-space: pre;
-    flex: 1;
     /* width: 100%; */
     /* overflow: hidden; */
 }
