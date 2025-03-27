@@ -2,13 +2,11 @@
     import {page} from "$app/stores";
     import logo from "$lib/images/ghost.svg";
 
-
-    const {route = "/", name = "Ghostty Config", subtext = "Unofficial Tool"} = $props();
+    const {route = "/", name = "Ghostty Config", subtext = "Community Tool"} = $props();
     const path = $derived($page.url.pathname);
 
     const selected = $derived(path === route || path.startsWith("/app"));
 </script>
-
 
 <a href={route} class="user-tab" class:selected>
     <div class="user-avatar">
@@ -20,7 +18,6 @@
     </div>
 </a>
 
-
 <style>
     .user-tab {
         display: flex;
@@ -29,7 +26,7 @@
         gap: 8px;
         padding: 6px;
         border-radius: var(--radius-level-4);
-        text-decoration: none!important;
+        text-decoration: none !important;
         font-weight: 600;
     }
 
@@ -46,7 +43,7 @@
         display: inline-flex;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(#03028F, #09043A);
+        background: linear-gradient(#03028f, #09043a);
         height: 40px;
         min-width: 40px;
         border-radius: 50%;

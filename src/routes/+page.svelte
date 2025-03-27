@@ -9,53 +9,63 @@
     import Separator from "$lib/components/settings/Separator.svelte";
 </script>
 
-
 <Page title="Ghostty Config">
-<section>
-    <div class="user">
-        <div class="user-avatar">
-            <img src={logo} alt="Ghostty Logo" />
+    <section>
+        <div class="user">
+            <div class="user-avatar">
+                <img src={logo} alt="Ghostty Logo" />
+            </div>
+            <div class="user-label">
+                <div class="user-name">Ghostty Config<sup>β</sup></div>
+                <div class="user-subtext">Community Tool</div>
+            </div>
         </div>
-        <div class="user-label">
-            <div class="user-name">Ghostty Config<sup>𝛼</sup></div>
-            <div class="user-subtext">Unofficial Tool</div>
-        </div>
-    </div>
-    <Admonition>
-        This tool is still in an alpha stage so there <em>will</em> be bugs! If you run into any, please report them <a href="https://github.com/zerebos/ghostty-config/issues" target="_blank" rel="noopener noreferrer">on GitHub</a>.
-    </Admonition>
-    <Group>
-        <LinkItem name="Import & Export" href="/app/import-export" icon={sync} />
-        <Separator />
-        <LinkItem name="Font Playground" href="/app/font-playground" icon={fonts} />
-    </Group>
-    <Group title="Known Issues">
-        <ul>
-            <li>Importing and exporting from clipboard give very little user feedback.</li>
-            <li>For most settings, the UI does not allow for setting multiple entries like having multiple <code>font-family</code> entries for fallback fonts.</li>
-        </ul>
-    </Group>
-    <div class="group-wrapper">
-        <Group title="Roadmap" flex={1}>
+        <Admonition>
+            This tool is still in a beta stage so there <em>will</em> be bugs! If you run into any,
+            please report them
+            <a
+                href="https://github.com/zerebos/ghostty-config/issues"
+                target="_blank"
+                rel="noopener noreferrer">on GitHub</a
+            >.
+        </Admonition>
+        <Group>
+            <LinkItem name="Import & Export" href="/app/import-export" icon={sync} />
+            <Separator />
+            <LinkItem name="Font Playground" href="/app/font-playground" icon={fonts} />
+        </Group>
+        <Group title="Changelog v0.1.1">
             <ul>
-                <li>Validation of keybindings</li>
-                <li>Help documentation</li>
-                <li>Allow manual color input</li>
-                <li>Unit testing import/export</li>
-                <li>Unify color scheme</li>
-                <li>Refactor & cleanup code</li>
+                <li>
+                    Added missing config options added in Ghostty (like macOS icon customization).
+                </li>
+                <li>Updated certain defaults to correctly match Ghostty's updated defaults.</li>
+                <li>Slightly rearranged settings for better organization.</li>
+                <li>Reworded from "unofficial tool" to "community tool".</li>
             </ul>
         </Group>
-        <Group title="Potential Ideas">
-            <ul>
-                <li>Custom setting types to more closely match Ghostty's config</li>
-                <li>Add a way to reset individual settings</li>
-                <li>Change color picker from modal to popout</li>
-                <li>A detailed terminal preview and playground</li>
-            </ul>
-        </Group>
-    </div>
-</section>
+        <div class="group-wrapper">
+            <Group title="Roadmap" flex={1}>
+                <ul>
+                    <li>Validation of keybindings</li>
+                    <li>Help documentation</li>
+                    <li>Allow manual color input</li>
+                    <li>Unit testing import/export</li>
+                    <li>Unify color scheme</li>
+                    <li>Refactor & cleanup code</li>
+                    <li>macOS icon preview</li>
+                </ul>
+            </Group>
+            <Group title="Potential Ideas">
+                <ul>
+                    <li>Custom setting types to more closely match Ghostty's config</li>
+                    <li>Add a way to reset individual settings</li>
+                    <li>Change color picker from modal to popout</li>
+                    <li>A detailed terminal preview and playground</li>
+                </ul>
+            </Group>
+        </div>
+    </section>
 </Page>
 
 <style>
@@ -85,7 +95,7 @@
         display: inline-flex;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(#03028F, #09043A);
+        background: linear-gradient(#03028f, #09043a);
         height: 100px;
         width: 100px;
         border-radius: 50%;
@@ -141,10 +151,10 @@
         justify-content: space-evenly;
     }
 
-    code {
+    /* code {
         background: var(--bg-input-focus);
         padding: 2px 4px;
         border: 1px solid var(--border-input);
         border-radius: var(--radius-level-4);
-    }
+    } */
 </style>
