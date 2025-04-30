@@ -124,7 +124,7 @@ fetchThemeFiles().then((themeFiles: ThemeResponse[] | null) => {
 });
 
 const getOS = () => {
-  const platform = navigator.userAgent.toLowerCase();
+  const platform = navigator.userAgent?.toLowerCase();
   if (platform.includes("linux")) return "linux";
   if (platform.includes("mac")) return "macos";
   return "other";
