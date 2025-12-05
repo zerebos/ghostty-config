@@ -57,7 +57,7 @@ Then open `http://localhost:5173` in your browser when prompted.
 
 ## Deployment
 
-The only automated deployment built-in is via GitHub Actions which automatically deploys to [ghostty.zerebos.com](https://ghostty.zerebos.com) on every push to the `main` branch. If you want to self-host the files for a static website will be available under `dist/` after following the steps above to build.
+The only automated deployment built-in is via GitHub Actions which automatically deploys to [ghostty.zerebos.com](https://ghostty.zerebos.com) on every push to the `main` branch. If you want to self-host the files for a static website will be available under `build/` after following the steps above to build.
 
 
 ## Roadmap
