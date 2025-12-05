@@ -83,7 +83,7 @@
             <div class="color-picked" class:empty={isEmpty} style:background="rgb({red}, {green}, {blue})" style:border-color={borderColor}></div>
 
             <div class="color-values">
-                <input type="text" class="hex-value" value={hexValue} oninput={handleHexInput} maxlength="7" />
+                <input type="text" class="hex-value" value={isEmpty ? "-" : hexValue} oninput={handleHexInput} maxlength="7" />
 
                 <div class="rgb-values">
                     <div class="rgb-value">
