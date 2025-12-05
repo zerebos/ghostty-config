@@ -34,14 +34,10 @@
             <!-- <Separator /> -->
             <!-- <LinkItem name="Font Playground" href="/app/font-playground" icon={fonts} /> -->
         <!-- </Group> -->
-        <Group title="Changelog v0.1.1">
+        <Group title="Changelog v0.1.2">
             <ul>
-                <li>
-                    Added missing config options added in Ghostty (like macOS icon customization).
-                </li>
-                <li>Updated certain defaults to correctly match Ghostty's updated defaults.</li>
-                <li>Slightly rearranged settings for better organization.</li>
-                <li>Reworded from "unofficial tool" to "community tool".</li>
+                <li>Color picker is now manually editable.</li>
+                <li>Slightly rearranged tabs for better organization.</li>
             </ul>
         </Group>
         <div class="group-wrapper">
@@ -49,7 +45,6 @@
                 <ul>
                     <li>Validation of keybindings</li>
                     <li>Help documentation</li>
-                    <li>Allow manual color input</li>
                     <li>Unit testing import/export</li>
                     <li>Unify color scheme</li>
                     <li>Refactor & cleanup code</li>
