@@ -21,6 +21,9 @@
     import github from "$lib/images/tabs/github.svg";
     import ghostty from "$lib/images/tabs/ghostty.webp";
 
+    import sync from "$lib/images/tabs/sync.webp";
+    import calligraphy from "$lib/images/tabs/font-playground.webp";
+
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
 
@@ -121,6 +124,15 @@
             <Tab route="/settings/macos">
                 {#snippet icon()}<img src={macos} alt="MacOS Settings" />{/snippet}
                 macOS
+            </Tab>
+            <Gap expand={true} />
+            <Tab route="/app/import-export">
+                {#snippet icon()}<img src={sync} alt="Settings Sync" />{/snippet}
+                Import & Export
+            </Tab>
+            <Tab route="/app/font-playground">
+                {#snippet icon()}<img src={calligraphy} alt="Font Playground" />{/snippet}
+                Font Playground
             </Tab>
             <Gap expand={true} />
             <Tab route="https://github.com/zerebos/ghostty-config">
