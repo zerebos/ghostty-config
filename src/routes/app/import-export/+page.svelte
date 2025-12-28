@@ -150,11 +150,8 @@
 }
 
 .preview .row {
-    display: flex;
+    display: block;
     white-space: pre;
-    flex: 1;
-    /* width: 100%; */
-    /* overflow: hidden; */
 }
 
 /* .bold {font-weight: 700;} */
