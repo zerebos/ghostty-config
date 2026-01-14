@@ -14,7 +14,7 @@ for (const panel of settings) {
             const {type, id, value} = setting;
 
             if ((type === "dropdown" || type === "theme") && Array.isArray(setting.options)) {
-                setting.options = [...setting.options].sort((a, b) => {
+                setting.options.sort((a, b) => {
                     const normalizedA = (typeof a === "string" ? a : a.name).toLowerCase();
                     const normalizedB = (typeof b === "string" ? b : b.name).toLowerCase();
 
