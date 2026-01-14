@@ -11,18 +11,7 @@ const defaults: Partial<Record<keyof DefaultConfig, any>> = {};
 for (const panel of settings) {
     for (const group of panel.groups) {
         for (const setting of group.settings) {
-            const {type, id, value} = setting;
-
-            if ((type === "dropdown" || type === "theme") && Array.isArray(setting.options)) {
-                setting.options.sort((a, b) => {
-                    const normalizedA = (typeof a === "string" ? a : a.name).toLowerCase();
-                    const normalizedB = (typeof b === "string" ? b : b.name).toLowerCase();
-
-                    return normalizedA.localeCompare(normalizedB);
-                });
-            }
-
-            defaults[id as keyof typeof defaults] = value;
+            defaults[setting.id as keyof typeof defaults] = setting.value;
         }
     }
 }

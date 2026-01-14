@@ -118,7 +118,7 @@ export const fetchColorScheme = async (theme: string) => {
 
 fetchThemeFiles().then((themeFiles: ThemeResponse[] | null) => {
     if (!themeFiles) return;
-    const themeNames = themeFiles.map((file: ThemeResponse) => file.name);
+    const themeNames = themeFiles.map((file: ThemeResponse) => file.name).sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base", numeric: true}));
     const themeSetting = settings.find(p => p.id === "colors")?.groups.find(g => g.id === "general")?.settings.find(s => s.type === "theme");
     themeSetting?.options.push(...themeNames);
 });
