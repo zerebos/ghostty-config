@@ -123,6 +123,13 @@ fetchThemeFiles().then((themeFiles: ThemeResponse[] | null) => {
     themeSetting?.options.push(...themeNames);
 });
 
+const getOS = () => {
+    const platform = navigator.userAgent?.toLowerCase();
+    if (platform.includes("linux")) return "linux";
+    if (platform.includes("mac")) return "macos";
+    return "other";
+};
+
 const settings = [
     {
         id: "application",
@@ -216,7 +223,7 @@ const settings = [
                 settings: [
                     {id: "clipboardRead", name: "Allow terminal to read clipboard", type: "dropdown", value: "ask", options: ["ask", "allow", "deny"]},
                     {id: "clipboardWrite", name: "Allow terminal to write clipboard", type: "dropdown", value: "ask", options: ["ask", "allow", "deny"]},
-                    {id: "copyOnSelect", name: "Copy on select", type: "dropdown", value: true, options: ["true", "false", "clipboard"]},
+                    {id: "copyOnSelect", name: "Copy on select", type: "dropdown", value: getOS() === "linux" ? "true" : "false", options: ["true", "false", "clipboard"]},
                     {id: "clipboardTrimTrailingSpaces", name: "Trim trailing space on copy", type: "switch", value: true},
                     {id: "clipboardPasteProtection", name: "Confirm when pasting unsafely", type: "switch", value: true},
                     {id: "clipboardPasteBracketedSafe", name: "Mark bracketed paste as safe", type: "switch", value: true},

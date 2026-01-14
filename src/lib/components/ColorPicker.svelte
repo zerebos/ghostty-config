@@ -53,6 +53,18 @@
         tracked = event.currentTarget as HTMLDivElement;
         moveGrabber(event);
     }
+
+    function handleHexInput(event: Event) {
+        const input = (event.target as HTMLInputElement).value.trim();
+        if (/^#([0-9A-Fa-f]{6})$/.test(input)) {
+            const [r, g, b] = hexToRgb(input as HexColor);
+            const {hue: h, saturation: s, value: v} = rgbToHsv(r, g, b);
+            hue = h;
+            saturation = s;
+            brightness = v;
+            value = input as HexColor;
+        }
+    }
 </script>
 
 <svelte:document onmouseup={() => tracked = null} onmousemove={mouseMove} />
@@ -71,7 +83,7 @@
             <div class="color-picked" class:empty={isEmpty} style:background="rgb({red}, {green}, {blue})" style:border-color={borderColor}></div>
 
             <div class="color-values">
-                <div class="hex-value">{isEmpty ? "-" : hexValue}</div>
+                <input type="text" class="hex-value" value={isEmpty ? "-" : hexValue} oninput={handleHexInput} maxlength="7" />
 
                 <div class="rgb-values">
                     <div class="rgb-value">
@@ -225,6 +237,9 @@
     border: 1px solid var(--border-input);
     border-radius: var(--radius-level-5);
     width: 100%;
+    color: inherit;
+    text-align: center;
+    outline: 0;
 }
 
 .rgb-values {

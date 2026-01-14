@@ -5,7 +5,7 @@
     const {route = "/", name = "Ghostty Config", subtext = "Community Tool"} = $props();
     const path = $derived($page.url.pathname);
 
-    const selected = $derived(path === route || path.startsWith("/app"));
+    const selected = $derived(path === route);
 </script>
 
 <a href={route} class="user-tab" class:selected>

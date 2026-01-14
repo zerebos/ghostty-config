@@ -1,12 +1,12 @@
 <script lang="ts">
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/ghost.svg";
-    import sync from "$lib/images/tabs/sync.webp";
-    import fonts from "$lib/images/tabs/font-playground.webp";
+    // import sync from "$lib/images/tabs/sync.webp";
+    // import fonts from "$lib/images/tabs/font-playground.webp";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
-    import LinkItem from "$lib/components/settings/LinkItem.svelte";
-    import Separator from "$lib/components/settings/Separator.svelte";
+    // import LinkItem from "$lib/components/settings/LinkItem.svelte";
+    // import Separator from "$lib/components/settings/Separator.svelte";
 </script>
 
 <Page title="Ghostty Config">
@@ -29,19 +29,15 @@
                 rel="noopener noreferrer">on GitHub</a
             >.
         </Admonition>
-        <Group>
-            <LinkItem name="Import & Export" href="/app/import-export" icon={sync} />
-            <Separator />
-            <LinkItem name="Font Playground" href="/app/font-playground" icon={fonts} />
-        </Group>
-        <Group title="Changelog v0.1.1">
+        <!-- <Group> -->
+            <!-- <LinkItem name="Import & Export" href="/app/import-export" icon={sync} /> -->
+            <!-- <Separator /> -->
+            <!-- <LinkItem name="Font Playground" href="/app/font-playground" icon={fonts} /> -->
+        <!-- </Group> -->
+        <Group title="Changelog v0.1.2">
             <ul>
-                <li>
-                    Added missing config options added in Ghostty (like macOS icon customization).
-                </li>
-                <li>Updated certain defaults to correctly match Ghostty's updated defaults.</li>
-                <li>Slightly rearranged settings for better organization.</li>
-                <li>Reworded from "unofficial tool" to "community tool".</li>
+                <li>Color picker is now manually editable.</li>
+                <li>Slightly rearranged tabs for better organization.</li>
             </ul>
         </Group>
         <div class="group-wrapper">
@@ -49,7 +45,6 @@
                 <ul>
                     <li>Validation of keybindings</li>
                     <li>Help documentation</li>
-                    <li>Allow manual color input</li>
                     <li>Unit testing import/export</li>
                     <li>Unify color scheme</li>
                     <li>Refactor & cleanup code</li>
