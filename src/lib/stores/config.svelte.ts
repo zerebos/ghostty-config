@@ -139,6 +139,7 @@ interface DefaultConfig {
     selectionBackground: string;
     minimumContrast: number;
     cursorColor: string;
+    cursorText: string;
     cursorOpacity: number;
     cursorStyle: string;
     cursorStyleBlink: string;
