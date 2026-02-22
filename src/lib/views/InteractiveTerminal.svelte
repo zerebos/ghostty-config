@@ -63,6 +63,7 @@
     let cmdHistory: string[] = [];
     let histIdx = -1;
     let inputBuffer = "";
+    let cursorPos = 0;
 
     // ── Filesystem helpers ─────────────────────────────────────────────────────
 
@@ -329,33 +330,75 @@
         term?.write(promptStr());
     }
 
+    /**
+     * Rewrite input from the current cursor position to the end of the buffer,
+     * erase any leftover characters, then move the visual cursor back to cursorPos.
+     * Called after inserting or deleting a character in the middle of the line.
+     */
+    function redrawFromCursor() {
+        if (!term) return;
+        const suffix = inputBuffer.slice(cursorPos);
+        term.write(suffix + "\x1b[K"); // write suffix and erase to EOL
+        if (suffix.length > 0) {
+            term.write(`\x1b[${suffix.length}D`); // move cursor back to cursorPos
+        }
+    }
+
+    /**
+     * Replace the entire displayed input with newBuffer, placing the cursor at the end.
+     * Used for history navigation and Ctrl+C clearing.
+     */
+    function replaceInput(newBuffer: string) {
+        if (!term) return;
+        if (cursorPos > 0) {
+            term.write(`\x1b[${cursorPos}D`); // move to start of input
+        }
+        term.write("\x1b[K"); // erase to end of line
+        inputBuffer = newBuffer;
+        cursorPos = newBuffer.length;
+        if (newBuffer.length > 0) {
+            term.write(newBuffer);
+        }
+    }
+
     function handleData(data: string) {
         if (!term) return;
 
         // Handle escape sequences (arrow keys, etc.) as complete strings.
         // VT sequences: \x1b[A = up, \x1b[B = down, \x1b[C = right, \x1b[D = left.
         if (data === "\x1b[A") {
-            // Arrow up – history
+            // Arrow up – older history entry
             if (histIdx < cmdHistory.length - 1) {
                 histIdx++;
-                term.write("\b \b".repeat(inputBuffer.length));
-                inputBuffer = cmdHistory[histIdx];
-                term.write(inputBuffer);
+                replaceInput(cmdHistory[histIdx]);
             }
             return;
         }
         if (data === "\x1b[B") {
-            // Arrow down – history
+            // Arrow down – newer history entry (or empty line)
             if (histIdx > 0) {
                 histIdx--;
-                term.write("\b \b".repeat(inputBuffer.length));
-                inputBuffer = cmdHistory[histIdx];
-                term.write(inputBuffer);
+                replaceInput(cmdHistory[histIdx]);
             }
             else if (histIdx === 0) {
                 histIdx = -1;
-                term.write("\b \b".repeat(inputBuffer.length));
-                inputBuffer = "";
+                replaceInput("");
+            }
+            return;
+        }
+        if (data === "\x1b[C") {
+            // Arrow right – move cursor forward one character
+            if (cursorPos < inputBuffer.length) {
+                cursorPos++;
+                term.write("\x1b[C");
+            }
+            return;
+        }
+        if (data === "\x1b[D") {
+            // Arrow left – move cursor back one character
+            if (cursorPos > 0) {
+                cursorPos--;
+                term.write("\x1b[D");
             }
             return;
         }
@@ -365,10 +408,14 @@
         for (const char of data) {
             const code = char.charCodeAt(0);
             if (char === "\r" || char === "\n") {
-                // Enter – execute command
+                // Move visual cursor to end of line before executing
+                if (cursorPos < inputBuffer.length) {
+                    term.write(`\x1b[${inputBuffer.length - cursorPos}C`);
+                }
                 term.writeln("");
                 const cmd = inputBuffer;
                 inputBuffer = "";
+                cursorPos = 0;
                 histIdx = -1;
                 if (cmd.trim()) {
                     cmdHistory.unshift(cmd);
@@ -384,23 +431,28 @@
                 writePrompt();
             }
             else if (code === 127) {
-                // Backspace
-                if (inputBuffer.length > 0) {
-                    inputBuffer = inputBuffer.slice(0, -1);
-                    term.write("\b \b");
+                // Backspace – delete character before cursor
+                if (cursorPos > 0) {
+                    inputBuffer = inputBuffer.slice(0, cursorPos - 1) + inputBuffer.slice(cursorPos);
+                    cursorPos--;
+                    term.write("\b");
+                    redrawFromCursor();
                 }
             }
             else if (code === 3) {
                 // Ctrl+C
                 term.writeln("^C");
                 inputBuffer = "";
+                cursorPos = 0;
                 histIdx = -1;
                 writePrompt();
             }
             else if (code >= 32) {
-                // Printable character
-                inputBuffer += char;
+                // Insert printable character at cursor position
+                inputBuffer = inputBuffer.slice(0, cursorPos) + char + inputBuffer.slice(cursorPos);
+                cursorPos++;
                 term.write(char);
+                redrawFromCursor();
             }
         }
     }
@@ -419,6 +471,7 @@
         root = makeFilesystem();
         cwdParts = [];
         inputBuffer = "";
+        cursorPos = 0;
         histIdx = -1;
         cmdHistory = [];
 
