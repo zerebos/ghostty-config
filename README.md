@@ -69,15 +69,17 @@ The only automated deployment built-in is via GitHub Actions which automatically
 - [x] Update for Ghostty 1.1
 - [x] Basic keybind settings
 - [x] Editable color pickers
+- [x] Update for Ghostty 1.2
+- [x] Update for Ghostty 1.3 (nightly)
+- [ ] Icon customization
+- [ ] Detailed terminal playground
 - [ ] Keybinding validation
+- [ ] Command palette builder
 - [ ] Desktop version via Wails (if demand is there)
 - [ ] Community presets for quick setup
 - [ ] "Repeating" settings types
 - [ ] Advanced custom settings types
 - [ ] In-app help documentation
-- [ ] Icon customization
-- [ ] Detailed terminal playground
-- [ ] Update for Ghostty 1.2
 
 
 ## Contributing

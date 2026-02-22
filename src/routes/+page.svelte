@@ -44,11 +44,11 @@
             <Group title="Roadmap" flex={1}>
                 <ul>
                     <li>Validation of keybindings</li>
+                    <li>Command palette builder</li>
                     <li>Help documentation</li>
                     <li>Unit testing import/export</li>
                     <li>Unify color scheme</li>
                     <li>Refactor & cleanup code</li>
-                    <li>macOS icon preview</li>
                 </ul>
             </Group>
             <Group title="Potential Ideas">
@@ -56,7 +56,7 @@
                     <li>Custom setting types to more closely match Ghostty's config</li>
                     <li>Add a way to reset individual settings</li>
                     <li>Change color picker from modal to popout</li>
-                    <li>A detailed terminal preview and playground</li>
+                    <li>A ghostty-web terminal preview and playground</li>
                 </ul>
             </Group>
         </div>
