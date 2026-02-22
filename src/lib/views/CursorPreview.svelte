@@ -13,7 +13,9 @@
     });
 
     // TODO: make less gross with less ternaries
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const cursorColor = $derived(config.cursorInvertFgBg ? config.foreground : (config.cursorColor || config.foreground));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const cursorText = $derived(isCursorVisible ? config.cursorInvertFgBg ? config.background : (config.cursorText || config.background) : config.foreground);
     const cursorOpacity = $derived(isCursorVisible ? Math.round(config.cursorOpacity * 255).toString(16) : "00");
 </script>

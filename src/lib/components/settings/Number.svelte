@@ -11,8 +11,10 @@
     // eslint-disable-next-line prefer-const
     let {value = $bindable(), min, max, step, size, range}: Props = $props();
 
-    const inputType = range ? "range" : "number";
-    if (!size && !range) size = max ? max.toString().length : value.toString().length + 2;
+    const inputType = $derived(range ? "range" : "number");
+    $effect(() => {
+        if (!size && !range) size = max ? max.toString().length : value.toString().length + 2;
+    });
 </script>
 
 <div class="input-wrapper">

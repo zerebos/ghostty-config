@@ -2,7 +2,7 @@
     import type {Snippet} from "svelte";
 
     // TODO: add type prop
-    const {size = "24px", children}: {size?: string, title?: string, note?: string, children: Snippet} = $props();
+    const {size = "24px", children}: {size?: string, children: Snippet} = $props();
 </script>
 
 <div class="admonition">

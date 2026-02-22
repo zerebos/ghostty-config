@@ -1,7 +1,7 @@
 <script lang="ts">
     type Props = {
         value: string;
-        options: (string | {name: string, value: string})[];
+        options: Array<string | {name: string, value: string}>;
         change?: () => void;
     };
 

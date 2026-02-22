@@ -26,12 +26,14 @@
 
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
+    import type {Snippet} from "svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
 
         const add = (key: string, val: string) => str += `--config-${key}: ${val};`;
 
+        /* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
         // Add the base colors
         add("bg", config.background);
         add("fg", config.foreground);
@@ -50,7 +52,7 @@
         return str;
     });
 
-    const {children} = $props();
+    const {children}: {children: Snippet} = $props();
 
 
 

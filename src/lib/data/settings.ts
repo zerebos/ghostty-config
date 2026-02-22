@@ -11,7 +11,7 @@ interface Panel extends BaseSettingType {
 }
 
 interface Group extends BaseSettingType {
-    settings: (Switch | Text | Number | Dropdown | Color | Palette | Keybinds | Theme)[];
+    settings: Array<Switch | Text | Number | Dropdown | Color | Palette | Keybinds | Theme>;
     // type: "group";
 }
 
@@ -50,13 +50,13 @@ interface DropdownOption {
 interface Dropdown extends BaseSettingItem {
     type: "dropdown";
     value: "string";
-    options: (DropdownOption | string)[];
+    options: Array<DropdownOption | string>;
 }
 
 interface Theme extends BaseSettingItem {
     type: "theme";
     value: "string";
-    options: (DropdownOption | string)[];
+    options: Array<DropdownOption | string>;
 }
 
 interface Color extends BaseSettingItem {
@@ -107,7 +107,7 @@ export interface ColorScheme {
 const fetchThemeFiles = async () => {
     const response = await fetch("https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty");
     if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
-    return await response.json();
+    return await response.json() as Promise<ThemeResponse[]>;
 };
 
 export const fetchColorScheme = async (theme: string) => {
@@ -116,7 +116,7 @@ export const fetchColorScheme = async (theme: string) => {
     return await response.text();
 };
 
-fetchThemeFiles().then((themeFiles: ThemeResponse[] | null) => {
+void fetchThemeFiles().then((themeFiles: ThemeResponse[] | null) => {
     if (!themeFiles) return;
     const themeNames = themeFiles.map((file: ThemeResponse) => file.name).sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base", numeric: true}));
     const themeSetting = settings.find(p => p.id === "colors")?.groups.find(g => g.id === "general")?.settings.find(s => s.type === "theme");

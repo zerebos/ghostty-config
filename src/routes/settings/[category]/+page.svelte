@@ -29,6 +29,7 @@
 <Page {title}>
     {#if category}
         {#if category.id === "fonts"}
+            <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
             <Admonition size="1.5rem">The font playground has moved to a <a href="/app/font-playground/">separate page</a>.</Admonition>
         {:else if category.id === "colors"}
             <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
