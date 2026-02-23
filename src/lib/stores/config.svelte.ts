@@ -143,7 +143,6 @@ interface DefaultConfig {
     cursorOpacity: number;
     cursorStyle: string;
     cursorStyleBlink: string;
-    cursorstring: string;
     cursorClickToMove: boolean;
     mouseHideWhileTyping: boolean;
     mouseShiftCapture: boolean;

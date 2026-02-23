@@ -146,10 +146,10 @@ const settings = [
                     {id: "desktopNotifications", name: "Allow desktop notifications", type: "switch", value: true},
                     {id: "configFile", name: "Additional config file", type: "text", value: ""},
                     {id: "configDefaultFiles", name: "Load default config file", type: "switch", value: true},
-                    {id: "link", name: "Link handling", note: "Regex for making clickable links, curently disabled.", type: "text", value: "", disabled: true},
+                    {id: "link", name: "Link handling", note: "Regex for making clickable links, currently disabled.", type: "text", value: "", disabled: true},
                     {id: "linkUrl", name: "Automatically link URLs", note: "Matching occurs while holding the control (Linux) or command (macOS) key.", type: "switch", value: true},
                     {id: "linkPreviews", name: "Show link previews", note: "When set to `osc8`, previews are only shown for hyperlinks created with the OSC 8 sequence.", type: "dropdown", value: "true", options: ["true", "false", "osc8"]},
-                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like `1h30m`, `5s`, `500ms`.", type: "text"}
+                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like `1h30m`, `5s`, `500ms`.", type: "text", value: ""}
                 ]
             },
             {
@@ -560,7 +560,7 @@ const settings = [
             {
                 id: "icon",
                 name: "App Icon",
-                note: "An app icon previewer has been added to the to-do list.",
+                note: "If you choose the \"custom-style\" option, you can use any of the other icon settings to customize your icon with a live preview.",
                 settings: [
                     {id: "macosIcon", name: "Icon", note: "Custom style must specify both ghost and screen colors.", type: "dropdown", value: "official", options: ["official", "blueprint", "chalkboard", "microchip", "glass", "holographic", "paper", "retro", "xray", "custom", "custom-style"]},
                     {id: "macosCustomIcon", name: "Icon file", note: "Only used when \"custom\" is selected above.", type: "text", value: ""},

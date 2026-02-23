@@ -1,20 +1,20 @@
 <script lang="ts">
-    import {page} from "$app/stores";
-    import logo from "$lib/images/ghost.svg";
+    import {page} from "$app/state";
+    import logo from "$lib/images/avatar.png";
 
-    const {route = "/", name = "Ghostty Config", subtext = "Community Tool"} = $props();
-    const path = $derived($page.url.pathname);
+    const {route = "/", name = "Ghostty Config"} = $props();
+    const path = $derived(page.url.pathname);
 
     const selected = $derived(path === route);
 </script>
 
 <a href={route} class="user-tab" class:selected>
     <div class="user-avatar">
-        <img src={logo} alt="Ghostty Logo" />
+        <img src={logo} alt="Ghostty Config Logo" />
     </div>
     <div class="user-label">
         <div class="user-name">{name}</div>
-        <div class="user-subtext">{subtext}</div>
+        <div class="user-subtext">by @zerebos</div>
     </div>
 </a>
 
@@ -35,18 +35,18 @@
     }
 
     .user-avatar img {
-        height: 30px;
-        width: 30px;
+        height: 100%;
+        width: 100%;
+        border-radius: 50%;
+        /* border: 2px solid inset var(--border-level-1); */
     }
 
     .user-avatar {
         display: inline-flex;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(#03028f, #09043a);
         height: 40px;
         min-width: 40px;
-        border-radius: 50%;
         /* border: 2px solid black; */
         /* box-shadow: 0 0 0 2px white; */
     }

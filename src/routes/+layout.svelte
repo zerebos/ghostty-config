@@ -139,8 +139,8 @@
                 {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
                 GitHub
             </Tab>
-            <Tab route="https://github.com/ghostty-org">
-                {#snippet icon()}<img src={ghostty} alt="Ghostty GitHub" />{/snippet}
+            <Tab route="https://ghostty.org/">
+                {#snippet icon()}<img src={ghostty} alt="Ghostty Website" />{/snippet}
                 Ghostty
             </Tab>
         </nav>

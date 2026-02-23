@@ -62,8 +62,7 @@
             <img class="layer frame" src={frameUrl} alt="" onerror={handleAssetError} />
             <!-- eslint-disable-next-line svelte/no-unused-class-name -->
             <div class="layer tint screen-mask" style:background-color={screenColor}></div>
-            <!-- eslint-disable-next-line svelte/no-unused-class-name -->
-            <img class="layer screen" src={customLayerUrls.screen} alt="" onerror={handleAssetError} />
+            <!-- <img class="layer screen" src={customLayerUrls.screen} alt="" onerror={handleAssetError} /> -->
             <!-- eslint-disable-next-line svelte/no-unused-class-name -->
             <div class="layer tint ghost-mask" style:background-color={ghostColor}></div>
             <!-- eslint-disable-next-line svelte/no-unused-class-name -->
