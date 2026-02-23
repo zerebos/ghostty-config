@@ -1,6 +1,6 @@
 <script lang="ts">
     import Page from "$lib/views/Page.svelte";
-    import logo from "$lib/images/ghost.svg";
+    import logo from "$lib/images/icon.png";
     // import sync from "$lib/images/tabs/sync.webp";
     // import fonts from "$lib/images/tabs/font-playground.webp";
     import Admonition from "$lib/components/Admonition.svelte";
@@ -82,8 +82,8 @@
     }
 
     .user-avatar img {
-        height: 80%;
-        width: 80%;
+        height: 100%;
+        width: 100%;
     }
 
     .user-avatar {

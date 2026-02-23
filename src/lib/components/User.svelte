@@ -1,9 +1,9 @@
 <script lang="ts">
-    import {page} from "$app/stores";
-    import logo from "$lib/images/ghost.svg";
+    import {page} from "$app/state";
+    import logo from "$lib/images/icon.png";
 
     const {route = "/", name = "Ghostty Config", subtext = "Community Tool"} = $props();
-    const path = $derived($page.url.pathname);
+    const path = $derived(page.url.pathname);
 
     const selected = $derived(path === route);
 </script>
@@ -35,18 +35,16 @@
     }
 
     .user-avatar img {
-        height: 30px;
-        width: 30px;
+        height: 100%;
+        width: 100%;
     }
 
     .user-avatar {
         display: inline-flex;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(#03028f, #09043a);
         height: 40px;
         min-width: 40px;
-        border-radius: 50%;
         /* border: 2px solid black; */
         /* box-shadow: 0 0 0 2px white; */
     }
