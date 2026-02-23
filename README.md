@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://zerebos.github.io/ghostty-config"><img src="./src/lib/images/ghost.png" height="128" alt="Ghostty Config"></a>
+  <a href="https://zerebos.github.io/ghostty-config"><img src="./src/lib/images/icon.png" height="128" alt="Ghostty Config"></a>
   <h1 align="center" style="border:0;">Ghostty Config</h1>
   <p align="center">A beautiful intuitive configuration generator for <a href="https://ghostty.org/" target="_blank">Ghostty</a> terminal.</p>
 
@@ -28,7 +28,7 @@ This project is built with [Svelte](https://svelte.dev) + [TypeScript](https://w
 
 - **Interactive settings editor:** Easily tweak fonts, colors, cursor styles, transparency, blur, and more.
 - **Font playground:** Experiment with JetBrains Mono, Nerd Fonts, or any custom font.
-- **Live previews:** See instant demos of cursors, selections, and color palettes.
+- **Live previews:** See instant demos of cursors, selections, app icons, and color palettes.
 - **Keybinding validation *(coming soon)*:** Ensure your shortcuts are conflict‑free.
 - **One‑click export:** Generate a clean Ghostty configuration file to drop into your setup.
 - **Automatic deployment:** Every push to main updates the hosted tool via GitHub Actions.

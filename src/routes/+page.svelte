@@ -1,43 +1,34 @@
 <script lang="ts">
     import Page from "$lib/views/Page.svelte";
     import logo from "$lib/images/icon.png";
-    // import sync from "$lib/images/tabs/sync.webp";
-    // import fonts from "$lib/images/tabs/font-playground.webp";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
-    // import LinkItem from "$lib/components/settings/LinkItem.svelte";
-    // import Separator from "$lib/components/settings/Separator.svelte";
 </script>
 
 <Page title="Ghostty Config">
     <section>
         <div class="user">
             <div class="user-avatar">
-                <img src={logo} alt="Ghostty Logo" />
+                <img src={logo} alt="Ghostty Config Logo" />
             </div>
             <div class="user-label">
-                <div class="user-name">Ghostty Config<sup>β</sup></div>
-                <div class="user-subtext">Community Tool</div>
+                <div class="user-name">Ghostty Config</div>
+                <div class="user-subtext">by <a href="https://zerebos.com" target="_blank" rel="noopener noreferrer">@zerebos</a></div>
             </div>
         </div>
         <Admonition>
-            This tool is still in a beta stage so there <em>will</em> be bugs! If you run into any,
-            please report them
-            <a
-                href="https://github.com/zerebos/ghostty-config/issues"
-                target="_blank"
-                rel="noopener noreferrer">on GitHub</a
-            >.
+            This tool <em>will</em> have bugs! If you run into any, or have suggestions, please submit them
+            <a href="https://github.com/zerebos/ghostty-config/issues" target="_blank" rel="noopener noreferrer">on GitHub</a>.
         </Admonition>
-        <!-- <Group> -->
-            <!-- <LinkItem name="Import & Export" href="/app/import-export" icon={sync} /> -->
-            <!-- <Separator /> -->
-            <!-- <LinkItem name="Font Playground" href="/app/font-playground" icon={fonts} /> -->
-        <!-- </Group> -->
-        <Group title="Changelog v0.1.2">
-            <ul>
-                <li>Color picker is now manually editable.</li>
-                <li>Slightly rearranged tabs for better organization.</li>
+        <Group title="Recent Changes">
+            <ul class="recent-changes">
+                <li>Updated settings to match Ghostty 1.2 (and 1.3-nightly)</li>
+                <li>Designed a brand new logo by hand using <a href="https://www.photopea.com/" target="_blank" rel="noopener noreferrer">Photopea</a></li>
+                <li>Added new custom app icon preview on the <a href="/settings/macos">macOS page</a></li>
+                <li>New script for easier updates to future Ghostty versions</li>
+                <li>Fixed old settings that had outdated options</li>
+                <li>Fix extra line breaks when exporting to clipboard by <a href="https://github.com/reussio" target="_blank" rel="noopener noreferrer">@reussio</a></li>
+                <li>Better theme sorting by <a href="https://github.com/adamalston" target="_blank" rel="noopener noreferrer">@adamalston</a></li>
             </ul>
         </Group>
         <div class="group-wrapper">
@@ -126,6 +117,7 @@
         display: flex;
         justify-content: center;
         font-size: 1.1rem;
+        gap: 3px;
     }
 
     .group-wrapper {
@@ -144,6 +136,10 @@
         flex-direction: column;
         height: 100%;
         justify-content: space-evenly;
+    }
+
+    .recent-changes li {
+        margin-bottom: 5px;
     }
 
     /* code {

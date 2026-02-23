@@ -1,8 +1,8 @@
 <script lang="ts">
     import {page} from "$app/state";
-    import logo from "$lib/images/icon.png";
+    import logo from "$lib/images/avatar.png";
 
-    const {route = "/", name = "Ghostty Config", subtext = "Community Tool"} = $props();
+    const {route = "/", name = "Ghostty Config"} = $props();
     const path = $derived(page.url.pathname);
 
     const selected = $derived(path === route);
@@ -10,11 +10,11 @@
 
 <a href={route} class="user-tab" class:selected>
     <div class="user-avatar">
-        <img src={logo} alt="Ghostty Logo" />
+        <img src={logo} alt="Ghostty Config Logo" />
     </div>
     <div class="user-label">
         <div class="user-name">{name}</div>
-        <div class="user-subtext">{subtext}</div>
+        <div class="user-subtext">by @zerebos</div>
     </div>
 </a>
 
@@ -37,6 +37,8 @@
     .user-avatar img {
         height: 100%;
         width: 100%;
+        border-radius: 50%;
+        /* border: 2px solid inset var(--border-level-1); */
     }
 
     .user-avatar {
