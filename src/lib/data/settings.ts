@@ -130,6 +130,7 @@ const getOS = () => {
     return "other";
 };
 
+// TODO: find a good way to properly type the settings
 const settings = [
     {
         id: "application",
@@ -145,8 +146,10 @@ const settings = [
                     {id: "desktopNotifications", name: "Allow desktop notifications", type: "switch", value: true},
                     {id: "configFile", name: "Additional config file", type: "text", value: ""},
                     {id: "configDefaultFiles", name: "Load default config file", type: "switch", value: true},
+                    {id: "link", name: "Link handling", note: "Regex for making clickable links, curently disabled.", type: "text", value: "", disabled: true},
                     {id: "linkUrl", name: "Automatically link URLs", note: "Matching occurs while holding the control (Linux) or command (macOS) key.", type: "switch", value: true},
                     {id: "linkPreviews", name: "Show link previews", note: "When set to `osc8`, previews are only shown for hyperlinks created with the OSC 8 sequence.", type: "dropdown", value: "true", options: ["true", "false", "osc8"]},
+                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like `1h30m`, `5s`, `500ms`.", type: "text"}
                 ]
             },
             {
@@ -157,6 +160,7 @@ const settings = [
                     {id: "command", name: "Command to run on launch", type: "text", value: ""},
                     {id: "initialCommand", name: "Command to run on first launch", note: "Unlike the previous setting, this will only run once in the lifetime of the app.", type: "text", value: ""},
                     {id: "env", name: "Environment variables", type: "text", value: ""},
+                    {id: "input", name: "Initial input", note: "Input for tty launch. Can be raw text, zig string literal, or path:/to/file.", type: "text", value: ""},
                     {id: "maximize", name: "Launch as maximized window", type: "switch", value: false},
                     {id: "fullscreen", name: "Launch in fullscreen mode", type: "switch", value: false},
                     {id: "initialWindow", name: "Show a window on startup", type: "switch", value: true},
@@ -281,6 +285,7 @@ const settings = [
                     {id: "windowTitlebarBackground", name: "Titlebar background", type: "color", value: ""},
                     {id: "windowTitlebarForeground", name: "Titlebar foreground", type: "color", value: ""},
                     {id: "backgroundOpacity", name: "Background opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
+                    {id: "backgroundOpacityCells", name: "Force background opacity on cells.", type: "switch", value: false},
                     {id: "backgroundBlur", name: "Background blur", note: "Set to `true` to enable blur, `false` to disable, a number for a specific radius (macOS), or `macos-glass-regular`/`macos-glass-clear` for macOS glass effects.", type: "text", value: "false"},
                     {id: "backgroundImage", name: "Background image", note: "Path to an image file to use as the terminal background.", type: "text", value: ""},
                     {id: "backgroundImageOpacity", name: "Background image opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
@@ -380,6 +385,7 @@ const settings = [
                     {id: "fontSize", name: "Base font size", type: "number", value: 13, min: 4, max: 60, step: 0.5, range: true},
                     {id: "fontThicken", name: "Thicken fonts", type: "switch", note: "This currently only affects macOS.", value: false},
                     {id: "fontThickenStrength", name: "Thicken strength", type: "number", value: 255, min: 0, max: 255, step: 1, range: true},
+                    {id: "fontShapingBreak", name: "How to break runs (cursor, no-cursor).", type: "text", value: ""},
                     {id: "fontFeature", name: "Font ligature settings", type: "text", value: ""},
                     {id: "fontSyntheticStyle", name: "Synthetic styles", note: "See the docs for more info.", type: "text", value: "bold,italic,bold-italic"},
                     {id: "alphaBlending", name: "Alpha blending colorspace", type: "dropdown", value: "native", options: ["native", "linear", "linear-corrected"]},
@@ -435,7 +441,8 @@ const settings = [
                     {id: "adjustCursorThickness", name: "Cursor thickness adjustment", type: "text", value: ""},
                     {id: "adjustBoxThickness", name: "Box thickness adjustment", type: "text", value: ""},
                     {id: "adjustCursorHeight", name: "Cursor height adjustment", type: "text", value: ""},
-                    {id: "graphemeWidthMethod", name: "Grapheme width calculation method", type: "dropdown", value: "unicode", options: ["unicode", "legacy"]},
+                    {id: "adjustIconHeight", name: "Nerd font icon height adjustment", type: "text", value: ""},
+                    {id: "graphemeWidthMethod", name: "Grapheme width calculation method.", type: "dropdown", value: "unicode", options: ["unicode", "legacy"]},
                     {id: "freetypeLoadFlags", name: "FreeType load flags", type: "text", value: "hinting,autohint,light"},
                 ]
             },
@@ -486,7 +493,6 @@ const settings = [
                 settings: [
                     {id: "class", name: "WM_CLASS class field", note: "This defaults to `com.mitchellh.ghostty`", type: "text", value: ""},
                     {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to `ghostty`", type: "text", value: ""},
-                    {id: "language", name: "GUI language", note: "Language for Ghostty's GUI (e.g. `de_DE.UTF-8`). GTK only.", type: "text", value: ""},
                     {id: "gtkSingleInstance", name: "Single-instance mode", type: "dropdown", value: "detect", options: ["detect", "true", "false"]},
                     {id: "gtkCustomCss", name: "Custom css file", type: "text", value: ""},
                     {id: "gtkOpenglDebug", name: "OpenGL debug", type: "switch", value: false},
@@ -557,6 +563,7 @@ const settings = [
                 note: "An app icon previewer has been added to the to-do list.",
                 settings: [
                     {id: "macosIcon", name: "Icon", note: "Custom style must specify both ghost and screen colors.", type: "dropdown", value: "official", options: ["official", "blueprint", "chalkboard", "microchip", "glass", "holographic", "paper", "retro", "xray", "custom", "custom-style"]},
+                    {id: "macosCustomIcon", name: "Icon file", note: "Only used when \"custom\" is selected above.", type: "text", value: ""},
                     {id: "macosIconFrame", name: "Icon frame", type: "dropdown", value: "aluminum", options: ["aluminum", "beige", "plastic", "chrome"]},
                     {id: "macosIconGhostColor", name: "Ghost color", type: "color", value: ""},
                     {id: "macosIconScreenColor", name: "Screen color", type: "color", value: ""},
