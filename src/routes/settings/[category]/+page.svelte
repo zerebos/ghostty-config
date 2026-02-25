@@ -19,6 +19,7 @@
     import PalettePreview from "$lib/views/PalettePreview.svelte";
     import Admonition from "$lib/components/Admonition.svelte";
     import Theme from "$lib/components/settings/Theme.svelte";
+    import AppIconPreview from "$lib/views/AppIconPreview.svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -44,6 +45,9 @@
                     <Separator />
                 {:else if category.id === "colors" && group.id === "palette"}
                     <PalettePreview />
+                    <Separator />
+                {:else if category.id === "macos" && group.id === "icon"}
+                    <AppIconPreview />
                     <Separator />
                 {/if}
                 {#each group.settings as setting, i (setting.id)}

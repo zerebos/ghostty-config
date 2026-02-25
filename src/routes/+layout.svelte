@@ -37,8 +37,8 @@
         // Add the base colors
         add("bg", config.background);
         add("fg", config.foreground);
-        add("selection-bg", config.selectionInvertFgBg ? config.foreground : config.selectionBackground || config.foreground);
-        add("selection-fg", config.selectionInvertFgBg ? config.background : config.selectionForeground || config.background);
+        add("selection-bg", config.selectionBackground || config.foreground);
+        add("selection-fg", config.selectionForeground || config.background);
 
         // Add the palette colors
         const paletteSize = 16; // config.palette.length;
@@ -141,8 +141,8 @@
                 {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
                 GitHub
             </Tab>
-            <Tab route="https://github.com/ghostty-org">
-                {#snippet icon()}<img src={ghostty} alt="Ghostty GitHub" />{/snippet}
+            <Tab route="https://ghostty.org/">
+                {#snippet icon()}<img src={ghostty} alt="Ghostty Website" />{/snippet}
                 Ghostty
             </Tab>
         </nav>
