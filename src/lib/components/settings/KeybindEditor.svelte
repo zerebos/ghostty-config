@@ -8,7 +8,7 @@
         VALID_MODIFIERS,
         KEY_NAMES
     } from "$lib/utils/keybinds";
-    import {fade, fly, slide} from "svelte/transition";
+    import {fade, fly, scale, slide} from "svelte/transition";
     import Switch from "./Switch.svelte";
     import Group from "./Group.svelte";
     import Item from "./Item.svelte";
@@ -60,6 +60,16 @@
         if (!parsed.args) return "";
         const [, amount] = parsed.args.split(",").map((segment) => segment.trim());
         return amount || "";
+    });
+    let dropdownOptions = $derived.by(() => {
+        const currentAction = getCurrentAction();
+        if (!currentAction || currentAction.type !== "enum") return [];
+        let options = [];
+        if (getAllowEmpty()) options.push({name: "default", value: ""});
+        if (currentAction.options) {
+            options.push(...currentAction.options.map((option) => ({name: option, value: option})));
+        }
+        return options;
     });
 
 
@@ -145,44 +155,31 @@
     function close() {
         if (oncancel) oncancel();
     }
+
+    function actionChanged(){
+        actionArg = "";
+        resizeDirection = directionOptions[0];
+        resizeAmount = "";
+    }
 </script>
 
 
 <div class="editor" in:fly={{y: 30, duration: 200}}>
-    <!-- <header>
-        <h2>{mode === "edit" ? "Edit Keybind" : "Add Keybind"}</h2>
-        <button class="ghost" type="button" aria-label="Close" onclick={close}>✕</button>
-    </header> -->
     <main>
-    <section class="section">
-        <h3>Trigger</h3>
+    <Group title="Prefix">
         <div class="prefix-row">
             {#each VALID_PREFIXES as prefix (prefix)}
                 <label class:selected={prefixes.includes(prefix)}>
-                    <input
-                        type="checkbox"
-                        checked={prefixes.includes(prefix)}
-                        onchange={() => togglePrefix(prefix)}
-                    />
-                    <!-- <Switch checked={prefixes.includes(prefix)} onchange={() => togglePrefix(prefix)} /> -->
+                    <Switch checked={prefixes.includes(prefix)} onchange={() => togglePrefix(prefix)} />
                     {prefix}
                 </label>
             {/each}
         </div>
+    </Group>
+    <Group title="Trigger" borderless>
         <div class="sequence">
             {#each steps as step, index (index)}
-                <div class="sequence-step" class:invalid={!step.key}>
-                    <div class="modifiers">
-                        {#each VALID_MODIFIERS as modifier (modifier)}
-                            <button
-                                type="button"
-                                class:selected={step.modifiers.includes(modifier)}
-                                onclick={() => toggleModifier(index, modifier)}
-                            >
-                                {modifier}
-                            </button>
-                        {/each}
-                    </div>
+                <div class="sequence-step" class:invalid={!step.key} class:removable={steps.length > 1}>
                     <div class="key-entry">
                         <input
                             type="text"
@@ -196,14 +193,21 @@
                                 <option value={keyName}></option>
                             {/each}
                         </datalist>
-                        <button
-                            type="button"
-                            class="remove"
-                            onclick={() => removeSequenceStep(index)}
-                            disabled={steps.length === 1}
-                        >
-                            –
+                        {#if steps.length > 1}
+                        <button transition:scale={{duration: 200}} type="button" class="remove" onclick={() => removeSequenceStep(index)} disabled={steps.length === 1}>
+                            <!-- – -->
+                            ×
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg> -->
                         </button>
+                        {/if}
+                    </div>
+                    <div class="modifiers">
+                        {#each VALID_MODIFIERS as modifier (modifier)}
+                            <label class:selected={step.modifiers.includes(modifier)}>
+                                <Switch checked={step.modifiers.includes(modifier)} onchange={() => toggleModifier(index, modifier)} />
+                                <span>{modifier}</span>
+                            </label>
+                        {/each}
                     </div>
                 </div>
                 {#if index < steps.length - 1}
@@ -216,71 +220,35 @@
                 onclick={addSequenceStep}
                 disabled={prefixes.includes("global") || prefixes.includes("all")}
             >
-                Add Step
+                <!-- Add Step -->
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             </button>
             {#if prefixes.includes("global") || prefixes.includes("all")}
                 <div class="sequence-note">Global/all keybinds cannot be sequences.</div>
             {/if}
         </div>
-    </section>
+    </Group>
     <Group title="Action">
-    <!-- <section class="section"> -->
-        <!-- <h3>Action</h3> -->
-         <Item name="Name" note="The action to perform when the keybind is triggered">
+        <Item name="Name" note="The action to perform when the keybind is triggered.">
             <Dropdown
                 bind:value={actionName}
                 options={ACTION_DEFINITIONS.map((action) => ({
                     name: action.name,
                     value: action.name
                 }))}
+                change={actionChanged}
             />
         </Item>
-        <!-- <div class="action-row"> -->
-            <!-- <Item name="Type">
-                <Dropdown
-                    bind:value={actionName}
-                    options={ACTION_DEFINITIONS.map((action) => ({
-                        name: action.name,
-                        value: action.name
-                    }))}
-                />
-            </Item> -->
-            <!-- <select bind:value={actionName}>
-                {#each ACTION_DEFINITIONS as action (action.name)}
-                    <option value={action.name}>{action.name}</option>
-                {/each}
-            </select> -->
-            {#if getCurrentAction()?.type !== "none"}
+
+        {#if getCurrentAction()?.type !== "none"}
             <Separator />
-            <Item name="Argument" note="Optional argument for the action, format depends on the action type">
+            <Item name="Argument" note="Optional argument for the action, format depends on the action type.">
             {#if getCurrentAction()?.type === "enum"}
-                <!-- <select bind:value={actionArg}>
-                    <option value="">
-                        {getAllowEmpty() ? "Default" : "Select value"}
-                    </option>
-                    {#each getCurrentAction()?.options ?? [] as option (option)}
-                        <option value={option}>{option}</option>
-                    {/each}
-                </select> -->
-                <Dropdown
-                    bind:value={actionArg}
-                    options={[
-                        ...(getAllowEmpty() ? [{name: "Default", value: ""}] : []),
-                        ...((getCurrentAction()?.options ?? []).map((option) => ({
-                            name: option,
-                            value: option
-                        })) ?? [])
-                    ]}
-                />
+                <Dropdown bind:value={actionArg} options={dropdownOptions} />
             {:else if getCurrentAction()?.type === "number" || getCurrentAction()?.type === "integer"}
-                <!-- <input type="number" bind:value={actionArg} placeholder="amount" /> -->
-                <Number bind:value={() => parseInt(actionArg, 10), (v) => actionArg = v.toString()} />
+                <Number bind:value={() => parseInt(actionArg, 10), (v) => actionArg = v?.toString()} />
             {:else if getCurrentAction()?.type === "resize"}
-                <!-- <select bind:value={resizeDirection}>
-                    {#each directionOptions as direction (direction)}
-                        <option value={direction}>{direction}</option>
-                    {/each}
-                </select> -->
+                <!-- TODO: should these be split to separate rows? -->
                 <Dropdown
                     bind:value={resizeDirection}
                     options={directionOptions.map((direction) => ({
@@ -288,38 +256,16 @@
                         value: direction
                     }))}
                 />
-                <Number bind:value={() => parseInt(resizeAmount, 10), (v) => resizeAmount = v?.toString() || ""} min={0} step={1} />
-                <!-- <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    bind:value={resizeAmount}
-                    placeholder="pixels"
-                /> -->
+                <Number bind:value={() => parseInt(resizeAmount, 10), (v) => resizeAmount = v?.toString()} min={0} step={1} placeholder="pixels" />
             {:else if getCurrentAction()?.type === "text"}
-                <!-- <input type="text" bind:value={actionArg} placeholder="Zig string literal" /> -->
-                 <Text bind:value={actionArg} placeholder="Zig string literal" />
+                <Text bind:value={actionArg} placeholder="Zig string literal" />
             {:else if getCurrentAction()?.type === "free"}
-                <!-- <input type="text" bind:value={actionArg} placeholder="raw sequence" /> -->
                 <Text bind:value={actionArg} placeholder="raw sequence" />
             {/if}
             </Item>
-            {/if}
-        <!-- </div> -->
-    <!-- </section> -->
-     </Group>
-    <!-- <section class="section">
-        <div class="preview-label">Preview</div>
-        <div class="preview-box">{getPreview()}</div>
-        {#if getErrors().length}
-            <ul class="errors">
-                {#each getErrors() as error (error)}
-                    <li>{error}</li>
-                {/each}
-            </ul>
         {/if}
-    </section> -->
-    <Group title="Preview">
+     </Group>
+    <Group title="Result" borderless>
         <div class="preview-box">{getPreview()}</div>
         {#if getErrors().length}
             <ul class="errors">
@@ -330,7 +276,7 @@
         {/if}
     </Group>
     </main>
-    <footer class="actions">
+    <div class="actions">
         <button type="button" class="ghost" onclick={close}>Cancel</button>
         <button
             type="button"
@@ -340,7 +286,7 @@
         >
             Save
         </button>
-    </footer>
+    </div>
 </div>
 
 
@@ -354,67 +300,34 @@
         flex-direction: column;
     }
 
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-    }
-
-    header h2 {
-        margin: 0;
-        font-size: 1.2rem;
-    }
-
-    header button {
-        border: none;
-        background: none;
-        color: var(--font-color);
-        font-size: 1.15rem;
-    }
-
     main {
         flex: 1;
     }
 
-    .section {
-        margin-bottom: 20px;
-    }
-
-    h3 {
-        font-size: 1.05rem;
-        font-weight: 600;
-        margin-top: 20px;
-    }
-
     .prefix-row {
         display: flex;
-        gap: 8px;
+        gap: 16px;
         flex-wrap: wrap;
-        margin-bottom: 12px;
+        /* margin-bottom: 12px; */
+        /* justify-content: space-between; */
     }
 
     .prefix-row label {
         border-radius: var(--radius-level-4);
-        border: 1px solid var(--border-level-3);
-        padding: 6px 12px;
+        /* border: 1px solid var(--border-level-3); */
+        /* padding: 6px 12px; */
         font-size: 0.8rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
         background: var(--bg-level-2);
     }
 
     .prefix-row label.selected {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: var(--accent-active);
-    }
-
-    .prefix-row input {
-        width: 1rem;
-        height: 1rem;
-        display: none;
+        /* background: rgba(255, 255, 255, 0.08); */
+        background: var(--color-selected);
+        border-color: var(--color-selected);
     }
 
     .sequence {
@@ -430,6 +343,7 @@
         border: 1px solid var(--border-level-3);
         border-radius: var(--radius-level-3);
         padding: 12px;
+        position: relative;
     }
 
     .sequence-step.invalid {
@@ -440,23 +354,17 @@
     .modifiers {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 16px;
+        /* justify-content: space-between; */
     }
 
-    .modifiers button {
-        padding: 4px 8px;
-        border-radius: var(--radius-level-4);
-        border: 1px solid var(--border-level-3);
-        background: transparent;
+    .modifiers label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         color: var(--font-color);
         font-size: 0.75rem;
         cursor: pointer;
-    }
-
-    .modifiers button.selected {
-        background: var(--accent-active);
-        border-color: var(--accent-active);
-        color: #fff;
     }
 
     .key-entry {
@@ -482,11 +390,22 @@
     }
 
     .key-entry .remove {
-        border: none;
+        background: var(--color-danger);
+        color: white;
+        position: absolute;
+        top: -6px;
+        right: -6px;
         border-radius: 50%;
-        background: var(--bg-level-4);
-        width: 30px;
-        height: 30px;
+        height: 16px;
+        width: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.1rem;
+        padding: 0;
+        cursor: pointer;
+        border: 0;
+        outline: 0;
     }
 
     .sequence-arrow {
@@ -495,12 +414,16 @@
     }
 
     .add-step {
-        align-self: flex-start;
+        align-self: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         border-radius: 999px;
         border: 1px dashed var(--border-level-3);
-        padding: 4px 12px;
+        padding: 4px;
         background: transparent;
         color: var(--font-color);
+        cursor: pointer;
     }
 
     .add-step:disabled {
@@ -513,34 +436,17 @@
         color: var(--font-muted);
     }
 
-    .action-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .action-row select,
-    .action-row input {
-        border-radius: var(--radius-level-3);
-        border: 1px solid var(--border-level-3);
-        background: var(--bg-level-2);
-        color: var(--font-color);
-        padding: 10px 12px;
-        min-width: 120px;
-    }
-
-    .preview-label {
-        font-size: 0.85rem;
-        color: var(--font-muted);
-        margin-bottom: 4px;
-    }
-
     .preview-box {
-        background: var(--bg-level-2);
-        border-radius: 12px;
-        padding: 12px;
-        font-family: "SF Mono", "JetBrains Mono", monospace;
-        font-size: 0.95rem;
+        background: var(--config-bg);
+        font-family: var(--config-font-family);
+        font-size: var(--config-font-size);
+        color: var(--config-fg);
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 8px;
+        border-radius: var(--radius-level-3);
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
     }
 
     .errors {
@@ -553,30 +459,61 @@
         display: flex;
         justify-content: flex-end;
         gap: 10px;
+        margin-top: 20px;
     }
 
     .actions button {
         padding: 4px 8px;
         border-radius: var(--radius-level-4);
-        border: 1px solid var(--border-level-3);
-        background: transparent;
+        border: 1px solid var(--border-level-2);
+        /* box-shadow: 0 0 3px 3px rgba(255, 255, 255, 0.10) inset; */
+
+        border: 1px solid rgba(0,0,0,0.55);
+        height: 28px;
+        padding: 0 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+
+        /* Outer glow / halo — the bright top edge */
+        box-shadow:
+            /* top inner highlight */
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            /* bottom inner shadow */
+            inset 0 -1px 0 rgba(0,0,0,0.25),
+            /* subtle outer drop shadow */
+            0 1px 2px rgba(0,0,0,0.5),
+            /* faint outer glow */
+            0 0 0 0.5px rgba(255,255,255,0.04);
+
+        /* box-shadow:
+            0 1px 0px rgba(0, 0, 0, 0.6),
+
+            inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+
+            inset 0 0 0 0px rgba(0, 0, 0, 0.6); */
+        background: #626065;
         color: var(--font-color);
         cursor: pointer;
     }
 
-    .ghost {
-        background: transparent;
-        border-color: var(--border-level-3);
-    }
-
-    .primary {
-        background: var(--accent-active);
+    .actions button.primary {
+        background:  #2f80f5;
         color: #fff;
-        border-color: transparent;
+        border: 1px solid rgba(0,0,0,0.35);
+
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.25),
+            inset 0 -1px 0 rgba(0,0,0,0.2),
+            0 1px 3px rgba(0,0,0,0.45),
+            /* blue outer glow */
+            0 0 6px rgba(30,130,255,0.35);
     }
 
-    .primary:disabled {
+    .actions button.primary:disabled {
         background: var(--color-danger);
         cursor: not-allowed;
+        filter: brightness(0.6);
     }
 </style>

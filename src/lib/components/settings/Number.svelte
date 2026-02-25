@@ -6,10 +6,11 @@
         step?: number;
         size?: number;
         range?: boolean;
+        placeholder?: string;
     };
 
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), min, max, step, size, range}: Props = $props();
+    let {value = $bindable(), min, max, step, size, range, placeholder}: Props = $props();
 
     const inputType = $derived(range ? "range" : "number");
     $effect(() => {
@@ -21,7 +22,7 @@
     {#if range}
         <div>{value}</div>
     {/if}
-    <input type={inputType} bind:value {min} {max} {step} {size} />
+    <input type={inputType} bind:value {min} {max} {step} {size} {placeholder} />
 </div>
 
 <style>
