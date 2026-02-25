@@ -375,15 +375,58 @@ function parsePrefixes(trigger: string) {
 }
 
 function parseStep(rawStep: string): ParsedTriggerStep | null {
-    const tokens = rawStep
+    const step = rawStep.trim();
+    if (!step) return null;
+
+    let key = "";
+    let modifierPart = "";
+
+    if (step === "+") {
+        key = "+";
+    }
+    else if (step.endsWith("++")) {
+        key = "+";
+        modifierPart = step.slice(0, -2);
+    }
+    else {
+        const lastPlusIndex = step.lastIndexOf("+");
+        if (lastPlusIndex === -1) {
+            key = step;
+        }
+        else {
+            key = step.slice(lastPlusIndex + 1);
+            modifierPart = step.slice(0, lastPlusIndex);
+            if (!key) return null;
+        }
+    }
+
+    const normalizedKey = normalizeKeyName(key);
+    const modifiers = modifierPart
         .split("+")
         .map((token) => token.trim())
-        .filter(Boolean);
-    if (tokens.length === 0) return null;
-    const key = tokens.pop()!;
-    const normalizedKey = key.toLowerCase();
-    const modifiers = tokens.map(normalizeModifier).filter((value) => value.length > 0);
+        .filter(Boolean)
+        .map(normalizeModifier)
+        .filter((value) => value.length > 0);
     return {key: normalizedKey, modifiers};
+}
+
+function normalizeKeyName(key: string) {
+    const compact = key.replace(/\s+/g, "");
+    if (!compact) return "";
+    const lowered = compact.toLowerCase();
+
+    if (KEY_SET.has(lowered) || lowered.startsWith("physical:") || [...lowered].length === 1) {
+        return lowered;
+    }
+
+    const snake = compact
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+        .replace(/([a-zA-Z])([0-9])/g, "$1_$2")
+        .replace(/([0-9])([a-zA-Z])/g, "$1_$2")
+        .toLowerCase();
+
+    if (KEY_SET.has(snake) || snake.startsWith("physical:")) return snake;
+    return lowered;
 }
 
 export function parseTrigger(triggerString: string): ParsedTrigger | null {
@@ -393,9 +436,9 @@ export function parseTrigger(triggerString: string): ParsedTrigger | null {
     const {prefixes, remainder} = parsePrefixes(normalized);
     const tokens = remainder
         .split(">")
-        .map((segment) => segment.trim())
-        .filter(Boolean);
+        .map((segment) => segment.trim());
     if (!tokens.length) return null;
+    if (tokens.some((segment) => !segment.length)) return null;
     for (const token of tokens) {
         const step = parseStep(token);
         if (!step) return null;
