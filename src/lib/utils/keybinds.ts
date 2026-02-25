@@ -225,11 +225,9 @@ type ActionArgType =
     | "integer"
     | "free"
     | "enum"
-    | "tuple"
     | "direction"
     | "resize"
-    | "text"
-    | "crash";
+    | "text";
 
 export interface ActionDefinition {
     name: string;
@@ -500,7 +498,7 @@ function validateAction(action: string, args: string | undefined) {
         if (!directionOptions.includes(dir)) {
             return [`'${action}' direction must be ${directionOptions.join(", ")}`];
         }
-        if (Number.isNaN(Number(amount))) return [`'${action}' requires a numeric offset`];
+        if (Number.isNaN(parseInt(amount))) return [`'${action}' requires a numeric offset`];
         return [];
     }
     return [];

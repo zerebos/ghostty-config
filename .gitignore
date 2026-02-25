@@ -2,6 +2,7 @@ node_modules
 custom
 config
 sverdle
+notes
 *.md
 !README.md
 

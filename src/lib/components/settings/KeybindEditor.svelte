@@ -8,6 +8,15 @@
         VALID_MODIFIERS,
         KEY_NAMES
     } from "$lib/utils/keybinds";
+    import {fade, fly, slide} from "svelte/transition";
+    import Switch from "./Switch.svelte";
+    import Group from "./Group.svelte";
+    import Item from "./Item.svelte";
+    import Dropdown from "./Dropdown.svelte";
+    import Separator from "./Separator.svelte";
+    import Number from "./Number.svelte";
+    import Text from "./Text.svelte";
+    import {get} from "svelte/store";
 
     interface Props {
         value?: string;
@@ -138,164 +147,211 @@
     }
 </script>
 
-<div class="modal-backdrop" role="dialog" aria-modal="true">
-    <div class="modal-card">
-        <header>
-            <h2>{mode === "edit" ? "Edit Keybind" : "Add Keybind"}</h2>
-            <button class="ghost" type="button" aria-label="Close" onclick={close}>✕</button>
-        </header>
-        <section class="section">
-            <h3>Trigger</h3>
-            <div class="prefix-row">
-                {#each VALID_PREFIXES as prefix (prefix)}
-                    <label class:selected={prefixes.includes(prefix)}>
-                        <input
-                            type="checkbox"
-                            checked={prefixes.includes(prefix)}
-                            onchange={() => togglePrefix(prefix)}
-                        />
-                        {prefix}
-                    </label>
-                {/each}
-            </div>
-            <div class="sequence">
-                {#each steps as step, index (index)}
-                    <div class="sequence-step" class:invalid={!step.key}>
-                        <div class="modifiers">
-                            {#each VALID_MODIFIERS as modifier (modifier)}
-                                <button
-                                    type="button"
-                                    class:selected={step.modifiers.includes(modifier)}
-                                    onclick={() => toggleModifier(index, modifier)}
-                                >
-                                    {modifier}
-                                </button>
-                            {/each}
-                        </div>
-                        <div class="key-entry">
-                            <input
-                                type="text"
-                                placeholder="key"
-                                bind:value={step.key}
-                                list="key-options"
-                                oninput={(event) => updateStepKey(index, event.currentTarget.value)}
-                            />
-                            <datalist id="key-options">
-                                {#each KEY_NAMES as keyName (keyName)}
-                                    <option value={keyName}></option>
-                                {/each}
-                            </datalist>
+
+<div class="editor" in:fly={{y: 30, duration: 200}}>
+    <!-- <header>
+        <h2>{mode === "edit" ? "Edit Keybind" : "Add Keybind"}</h2>
+        <button class="ghost" type="button" aria-label="Close" onclick={close}>✕</button>
+    </header> -->
+    <main>
+    <section class="section">
+        <h3>Trigger</h3>
+        <div class="prefix-row">
+            {#each VALID_PREFIXES as prefix (prefix)}
+                <label class:selected={prefixes.includes(prefix)}>
+                    <input
+                        type="checkbox"
+                        checked={prefixes.includes(prefix)}
+                        onchange={() => togglePrefix(prefix)}
+                    />
+                    <!-- <Switch checked={prefixes.includes(prefix)} onchange={() => togglePrefix(prefix)} /> -->
+                    {prefix}
+                </label>
+            {/each}
+        </div>
+        <div class="sequence">
+            {#each steps as step, index (index)}
+                <div class="sequence-step" class:invalid={!step.key}>
+                    <div class="modifiers">
+                        {#each VALID_MODIFIERS as modifier (modifier)}
                             <button
                                 type="button"
-                                class="remove"
-                                onclick={() => removeSequenceStep(index)}
-                                disabled={steps.length === 1}
+                                class:selected={step.modifiers.includes(modifier)}
+                                onclick={() => toggleModifier(index, modifier)}
                             >
-                                –
+                                {modifier}
                             </button>
-                        </div>
+                        {/each}
                     </div>
-                    {#if index < steps.length - 1}
-                        <div class="sequence-arrow">→</div>
-                    {/if}
-                {/each}
-                <button
-                    class="add-step"
-                    type="button"
-                    onclick={addSequenceStep}
-                    disabled={prefixes.includes("global") || prefixes.includes("all")}
-                >
-                    Add Step
-                </button>
-                {#if prefixes.includes("global") || prefixes.includes("all")}
-                    <div class="sequence-note">Global/all keybinds cannot be sequences.</div>
+                    <div class="key-entry">
+                        <input
+                            type="text"
+                            placeholder="key"
+                            bind:value={step.key}
+                            list="key-options"
+                            oninput={(event) => updateStepKey(index, event.currentTarget.value)}
+                        />
+                        <datalist id="key-options">
+                            {#each KEY_NAMES as keyName (keyName)}
+                                <option value={keyName}></option>
+                            {/each}
+                        </datalist>
+                        <button
+                            type="button"
+                            class="remove"
+                            onclick={() => removeSequenceStep(index)}
+                            disabled={steps.length === 1}
+                        >
+                            –
+                        </button>
+                    </div>
+                </div>
+                {#if index < steps.length - 1}
+                    <div class="sequence-arrow">→</div>
                 {/if}
-            </div>
-        </section>
-        <section class="section">
-            <h3>Action</h3>
-            <div class="action-row">
-                <select bind:value={actionName}>
-                    {#each ACTION_DEFINITIONS as action (action.name)}
-                        <option value={action.name}>{action.name}</option>
-                    {/each}
-                </select>
-                {#if getCurrentAction()?.type === "enum"}
-                    <select bind:value={actionArg}>
-                        <option value="">
-                            {getAllowEmpty() ? "Default" : "Select value"}
-                        </option>
-                        {#each getCurrentAction()?.options ?? [] as option (option)}
-                            <option value={option}>{option}</option>
-                        {/each}
-                    </select>
-                {:else if getCurrentAction()?.type === "number" || getCurrentAction()?.type === "integer"}
-                    <input type="number" bind:value={actionArg} placeholder="amount" />
-                {:else if getCurrentAction()?.type === "resize"}
-                    <select bind:value={resizeDirection}>
-                        {#each directionOptions as direction (direction)}
-                            <option value={direction}>{direction}</option>
-                        {/each}
-                    </select>
-                    <input
-                        type="number"
-                        min="0"
-                        step="1"
-                        bind:value={resizeAmount}
-                        placeholder="pixels"
-                    />
-                {:else if getCurrentAction()?.type === "text"}
-                    <input type="text" bind:value={actionArg} placeholder="Zig string literal" />
-                {:else if getCurrentAction()?.type === "free"}
-                    <input type="text" bind:value={actionArg} placeholder="raw sequence" />
-                {/if}
-            </div>
-        </section>
-        <section class="section">
-            <div class="preview-label">Preview</div>
-            <div class="preview-box">{getPreview()}</div>
-            {#if getErrors().length}
-                <ul class="errors">
-                    {#each getErrors() as error (error)}
-                        <li>{error}</li>
-                    {/each}
-                </ul>
-            {/if}
-        </section>
-        <footer class="actions">
-            <button type="button" class="ghost" onclick={close}>Cancel</button>
+            {/each}
             <button
+                class="add-step"
                 type="button"
-                class="primary"
-                onclick={handleSave}
-                disabled={getErrors().length > 0}
+                onclick={addSequenceStep}
+                disabled={prefixes.includes("global") || prefixes.includes("all")}
             >
-                Save
+                Add Step
             </button>
-        </footer>
-    </div>
+            {#if prefixes.includes("global") || prefixes.includes("all")}
+                <div class="sequence-note">Global/all keybinds cannot be sequences.</div>
+            {/if}
+        </div>
+    </section>
+    <Group title="Action">
+    <!-- <section class="section"> -->
+        <!-- <h3>Action</h3> -->
+         <Item name="Name" note="The action to perform when the keybind is triggered">
+            <Dropdown
+                bind:value={actionName}
+                options={ACTION_DEFINITIONS.map((action) => ({
+                    name: action.name,
+                    value: action.name
+                }))}
+            />
+        </Item>
+        <!-- <div class="action-row"> -->
+            <!-- <Item name="Type">
+                <Dropdown
+                    bind:value={actionName}
+                    options={ACTION_DEFINITIONS.map((action) => ({
+                        name: action.name,
+                        value: action.name
+                    }))}
+                />
+            </Item> -->
+            <!-- <select bind:value={actionName}>
+                {#each ACTION_DEFINITIONS as action (action.name)}
+                    <option value={action.name}>{action.name}</option>
+                {/each}
+            </select> -->
+            {#if getCurrentAction()?.type !== "none"}
+            <Separator />
+            <Item name="Argument" note="Optional argument for the action, format depends on the action type">
+            {#if getCurrentAction()?.type === "enum"}
+                <!-- <select bind:value={actionArg}>
+                    <option value="">
+                        {getAllowEmpty() ? "Default" : "Select value"}
+                    </option>
+                    {#each getCurrentAction()?.options ?? [] as option (option)}
+                        <option value={option}>{option}</option>
+                    {/each}
+                </select> -->
+                <Dropdown
+                    bind:value={actionArg}
+                    options={[
+                        ...(getAllowEmpty() ? [{name: "Default", value: ""}] : []),
+                        ...((getCurrentAction()?.options ?? []).map((option) => ({
+                            name: option,
+                            value: option
+                        })) ?? [])
+                    ]}
+                />
+            {:else if getCurrentAction()?.type === "number" || getCurrentAction()?.type === "integer"}
+                <!-- <input type="number" bind:value={actionArg} placeholder="amount" /> -->
+                <Number bind:value={() => parseInt(actionArg, 10), (v) => actionArg = v.toString()} />
+            {:else if getCurrentAction()?.type === "resize"}
+                <!-- <select bind:value={resizeDirection}>
+                    {#each directionOptions as direction (direction)}
+                        <option value={direction}>{direction}</option>
+                    {/each}
+                </select> -->
+                <Dropdown
+                    bind:value={resizeDirection}
+                    options={directionOptions.map((direction) => ({
+                        name: direction,
+                        value: direction
+                    }))}
+                />
+                <Number bind:value={() => parseInt(resizeAmount, 10), (v) => resizeAmount = v?.toString() || ""} min={0} step={1} />
+                <!-- <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    bind:value={resizeAmount}
+                    placeholder="pixels"
+                /> -->
+            {:else if getCurrentAction()?.type === "text"}
+                <!-- <input type="text" bind:value={actionArg} placeholder="Zig string literal" /> -->
+                 <Text bind:value={actionArg} placeholder="Zig string literal" />
+            {:else if getCurrentAction()?.type === "free"}
+                <!-- <input type="text" bind:value={actionArg} placeholder="raw sequence" /> -->
+                <Text bind:value={actionArg} placeholder="raw sequence" />
+            {/if}
+            </Item>
+            {/if}
+        <!-- </div> -->
+    <!-- </section> -->
+     </Group>
+    <!-- <section class="section">
+        <div class="preview-label">Preview</div>
+        <div class="preview-box">{getPreview()}</div>
+        {#if getErrors().length}
+            <ul class="errors">
+                {#each getErrors() as error (error)}
+                    <li>{error}</li>
+                {/each}
+            </ul>
+        {/if}
+    </section> -->
+    <Group title="Preview">
+        <div class="preview-box">{getPreview()}</div>
+        {#if getErrors().length}
+            <ul class="errors">
+                {#each getErrors() as error (error)}
+                    <li>{error}</li>
+                {/each}
+            </ul>
+        {/if}
+    </Group>
+    </main>
+    <footer class="actions">
+        <button type="button" class="ghost" onclick={close}>Cancel</button>
+        <button
+            type="button"
+            class="primary"
+            onclick={handleSave}
+            disabled={getErrors().length > 0}
+        >
+            Save
+        </button>
+    </footer>
 </div>
 
 
 <style>
-    .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 15, 15, 0.7);
+    .editor {
+        width: 100%;
+        flex: 1;
+        /* padding: 20px 28px; */
+        padding-bottom: 20px;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        z-index: 30;
-    }
-
-    .modal-card {
-        background: var(--bg-level-1);
-        border-radius: 16px;
-        max-width: 720px;
-        width: min(100%, 720px);
-        padding: 20px 28px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        flex-direction: column;
     }
 
     header {
@@ -317,8 +373,18 @@
         font-size: 1.15rem;
     }
 
+    main {
+        flex: 1;
+    }
+
     .section {
         margin-bottom: 20px;
+    }
+
+    h3 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-top: 20px;
     }
 
     .prefix-row {
@@ -329,7 +395,7 @@
     }
 
     .prefix-row label {
-        border-radius: 999px;
+        border-radius: var(--radius-level-4);
         border: 1px solid var(--border-level-3);
         padding: 6px 12px;
         font-size: 0.8rem;
@@ -348,6 +414,7 @@
     .prefix-row input {
         width: 1rem;
         height: 1rem;
+        display: none;
     }
 
     .sequence {
@@ -361,7 +428,7 @@
         gap: 10px;
         background: var(--bg-level-2);
         border: 1px solid var(--border-level-3);
-        border-radius: 12px;
+        border-radius: var(--radius-level-3);
         padding: 12px;
     }
 
@@ -378,11 +445,12 @@
 
     .modifiers button {
         padding: 4px 8px;
-        border-radius: 8px;
+        border-radius: var(--radius-level-4);
         border: 1px solid var(--border-level-3);
         background: transparent;
         color: var(--font-color);
         font-size: 0.75rem;
+        cursor: pointer;
     }
 
     .modifiers button.selected {
@@ -398,11 +466,19 @@
     }
 
     .key-entry input {
+        color: var(--font-color);
         background: var(--bg-level-3);
         border: 1px solid var(--border-level-3);
-        border-radius: 10px;
+        border-radius: var(--radius-level-4);
         padding: 10px 14px;
         flex: 1;
+    }
+
+    .key-entry input:focus {
+        /* outline: none; */
+        /* border-color: var(--accent-active); */
+        outline: var(--border-input-focus);
+        box-shadow: 0 0 0 1px var(--accent-active);
     }
 
     .key-entry .remove {
@@ -445,7 +521,7 @@
 
     .action-row select,
     .action-row input {
-        border-radius: 12px;
+        border-radius: var(--radius-level-3);
         border: 1px solid var(--border-level-3);
         background: var(--bg-level-2);
         color: var(--font-color);
@@ -480,9 +556,12 @@
     }
 
     .actions button {
-        border-radius: 10px;
-        border: 1px solid transparent;
-        padding: 8px 20px;
+        padding: 4px 8px;
+        border-radius: var(--radius-level-4);
+        border: 1px solid var(--border-level-3);
+        background: transparent;
+        color: var(--font-color);
+        cursor: pointer;
     }
 
     .ghost {
@@ -497,6 +576,7 @@
     }
 
     .primary:disabled {
-        opacity: 0.5;
+        background: var(--color-danger);
+        cursor: not-allowed;
     }
 </style>

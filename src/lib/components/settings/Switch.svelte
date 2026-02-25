@@ -1,9 +1,15 @@
 <script lang="ts">
+    interface Props {
+        disabled?: boolean;
+        checked?: boolean;
+        onchange?: (checked: boolean) => void;
+    }
     // eslint-disable-next-line prefer-const
-    let {disabled = false, checked = $bindable(false)}: {disabled?: boolean, checked?: boolean} = $props();
+    let {disabled = false, checked = $bindable(false), onchange}: Props = $props();
 
     function change() {
         checked = !checked;
+        if (onchange) onchange(checked);
     }
 </script>
 

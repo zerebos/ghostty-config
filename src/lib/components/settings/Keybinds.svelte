@@ -3,6 +3,7 @@
     import Text from "./Text.svelte";
     import settings from "$lib/data/settings";
     import {getDiagnostics} from "$lib/utils/keybinds";
+    import {fly} from "svelte/transition";
 
     let selected: number[] = $state([]);
     let {value = $bindable([])}: {value: string[]} = $props();
@@ -27,7 +28,23 @@
         };
     }
 
-    let scroller: HTMLDivElement;
+    // This saves the scroll position when opening the editor and restores
+    // it when closing, so that the list doesn't jump around
+    let scroller: HTMLDivElement | undefined = $state();
+    let scrollPosition = $state(0);
+
+    function onScroll(event: Event) {
+        scrollPosition = (event.target as HTMLDivElement).scrollTop;
+    }
+
+    // This does the actual restoring of position
+    // Could also technically use the save/cancel events too
+    $effect(() => {
+        if (!showEditor && scroller) {
+            scroller.scrollTop = scrollPosition;
+        }
+    });
+
     function addNew() {
         editorMode = "add";
         editorValue = "";
@@ -78,7 +95,11 @@
     function handleSave(detail: string) {
         if (editorMode === "add") {
             value = [...value, detail];
-            setTimeout(() => (scroller.scrollTop = scroller.scrollHeight), 1);
+
+            // Queue up scrolling to the bottom where the new item is added
+            setTimeout(() => {
+                if (scroller) scroller.scrollTop = scroller.scrollHeight;
+            }, 1);
         }
         else if (selected.length === 1) {
             value[selected[0]] = detail;
@@ -93,8 +114,26 @@
     const diagnostics = $derived.by(() => getDiagnostics(value));
 </script>
 
-<div class="expandable-list">
-    <div class="item-list" bind:this={scroller}>
+<!-- {#key showEditor} -->
+<!-- <div class="content-container" in:fly={{y: 30, duration: 200}}> -->
+{#if showEditor}
+    <KeybindEditor
+        mode={editorMode}
+        value={editorValue}
+        onsave={handleSave}
+        oncancel={handleCancel}
+    />
+{:else}
+<div class="expandable-list" in:fly={{y: 30, duration: 200}}>
+    <div class="item-list" bind:this={scroller} onscroll={onScroll}>
+        <!-- {#if showEditor}
+            <KeybindEditor
+                mode={editorMode}
+                value={editorValue}
+                onsave={handleSave}
+                oncancel={handleCancel}
+            />
+        {:else} -->
         {#each value as _, i (i)}
             <div
                 class="keybind"
@@ -111,39 +150,32 @@
                 <Text value={value[i].split("=")[1]} blank={true} change={update(i, true)} />
             </div>
         {/each}
+        <!-- {/if} -->
     </div>
     <div class="list-controls">
         <button onclick={addNew} type="button" title="Add Keybind">+</button>
-        <button
-            onclick={editSelected}
-            disabled={selected.length !== 1}
-            type="button"
-            title="Edit Selected"
-        >
-            Edit
+        <button onclick={remove} disabled={selected.length === 0} type="button" title="Remove Selected">-</button>
+        <button onclick={editSelected} disabled={selected.length !== 1} type="button" title="Edit Selected" >
+            <!-- ✎ -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
         </button>
-        <button
-            onclick={remove}
-            disabled={selected.length === 0}
-            type="button"
-            title="Remove Selected"
-        >
-            -
-        </button>
-        <button onclick={() => (showReset = true)} type="button" title="Reset Defaults">
-            Reset
+        <button class="reset" onclick={() => (showReset = true)} type="button" title="Reset Defaults">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H3"/><path d="M7 12H3"/><path d="M7 19H3"/><path d="M12 18a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L11 14"/><path d="M11 10v4h4"/></svg>
         </button>
     </div>
 </div>
+{/if}
+<!-- </div> -->
+<!-- {/key} -->
 
-{#if showEditor}
+<!-- {#if showEditor}
     <KeybindEditor
         mode={editorMode}
         value={editorValue}
         onsave={handleSave}
         oncancel={handleCancel}
     />
-{/if}
+{/if} -->
 
 {#if showReset}
     <div class="reset-backdrop" role="dialog" aria-modal="true">
@@ -167,7 +199,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        height: 100%;
+        /* height: 100%; */
         position: relative;
         background: var(--bg-level-2);
         border-radius: var(--radius-level-3);
