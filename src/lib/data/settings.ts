@@ -326,7 +326,7 @@ const settings = [
                     {
                         id: "theme",
                         name: "Color theme",
-                        note: "Any colors selected after setting this will overwrite the theme's colors.",
+                        note: "Any colors selected after setting this will overwrite the theme's colors. Use left and right arrow keys to cycle through the list.",
                         type: "theme",
                         value: "",
                         options: [{name: "Custom", value: ""}]
