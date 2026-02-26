@@ -14,7 +14,8 @@
     function loadConfig(candidate: string) {
         let parsed;
         try {
-            parsed = parse(candidate);
+            // TODO: remove this assertions when the return type of parse is fixed
+            parsed = parse(candidate) as Parameters<typeof load>[0];
         }
         catch (parseError) {
             // eslint-disable-next-line no-console

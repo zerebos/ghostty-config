@@ -15,7 +15,7 @@
     }
 </script>
 
-<input class:blank class:empty={value === ""} class={align} type="text" placeholder={placeholder} onclick={click} onchange={change} bind:value />
+<input class:blank class:empty={value === ""} class={align} type="text" {placeholder} onclick={click} onchange={change} bind:value />
 
 <style>
 input {

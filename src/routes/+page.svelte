@@ -3,6 +3,7 @@
     import logo from "$lib/images/icon.png";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
+    import {resolve} from "$app/paths";
 </script>
 
 <Page title="Ghostty Config">
@@ -24,7 +25,7 @@
             <ul class="recent-changes">
                 <li>Updated settings to match Ghostty 1.2 (and 1.3-nightly)</li>
                 <li>Designed a brand new logo by hand using <a href="https://www.photopea.com/" target="_blank" rel="noopener noreferrer">Photopea</a></li>
-                <li>Added new custom app icon preview on the <a href="/settings/macos">macOS page</a></li>
+                <li>Added new custom app icon preview on the <a href={resolve("/settings/macos")}>macOS page</a></li>
                 <li>New script for easier updates to future Ghostty versions</li>
                 <li>Fixed old settings that had outdated options</li>
                 <li>Fix extra line breaks when exporting to clipboard by <a href="https://github.com/reussio" target="_blank" rel="noopener noreferrer">@reussio</a></li>
@@ -104,13 +105,6 @@
         font-size: 1.3rem;
         color: var(--font-color);
         font-weight: 600;
-    }
-
-    sup {
-        position: absolute;
-        color: var(--font-color-accent);
-        right: -11px;
-        top: -5px;
     }
 
     .user-subtext {

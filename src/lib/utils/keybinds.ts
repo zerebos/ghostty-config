@@ -376,7 +376,7 @@ function parseStep(rawStep: string): ParsedTriggerStep | null {
     const step = rawStep.trim();
     if (!step) return null;
 
-    let key = "";
+    let key: string;
     let modifierPart = "";
 
     if (step === "+") {

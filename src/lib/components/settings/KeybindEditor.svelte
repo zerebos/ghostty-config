@@ -8,7 +8,7 @@
         VALID_MODIFIERS,
         KEY_NAMES
     } from "$lib/utils/keybinds";
-    import {fade, fly, scale, slide} from "svelte/transition";
+    import {fly, scale} from "svelte/transition";
     import Switch from "./Switch.svelte";
     import Group from "./Group.svelte";
     import Item from "./Item.svelte";
@@ -16,16 +16,14 @@
     import Separator from "./Separator.svelte";
     import Number from "./Number.svelte";
     import Text from "./Text.svelte";
-    import {get} from "svelte/store";
 
     interface Props {
         value?: string;
-        mode?: "add" | "edit";
         onsave?: (value: string) => void;
         oncancel?: () => void;
     }
 
-    const {value = "", mode = "add" as "add" | "edit", onsave, oncancel}: Props = $props();
+    const {value = "", onsave, oncancel}: Props = $props();
 
     type Modifier = string;
 
@@ -61,10 +59,10 @@
         const [, amount] = parsed.args.split(",").map((segment) => segment.trim());
         return amount || "";
     });
-    let dropdownOptions = $derived.by(() => {
+    const dropdownOptions = $derived.by(() => {
         const currentAction = getCurrentAction();
         if (!currentAction || currentAction.type !== "enum") return [];
-        let options = [];
+        const options = [];
         if (getAllowEmpty()) options.push({name: "default", value: ""});
         if (currentAction.options) {
             options.push(...currentAction.options.map((option) => ({name: option, value: option})));
@@ -156,7 +154,7 @@
         if (oncancel) oncancel();
     }
 
-    function actionChanged(){
+    function actionChanged() {
         actionArg = "";
         resizeDirection = directionOptions[0];
         resizeAmount = "";
@@ -179,7 +177,14 @@
     <Group title="Trigger" borderless>
         <div class="sequence">
             {#each steps as step, index (index)}
-                <div class="sequence-step" class:invalid={!step.key} class:removable={steps.length > 1}>
+                <div class="sequence-step" class:invalid={!step.key}>
+                    {#if steps.length > 1}
+                        <button transition:scale={{duration: 200}} type="button" class="remove" onclick={() => removeSequenceStep(index)} disabled={steps.length === 1}>
+                            <!-- – -->
+                            ×
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg> -->
+                        </button>
+                    {/if}
                     <div class="key-entry">
                         <input
                             type="text"
@@ -193,13 +198,6 @@
                                 <option value={keyName}></option>
                             {/each}
                         </datalist>
-                        {#if steps.length > 1}
-                        <button transition:scale={{duration: 200}} type="button" class="remove" onclick={() => removeSequenceStep(index)} disabled={steps.length === 1}>
-                            <!-- – -->
-                            ×
-                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg> -->
-                        </button>
-                        {/if}
                     </div>
                     <div class="modifiers">
                         {#each VALID_MODIFIERS as modifier (modifier)}
@@ -221,7 +219,7 @@
                 disabled={prefixes.includes("global") || prefixes.includes("all")}
             >
                 <!-- Add Step -->
-                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
             </button>
             {#if prefixes.includes("global") || prefixes.includes("all")}
                 <div class="sequence-note">Global/all keybinds cannot be sequences.</div>
@@ -246,7 +244,7 @@
             {#if getCurrentAction()?.type === "enum"}
                 <Dropdown bind:value={actionArg} options={dropdownOptions} />
             {:else if getCurrentAction()?.type === "number" || getCurrentAction()?.type === "integer"}
-                <Number bind:value={() => parseInt(actionArg, 10), (v) => actionArg = v?.toString()} />
+                <Number bind:value={() => parseInt(actionArg, 10), (v: number) => actionArg = v?.toString()} />
             {:else if getCurrentAction()?.type === "resize"}
                 <!-- TODO: should these be split to separate rows? -->
                 <Dropdown
@@ -256,7 +254,7 @@
                         value: direction
                     }))}
                 />
-                <Number bind:value={() => parseInt(resizeAmount, 10), (v) => resizeAmount = v?.toString()} min={0} step={1} placeholder="pixels" />
+                <Number bind:value={() => parseInt(resizeAmount, 10), (v: number) => resizeAmount = v?.toString()} min={0} step={1} placeholder="pixels" />
             {:else if getCurrentAction()?.type === "text"}
                 <Text bind:value={actionArg} placeholder="Zig string literal" />
             {:else if getCurrentAction()?.type === "free"}
@@ -277,14 +275,14 @@
     </Group>
     </main>
     <div class="actions">
-        <button type="button" class="ghost" onclick={close}>Cancel</button>
+        <button type="button" onclick={close}>Cancel</button>
         <button
             type="button"
             class="primary"
             onclick={handleSave}
             disabled={getErrors().length > 0}
         >
-            Save
+            Done
         </button>
     </div>
 </div>
@@ -389,7 +387,7 @@
         box-shadow: 0 0 0 1px var(--accent-active);
     }
 
-    .key-entry .remove {
+    .sequence-step .remove {
         background: var(--color-danger);
         color: white;
         position: absolute;
@@ -401,7 +399,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 1.1rem;
+        font-size: 0.8rem;
         padding: 0;
         cursor: pointer;
         border: 0;
@@ -463,29 +461,34 @@
     }
 
     .actions button {
-        padding: 4px 8px;
+        padding: 4px 12px;
         border-radius: var(--radius-level-4);
-        border: 1px solid var(--border-level-2);
-        /* box-shadow: 0 0 3px 3px rgba(255, 255, 255, 0.10) inset; */
+        border: 0;
+        /* font-size: 14px; */
+        /* height: 28px; */
+        height: 24px;
 
-        border: 1px solid rgba(0,0,0,0.55);
+        /* border: 1px solid var(--border-level-2); */
+        /* box-shadow: inset 0px 2px 2px -3px white; */
+        box-shadow:
+            0px 0px 1px 0px #000000,
+            inset 0px 3px 1px -3px #FFFFFF;
+
+        /* border: 1px solid rgba(0,0,0,0.55);
         height: 28px;
         padding: 0 14px;
         border-radius: 6px;
         font-size: 13px;
         font-weight: 400;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.01em; */
 
         /* Outer glow / halo — the bright top edge */
-        box-shadow:
-            /* top inner highlight */
+        /* top inner highlight, bottom inner shadow, subtle outer drop shadow, faint outer glow */
+        /* box-shadow:
             inset 0 1px 0 rgba(255,255,255,0.12),
-            /* bottom inner shadow */
             inset 0 -1px 0 rgba(0,0,0,0.25),
-            /* subtle outer drop shadow */
             0 1px 2px rgba(0,0,0,0.5),
-            /* faint outer glow */
-            0 0 0 0.5px rgba(255,255,255,0.04);
+            0 0 0 0.5px rgba(255,255,255,0.04); */
 
         /* box-shadow:
             0 1px 0px rgba(0, 0, 0, 0.6),
@@ -493,22 +496,31 @@
             inset 0 0 0 1px rgba(255, 255, 255, 0.15),
 
             inset 0 0 0 0px rgba(0, 0, 0, 0.6); */
+        /* background: #5D595C; */
         background: #626065;
+        /* background: #59575C; */
         color: var(--font-color);
         cursor: pointer;
+        position: relative;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .actions button.primary {
-        background:  #2f80f5;
+        /* background:  #2f80f5; */
+        background: #3B6CD3;
         color: #fff;
-        border: 1px solid rgba(0,0,0,0.35);
+        /* border: 1px solid rgba(0,0,0,0.35); */
+        border: 0;
+        padding: 0 20px;
 
-        box-shadow:
+        /* box-shadow:
             inset 0 1px 0 rgba(255,255,255,0.25),
             inset 0 -1px 0 rgba(0,0,0,0.2),
             0 1px 3px rgba(0,0,0,0.45),
-            /* blue outer glow */
-            0 0 6px rgba(30,130,255,0.35);
+            0 0 6px rgba(30,130,255,0.35); */
     }
 
     .actions button.primary:disabled {

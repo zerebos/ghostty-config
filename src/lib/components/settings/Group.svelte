@@ -12,7 +12,7 @@
     const {title = "", note = "", children, flex = "", borderless = false}: Props = $props();
 </script>
 
-<div class="setting-group" class:borderless={borderless}>
+<div class="setting-group" class:borderless>
     <div class="group-info">
         {#if title}<h2>{title}</h2>{/if}
         {#if note}<h4>{note}</h4>{/if}

@@ -33,7 +33,6 @@
 
         const add = (key: string, val: string) => str += `--config-${key}: ${val};`;
 
-        /* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access */
         // Add the base colors
         add("bg", config.background);
         add("fg", config.foreground);

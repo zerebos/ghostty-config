@@ -114,11 +114,9 @@
     const diagnostics = $derived.by(() => getDiagnostics(value));
 </script>
 
-<!-- {#key showEditor} -->
-<!-- <div class="content-container" in:fly={{y: 30, duration: 200}}> -->
+
 {#if showEditor}
     <KeybindEditor
-        mode={editorMode}
         value={editorValue}
         onsave={handleSave}
         oncancel={handleCancel}
@@ -126,14 +124,6 @@
 {:else}
 <div class="expandable-list" in:fly={{y: 30, duration: 200}}>
     <div class="item-list" bind:this={scroller} onscroll={onScroll}>
-        <!-- {#if showEditor}
-            <KeybindEditor
-                mode={editorMode}
-                value={editorValue}
-                onsave={handleSave}
-                oncancel={handleCancel}
-            />
-        {:else} -->
         {#each value as _, i (i)}
             <div
                 class="keybind"
@@ -155,27 +145,16 @@
     <div class="list-controls">
         <button onclick={addNew} type="button" title="Add Keybind">+</button>
         <button onclick={remove} disabled={selected.length === 0} type="button" title="Remove Selected">-</button>
-        <button onclick={editSelected} disabled={selected.length !== 1} type="button" title="Edit Selected" >
+        <button onclick={editSelected} disabled={selected.length !== 1} type="button" title="Edit Selected">
             <!-- ✎ -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" /></svg>
         </button>
-        <button class="reset" onclick={() => (showReset = true)} type="button" title="Reset Defaults">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H3"/><path d="M7 12H3"/><path d="M7 19H3"/><path d="M12 18a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L11 14"/><path d="M11 10v4h4"/></svg>
+        <button onclick={() => (showReset = true)} type="button" title="Reset Defaults">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H3" /><path d="M7 12H3" /><path d="M7 19H3" /><path d="M12 18a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L11 14" /><path d="M11 10v4h4" /></svg>
         </button>
     </div>
 </div>
 {/if}
-<!-- </div> -->
-<!-- {/key} -->
-
-<!-- {#if showEditor}
-    <KeybindEditor
-        mode={editorMode}
-        value={editorValue}
-        onsave={handleSave}
-        oncancel={handleCancel}
-    />
-{/if} -->
 
 {#if showReset}
     <div class="reset-backdrop" role="dialog" aria-modal="true">

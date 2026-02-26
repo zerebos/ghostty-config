@@ -5,13 +5,13 @@ import parse from "$lib/utils/parse";
 // import defs from "../data/defaults.json";
 
 // TODO: find a good way to properly type the config
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const defaults: Partial<Record<keyof DefaultConfig, any>> = {};
+const defaults: DefaultConfig = {} as DefaultConfig;
 
 for (const panel of settings) {
     for (const group of panel.groups) {
         for (const setting of group.settings) {
-            defaults[setting.id as keyof typeof defaults] = setting.value;
+            // @ts-expect-error - this is a bit hacky but it allows us to avoid having to maintain a separate defaults file, and also ensures that the defaults are always in sync with the schema
+            defaults[setting.id as keyof DefaultConfig] = setting.value;
         }
     }
 }
@@ -21,8 +21,7 @@ if (dev) {
     console.log(defaults);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const config = $state(Object.assign({}, defaults)) as Record<keyof DefaultConfig, any>;
+const config = $state(Object.assign({}, defaults));
 
 
 export function keyToConfig(key: string) {
@@ -31,29 +30,24 @@ export function keyToConfig(key: string) {
 
 export function diff() {
     // TODO: more elegance
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
     const output: Partial<Record<keyof typeof defaults | string, any>> = {};
 
     for (const k in config) {
         const key = k as keyof DefaultConfig;
         if (Array.isArray(config[key]) && key === "keybind") {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             const toAdd = config[key].filter(c => !defaults[key].includes(c));
             if (toAdd.length) output[keyToConfig(key)] = toAdd;
         }
         else if (Array.isArray(config[key]) && key === "palette") {
             const toAdd = [];
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             for (let p = 0; p < defaults[key].length; p++) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (config[key][p] === defaults[key][p]) continue;
                 toAdd.push(`${p}=${config[key][p]}`);
             }
-            // const toAdd = config[key].filter(c => !defaults[key].includes(c));
             if (toAdd.length) output[keyToConfig(key)] = toAdd;
         }
         else if (config[key] != defaults[key]) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             output[keyToConfig(key)] = config[key];
         }
     }
@@ -65,20 +59,16 @@ export function load(conf: Partial<typeof config>) {
     for (const key in conf) {
         if (!(key in config)) continue;
         if (key !== "keybind" && key !== "palette") {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            config[key as keyof typeof config] = conf[key as keyof typeof config];
+            // @ts-expect-error doing this properly is hard
+            config[key as keyof typeof config] = conf[key as keyof typeof config]!;
         }
         else if (key === "keybind") {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            config.keybind = [...config.keybind, ...conf.keybind];
+            config.keybind = [...config.keybind, ...conf.keybind!];
         }
         else if (key === "palette") {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            for (let p = 0; p < conf.palette.length; p++) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (!conf.palette[p]) continue;
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                config.palette[p] = conf.palette[p];
+            for (let p = 0; p < conf.palette!.length; p++) {
+                if (!conf.palette![p]) continue;
+                config.palette[p] = conf.palette![p];
             }
         }
     }
@@ -88,7 +78,9 @@ export async function setColorScheme(name: string) {
     if (name === "") return resetColorScheme();
     const colorSchemeResponse = await fetchColorScheme(name);
     try {
-        const parsed = parse(colorSchemeResponse);
+        // TODO: move the assertion into the return,
+        // didn't do it now because it would have lead to a circular dep
+        const parsed = parse(colorSchemeResponse) as Partial<DefaultConfig>;
         load(parsed);
     }
     catch (error) {
@@ -107,13 +99,11 @@ export function resetColorScheme() {
     ] as Array<keyof DefaultConfig>;
 
     for (const key of keys) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // @ts-expect-error doing this properly is hard
         config[key] = defaults[key];
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     for (let c = 0; c < defaults.palette.length; c++) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         config.palette[c] = defaults.palette[c];
     }
 }
@@ -152,10 +142,10 @@ interface DefaultConfig {
     theme: string;
     background: HexColor;
     foreground: HexColor;
-    selectionForeground: string;
-    selectionBackground: string;
+    selectionForeground: HexColor;
+    selectionBackground: HexColor;
     minimumContrast: number;
-    cursorColor: string;
+    cursorColor: HexColor;
     cursorText: string;
     cursorOpacity: number;
     cursorStyle: string;
