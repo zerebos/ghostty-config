@@ -1,6 +1,6 @@
 <script lang="ts">
     import Page from "$lib/views/Page.svelte";
-    import logo from "$lib/images/icon.png";
+    import logo from "$lib/images/icon.webp";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
 </script>
@@ -128,8 +128,8 @@
 
     ul,
     .group-wrapper ul {
-        /* list-style: "↪ "; */
-        list-style: "🠶 ";
+        list-style: "↪ ";
+        /* list-style: disclosure-closed; */
         padding-left: 15px;
         margin: 0;
         display: flex;
