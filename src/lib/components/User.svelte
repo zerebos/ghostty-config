@@ -1,6 +1,6 @@
 <script lang="ts">
     import {page} from "$app/state";
-    import logo from "$lib/images/avatar.png";
+    import logo from "$lib/images/avatar.webp";
 
     const {route = "/", name = "Ghostty Config"} = $props();
     const path = $derived(page.url.pathname);
@@ -46,7 +46,7 @@
         justify-content: center;
         align-items: center;
         height: 40px;
-        min-width: 40px;
+        width: 40px;
         /* border: 2px solid black; */
         /* box-shadow: 0 0 0 2px white; */
     }
