@@ -6,6 +6,7 @@
     --app-height: 700px;
     --sidebar-width: 215px;
 
+    /* Put -apple-system and BlinkMacSystemFont first for sf pro on macOS */
     /* Base text variables */
     --font-family: -apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     --font-family-mono: monospace, monospace;

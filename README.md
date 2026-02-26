@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://zerebos.github.io/ghostty-config"><img src="./src/lib/images/icon.png" height="128" alt="Ghostty Config"></a>
+  <a href="https://zerebos.github.io/ghostty-config"><img src="./src/lib/images/icon.webp" height="128" alt="Ghostty Config"></a>
   <h1 align="center" style="border:0;">Ghostty Config</h1>
   <p align="center">A beautiful intuitive configuration generator for <a href="https://ghostty.org/" target="_blank">Ghostty</a> terminal.</p>
 

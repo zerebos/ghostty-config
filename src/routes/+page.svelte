@@ -1,6 +1,6 @@
 <script lang="ts">
     import Page from "$lib/views/Page.svelte";
-    import logo from "$lib/images/icon.png";
+    import logo from "$lib/images/icon.webp";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
     import {resolve} from "$app/paths";
@@ -122,8 +122,8 @@
 
     ul,
     .group-wrapper ul {
-        /* list-style: "↪ "; */
-        list-style: "🠶 ";
+        list-style: "↪ ";
+        /* list-style: "🠶 "; */
         padding-left: 15px;
         margin: 0;
         display: flex;
@@ -135,11 +135,4 @@
     .recent-changes li {
         margin-bottom: 5px;
     }
-
-    /* code {
-        background: var(--bg-input-focus);
-        padding: 2px 4px;
-        border: 1px solid var(--border-input);
-        border-radius: var(--radius-level-4);
-    } */
 </style>
