@@ -130,6 +130,7 @@ const getOS = () => {
     return "other";
 };
 
+// TODO: find a good way to properly type the settings
 const settings = [
     {
         id: "application",
@@ -145,7 +146,10 @@ const settings = [
                     {id: "desktopNotifications", name: "Allow desktop notifications", type: "switch", value: true},
                     {id: "configFile", name: "Additional config file", type: "text", value: ""},
                     {id: "configDefaultFiles", name: "Load default config file", type: "switch", value: true},
+                    {id: "link", name: "Link handling", note: "Regex for making clickable links, currently disabled.", type: "text", value: "", disabled: true},
                     {id: "linkUrl", name: "Automatically link URLs", note: "Matching occurs while holding the control (Linux) or command (macOS) key.", type: "switch", value: true},
+                    {id: "linkPreviews", name: "Show link previews", note: "When set to `osc8`, previews are only shown for hyperlinks created with the OSC 8 sequence.", type: "dropdown", value: "true", options: ["true", "false", "osc8"]},
+                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like `1h30m`, `5s`, `500ms`.", type: "text", value: ""}
                 ]
             },
             {
@@ -156,6 +160,7 @@ const settings = [
                     {id: "command", name: "Command to run on launch", type: "text", value: ""},
                     {id: "initialCommand", name: "Command to run on first launch", note: "Unlike the previous setting, this will only run once in the lifetime of the app.", type: "text", value: ""},
                     {id: "env", name: "Environment variables", type: "text", value: ""},
+                    {id: "input", name: "Initial input", note: "Input for tty launch. Can be raw text, zig string literal, or path:/to/file.", type: "text", value: ""},
                     {id: "maximize", name: "Launch as maximized window", type: "switch", value: false},
                     {id: "fullscreen", name: "Launch in fullscreen mode", type: "switch", value: false},
                     {id: "initialWindow", name: "Show a window on startup", type: "switch", value: true},
@@ -169,7 +174,7 @@ const settings = [
                 settings: [
                     {id: "waitAfterCommand", name: "Wait for input after command", type: "switch", value: false},
                     {id: "abnormalCommandExitRuntime", name: "Abnormal command exit runtime", type: "number", value: 250, min: 0, size: 5},
-                    {id: "confirmCloseSurface", name: "Confirm when closing a surface", type: "switch", value: true},
+                    {id: "confirmCloseSurface", name: "Confirm when closing a surface", type: "dropdown", value: "true", options: ["true", "false", "always"]},
                     {id: "quitAfterLastWindowClosed", name: "Quit after closing last window", type: "switch", value: false},
                     {id: "quitAfterLastWindowClosedDelay", name: "Delay before auto quitting", type: "text", value: ""},
                 ]
@@ -179,10 +184,10 @@ const settings = [
                 name: "Shell Integration",
                 // type: "group",
                 settings: [
-                    {id: "shellIntegration", name: "Shell integration style", type: "dropdown", value: "detect", options: ["none", "detect", "bash", "elvish", "fish", "zsh"]},
-                    {id: "shellIntegrationFeatures", name: "Shell integration features", note: "The current available features are cursor, sudo, and title. Including one force enables it, prefixing it with `no-` force disables it, omitting it falls back to default.", type: "text", value: "cursor,no-sudo,title"},
+                    {id: "shellIntegration", name: "Shell integration style", type: "dropdown", value: "detect", options: ["none", "detect", "bash", "elvish", "fish", "nushell", "zsh"]},
+                    {id: "shellIntegrationFeatures", name: "Shell integration features", note: "Available features: cursor, sudo, title, ssh-env, ssh-terminfo, path. Including one force enables it, prefixing it with `no-` force disables it, omitting it falls back to default.", type: "text", value: "cursor,no-sudo,title,no-ssh-env,no-ssh-terminfo,path"},
                     {id: "term", name: "TERM environment variable", type: "text", value: "xterm-ghostty"},
-                    {id: "titleReport", name: "CSI 21 title reporting", note: "This allows running apps to read the terminal title.", type: "switch", value: true},
+                    {id: "titleReport", name: "CSI 21 title reporting", note: "This allows running apps to read the terminal title.", type: "switch", value: false},
                 ]
             },
             {
@@ -191,9 +196,11 @@ const settings = [
                 settings: [
                     {id: "quickTerminalPosition", name: "Terminal position", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left", "center"]},
                     {id: "quickTerminalScreen", name: "Screen location", type: "dropdown", value: "main", options: ["main", "mouse", "macos-menu-bar"]},
+                    {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. `50%`) or in pixels (e.g. `800`). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
                     {id: "quickTerminalAnimationDuration", name: "Animation duration", type: "number", value: 0.2, min: 0, max: 10, step: 0.1, range: true},
                     {id: "quickTerminalAutohide", name: "Autohide", note: "This autohides the quick terminal when focus shifts away.", type: "switch", value: true},
                     {id: "quickTerminalSpaceBehavior", name: "macOS space behavior", type: "dropdown", value: "move", options: ["move", "remain"]},
+                    {id: "quickTerminalKeyboardInteractivity", name: "Keyboard interactivity", note: "Controls when the quick terminal receives keyboard input. GTK Wayland only.", type: "dropdown", value: "on-demand", options: ["none", "on-demand", "exclusive"]},
                 ]
             },
             {
@@ -204,11 +211,21 @@ const settings = [
                 settings: [
                     {id: "scrollbackLimit", name: "Scrollback buffer size (bytes)", note: "This buffer exists completely in memory but is allocated lazily.", type: "number", value: 10000000, min: 0, size: 10},
                     {id: "customShader", name: "Custom shader", note: "This matches the API of Shadertoy.", type: "text", value: ""},
-                    {id: "customShaderAnimation", name: "Allow shaders to animate", type: "dropdown", value: "false", options: ["false", "true", "always"]},
-                    {id: "enquiryResponse", name: "Reponse to ENQ", type: "text", value: ""},
+                    {id: "customShaderAnimation", name: "Allow shaders to animate", type: "dropdown", value: "true", options: ["false", "true", "always"]},
+                    {id: "scrollToBottom", name: "Scroll to bottom on", note: "Comma-separated list. Available values: keystroke, output.", type: "text", value: ""},
+                    {id: "enquiryResponse", name: "Response to ENQ", type: "text", value: ""},
                     {id: "oscColorReportFormat", name: "OSC color report format", type: "dropdown", value: "16-bit", options: ["none", "8-bit", "16-bit"]},
                     {id: "vtKamAllowed", name: "VT kam mode allowed", note: "If you don't know what this is, don't touch it!", type: "switch", value: false},
                     {id: "imageStorageLimit", name: "Image buffer limit (bytes)", type: "number", value: 320000000, min: 0, max: 4294967295, size: 12},
+                ]
+            },
+            {
+                id: "bell",
+                name: "Bell",
+                settings: [
+                    {id: "bellFeatures", name: "Bell features", note: "Comma-separated list of features. Available: system, audio, attention, title, border. Prefix with `no-` to disable.", type: "text", value: ""},
+                    {id: "bellAudioPath", name: "Bell audio file", note: "Path to an audio file to play when the bell rings. Requires `audio` in bell features. GTK only.", type: "text", value: ""},
+                    {id: "bellAudioVolume", name: "Bell audio volume", note: "Volume for the bell audio, from 0 (silent) to 1 (full). GTK only.", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.05},
                 ]
             },
         ]
@@ -222,7 +239,7 @@ const settings = [
                 name: "",
                 settings: [
                     {id: "clipboardRead", name: "Allow terminal to read clipboard", type: "dropdown", value: "ask", options: ["ask", "allow", "deny"]},
-                    {id: "clipboardWrite", name: "Allow terminal to write clipboard", type: "dropdown", value: "ask", options: ["ask", "allow", "deny"]},
+                    {id: "clipboardWrite", name: "Allow terminal to write clipboard", type: "dropdown", value: "allow", options: ["ask", "allow", "deny"]},
                     {id: "copyOnSelect", name: "Copy on select", type: "dropdown", value: getOS() === "linux" ? "true" : "false", options: ["true", "false", "clipboard"]},
                     {id: "clipboardTrimTrailingSpaces", name: "Trim trailing space on copy", type: "switch", value: true},
                     {id: "clipboardPasteProtection", name: "Confirm when pasting unsafely", type: "switch", value: true},
@@ -243,9 +260,12 @@ const settings = [
                     {id: "windowSubtitle", name: "Window subtitle", type: "dropdown", value: "false", options: ["false", "working-directory"]},
                     {id: "windowVsync", name: "Enable vsync", type: "switch", value: true},
                     {id: "windowInheritWorkingDirectory", name: "Inherit working directory", type: "switch", value: true},
+                    {id: "tabInheritWorkingDirectory", name: "Tabs inherit working directory", type: "switch", value: true},
+                    {id: "splitInheritWorkingDirectory", name: "Splits inherit working directory", type: "switch", value: true},
                     {id: "windowInheritFontSize", name: "Inherit font size", type: "switch", value: true},
                     {id: "windowColorspace", name: "Window colorspace", type: "dropdown", value: "srgb", options: ["srgb", "display-p3"]},
                     {id: "windowSaveState", name: "Save window state", type: "dropdown", value: "default", options: ["default", "never", "always"]},
+                    {id: "windowShowTabBar", name: "Show tab bar", type: "dropdown", value: "auto", options: ["always", "auto", "never"]},
                     // maybe move to application?
                     {id: "windowNewTabPosition", name: "New tab position", type: "dropdown", value: "current", options: ["current", "end"]},
                 ]
@@ -254,7 +274,7 @@ const settings = [
                 id: "appearance",
                 name: "Appearance",
                 settings: [
-                    {id: "windowTheme", name: "Window theme", type: "dropdown", value: "auto", options: ["auto", "system", "light", "dark"]},
+                    {id: "windowTheme", name: "Window theme", type: "dropdown", value: "auto", options: ["auto", "system", "light", "dark", "ghostty"]},
                     {id: "windowDecoration", name: "Window decorations", type: "dropdown", value: "auto", options: ["auto", "none", "client", "server"]},
                     {id: "windowPaddingX", name: "Horizontal window padding", type: "text", value: "2"},
                     {id: "windowPaddingY", name: "Vertical window padding", type: "text", value: "2"},
@@ -265,10 +285,18 @@ const settings = [
                     {id: "windowTitlebarBackground", name: "Titlebar background", type: "color", value: ""},
                     {id: "windowTitlebarForeground", name: "Titlebar foreground", type: "color", value: ""},
                     {id: "backgroundOpacity", name: "Background opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
-                    {id: "backgroundBlur", name: "Background blur radius", note: "A value of 20 is reasonable for a good looking blur, going beyond that can cause rendering and performance issues.", type: "number", range: true, value: 0, min: 0, max: 50, step: 1},
+                    {id: "backgroundOpacityCells", name: "Force background opacity on cells.", type: "switch", value: false},
+                    {id: "backgroundBlur", name: "Background blur", note: "Set to `true` to enable blur, `false` to disable, a number for a specific radius (macOS), or `macos-glass-regular`/`macos-glass-clear` for macOS glass effects.", type: "text", value: "false"},
+                    {id: "backgroundImage", name: "Background image", note: "Path to an image file to use as the terminal background.", type: "text", value: ""},
+                    {id: "backgroundImageOpacity", name: "Background image opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
+                    {id: "backgroundImagePosition", name: "Background image position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "center-left", "center-center", "center-right", "bottom-left", "bottom-center", "bottom-right"]},
+                    {id: "backgroundImageFit", name: "Background image fit", type: "dropdown", value: "contain", options: ["contain", "cover", "stretch", "none"]},
+                    {id: "backgroundImageRepeat", name: "Repeat background image", type: "switch", value: false},
+                    {id: "scrollbar", name: "Scrollbar visibility", note: "Currently only supported on macOS.", type: "dropdown", value: "system", options: ["system", "never"]},
                     {id: "unfocusedSplitOpacity", name: "Unfocused split opacity", type: "number", range: true, value: 0.7, min: 0.15, max: 1, step: 0.01},
                     {id: "unfocusedSplitFill", name: "Unfocused split fill color", type: "color", value: ""},
                     {id: "splitDividerColor", name: "Split divider color", type: "color", value: ""},
+                    {id: "splitPreserveZoom", name: "Split preserve zoom on navigation", note: "When navigating between splits, keep the zoomed state.", type: "switch", value: false},
                 ]
             },
             {
@@ -277,8 +305,8 @@ const settings = [
                 settings: [
                     {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 4, step: 1, size: 4},
                     {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 10, step: 1, size: 4},
-                    {id: "windowY", name: "Initial window Y", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4},
-                    {id: "windowX", name: "Initial window X", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4},
+                    {id: "windowPositionY", name: "Initial window Y", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4},
+                    {id: "windowPositionX", name: "Initial window X", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4},
                     {id: "windowStepResize", name: "Resize in grid cell increments", type: "switch", value: false},
                     {id: "resizeOverlay", name: "Show resize overlays", type: "dropdown", value: "after-first", options: ["always", "never", "after-first"]},
                     {id: "resizeOverlayPosition", name: "Resize overlay position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right"]},
@@ -303,8 +331,11 @@ const settings = [
                         value: "",
                         options: [{name: "Custom", value: ""}]
                     },
-                    {id: "boldIsBright", name: "Bold text uses bright colors", type: "switch", value: false},
+                    {id: "boldColor", name: "Bold text color", note: "Set to `bright` to use bright palette colors for bold text, or a hex color value. Leave empty to use the default.", type: "text", value: ""},
+                    {id: "faintOpacity", name: "Faint text opacity", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.01},
                     {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
+                    {id: "paletteGenerate", name: "Auto-generate missing palette colors", note: "When enabled, Ghostty will generate missing colors (indices 16-231) based on the first 16.", type: "switch", value: true},
+                    {id: "paletteHarmonious", name: "Harmonious palette generation", note: "Inverts generated palette colors. Has no effect if auto-generation is disabled.", type: "switch", value: false},
                 ]
             },
             {
@@ -316,7 +347,9 @@ const settings = [
                     {id: "foreground", name: "Foreground color", type: "color", value: "#ffffff"},
                     {id: "selectionBackground", name: "Selection background color", type: "color", value: ""},
                     {id: "selectionForeground", name: "Selection foreground color", type: "color", value: ""},
-                    {id: "selectionInvertFgBg", name: "Invert selection colors", note: "Enabling this will cause selections to be the inverse of their current colors. This ignores the two selection colors above.", type: "switch", value: false},
+                    {id: "selectionClearOnTyping", name: "Clear selection on typing", type: "switch", value: true},
+                    {id: "selectionClearOnCopy", name: "Clear selection on copy", type: "switch", value: false},
+                    {id: "selectionWordChars", name: "Word selection characters", note: "Characters that are considered part of a word for double-click selection.", type: "text", value: ""},
                 ]
             },
             {
@@ -326,7 +359,6 @@ const settings = [
                 settings: [
                     {id: "cursorColor", name: "Cursor color", type: "color", value: ""},
                     {id: "cursorText", name: "Text color under cursor", type: "color", value: ""},
-                    {id: "cursorInvertFgBg", name: "Invert cursor cell colors", note: "Enabling this will cause cells under the cursor to be the inverse of their current colors. This ignores the two cursor colors above.", type: "switch", value: false},
                     {id: "cursorOpacity", name: "Cursor opacity", type: "number", value: 1, range: true, min: 0, max: 1, step: 0.05},
                     {id: "cursorStyle", name: "Cursor style", type: "dropdown", value: "block", options: ["block", "bar", "underline", {value: "block_hollow", name: "hollow block"}]},
                     {id: "cursorStyleBlink", name: "Cursor blink style", note: "The `default` option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},
@@ -353,6 +385,7 @@ const settings = [
                     {id: "fontSize", name: "Base font size", type: "number", value: 13, min: 4, max: 60, step: 0.5, range: true},
                     {id: "fontThicken", name: "Thicken fonts", type: "switch", note: "This currently only affects macOS.", value: false},
                     {id: "fontThickenStrength", name: "Thicken strength", type: "number", value: 255, min: 0, max: 255, step: 1, range: true},
+                    {id: "fontShapingBreak", name: "How to break runs (cursor, no-cursor).", type: "text", value: ""},
                     {id: "fontFeature", name: "Font ligature settings", type: "text", value: ""},
                     {id: "fontSyntheticStyle", name: "Synthetic styles", note: "See the docs for more info.", type: "text", value: "bold,italic,bold-italic"},
                     {id: "alphaBlending", name: "Alpha blending colorspace", type: "dropdown", value: "native", options: ["native", "linear", "linear-corrected"]},
@@ -408,8 +441,9 @@ const settings = [
                     {id: "adjustCursorThickness", name: "Cursor thickness adjustment", type: "text", value: ""},
                     {id: "adjustBoxThickness", name: "Box thickness adjustment", type: "text", value: ""},
                     {id: "adjustCursorHeight", name: "Cursor height adjustment", type: "text", value: ""},
-                    {id: "graphemeWidthMethod", name: "Grapheme width calculation method", type: "dropdown", value: "unicode", options: ["unicode", "legacy"]},
-                    {id: "freetypeLoadFlags", name: "FreeType load flags", type: "text", value: "hinting,force-autohint,monochrome,autohint"},
+                    {id: "adjustIconHeight", name: "Nerd font icon height adjustment", type: "text", value: ""},
+                    {id: "graphemeWidthMethod", name: "Grapheme width calculation method.", type: "dropdown", value: "unicode", options: ["unicode", "legacy"]},
+                    {id: "freetypeLoadFlags", name: "FreeType load flags", type: "text", value: "hinting,autohint,light"},
                 ]
             },
 
@@ -438,9 +472,11 @@ const settings = [
                 settings: [
                     {id: "cursorClickToMove", name: "Enable click to move cursor", type: "switch", value: true},
                     {id: "mouseHideWhileTyping", name: "Hide mouse while typing", type: "switch", value: false},
+                    {id: "mouseReporting", name: "Allow mouse reporting", note: "Allows terminal applications to receive mouse events.", type: "switch", value: true},
                     {id: "mouseShiftCapture", name: "Allow shift with mouse click", type: "dropdown", value: "false", options: ["true", "false", "always", "never"]},
                     // Technically the values should be min: 0.01, max: 10000, step: 0.01 but those are insane so instead I'll use sane defaults
                     {id: "mouseScrollMultiplier", name: "Mouse scroll multiplier", type: "number", range: true, value: 3, min: 0.1, max: 10, step: 0.1},
+                    {id: "rightClickAction", name: "Right-click action", type: "dropdown", value: "context-menu", options: ["context-menu", "copy-or-paste", "copy", "paste", "ignore"]},
                     {id: "focusFollowsMouse", name: "Focus splits on mouse move", type: "switch", value: false},
                     {id: "clickRepeatInterval", name: "Milliseconds between multi-click", note: "A value of 0 means to use the operating system's default timing.", type: "number", value: 0, min: 0, size: 4},
                 ]
@@ -457,11 +493,10 @@ const settings = [
                 settings: [
                     {id: "class", name: "WM_CLASS class field", note: "This defaults to `com.mitchellh.ghostty`", type: "text", value: ""},
                     {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to `ghostty`", type: "text", value: ""},
-                    {id: "gtkSingleInstance", name: "Single-instance mode", type: "dropdown", value: "desktop", options: [{name: "detect", value: "desktop"}, "true", "false"]},
+                    {id: "gtkSingleInstance", name: "Single-instance mode", type: "dropdown", value: "detect", options: ["detect", "true", "false"]},
                     {id: "gtkCustomCss", name: "Custom css file", type: "text", value: ""},
                     {id: "gtkOpenglDebug", name: "OpenGL debug", type: "switch", value: false},
-                    {id: "gtkGskRenderer", name: "GSK renderer", type: "text", value: "opengl"},
-                    {id: "appNotifications", name: "App notifications", type: "dropdown", value: "clipboard-copy", options: ["clipboard-copy", "no-clipboard-copy"]}, // TODO: move and expand once ghostty has more support
+                    {id: "appNotifications", name: "App notifications", note: "Comma-separated list of notifications to enable/disable. Available: clipboard-copy, config-reload. Prefix with `no-` to disable. `true`/`false` to enable/disable all.", type: "text", value: ""},
                 ]
             },
             {
@@ -469,10 +504,13 @@ const settings = [
                 name: "Titlebar & Tabs",
                 settings: [
                     {id: "gtkToolbarStyle", name: "Toolbar style", type: "dropdown", value: "raised", options: ["raised", "flat", "raised-border"]},
-                    {id: "gtkTabsLocation", name: "Tab location", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left"]},
+                    {id: "gtkTitlebarStyle", name: "Titlebar style", note: "`tabs` merges the tab bar and titlebar to save vertical space.", type: "dropdown", value: "native", options: ["native", "tabs"]},
+                    {id: "gtkTabsLocation", name: "Tab location", type: "dropdown", value: "top", options: ["top", "bottom"]},
                     {id: "gtkWideTabs", name: "Use wide tabs", note: "Setting this to false will make tabs use the least space necessary.", type: "switch", value: true},
                     {id: "gtkTitlebar", name: "Show titlebar", type: "switch", value: true},
                     {id: "gtkTitlebarHideWhenMaximized", name: "Hide titlebar on maximize", type: "switch", value: false},
+                    {id: "gtkQuickTerminalLayer", name: "Quick terminal layer", note: "Controls which layer the quick terminal appears on. GTK Wayland only.", type: "dropdown", value: "top", options: ["overlay", "top", "bottom", "background"]},
+                    {id: "gtkQuickTerminalNamespace", name: "Quick terminal namespace", note: "Identifier for the quick terminal layer surface. GTK Wayland only.", type: "text", value: "ghostty-quick-terminal"},
                 ]
             }
         ]
@@ -488,7 +526,7 @@ const settings = [
                     {id: "asyncBackend", name: "Async backend", note: "If unsure, leave this set to auto.", type: "dropdown", value: "auto", options: ["auto", "epoll", "io_uring"]},
                     {id: "linuxCgroup", name: "Use dedicated cgroups", type: "dropdown", value: "single-instance", options: ["single-instance", "always", "never"]},
                     {id: "linuxCgroupMemoryLimit", name: "Memory limit (bytes)", type: "number", min: 0, max: 4294967295, size: 12},
-                    {id: "linuxCgroupProcessLimit", name: "Max number of processes", type: "number", min: 0, size: 5},
+                    {id: "linuxCgroupProcessesLimit", name: "Max number of processes", type: "number", min: 0, size: 5},
                     {id: "linuxCgroupHardFail", name: "Hard fail on startup", type: "switch", value: false},
                 ]
             }
@@ -507,9 +545,12 @@ const settings = [
                     {id: "macosTitlebarProxyIcon", name: "Titlebar proxy icon", type: "dropdown", value: "visible", options: ["visible", "hidden"]},
                     {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "dropdown", value: "", options: ["", "true", "false", "left", "right"]},
                     {id: "macosWindowShadow", name: "Show the window shadow", type: "switch", value: true},
+                    {id: "macosWindowButtons", name: "Window buttons (traffic lights)", type: "dropdown", value: "visible", options: ["visible", "hidden"]},
                     {id: "macosHidden", name: "Hide from dock and switcher", type: "dropdown", value: "never", options: ["never", "always"]},
                     {id: "macosAutoSecureInput", name: "Auto secure input", type: "switch", value: true},
                     {id: "macosSecureInputIndication", name: "Indicate secure input", type: "switch", value: true},
+                    {id: "macosDockDropBehavior", name: "Dock drop behavior", note: "What happens when a file is dropped onto Ghostty's dock icon.", type: "dropdown", value: "new-tab", options: ["new-tab", "new-window"]},
+                    {id: "macosShortcuts", name: "macOS shortcuts", note: "Controls whether macOS system shortcuts (e.g. Cmd+Space) can be captured.", type: "dropdown", value: "ask", options: ["allow", "deny", "ask"]},
 
                     // TODO: move these once it is available on non-mac
                     {id: "autoUpdate", name: "Auto update", note: "Leaving this unset will fall back to your Sparkle preferences.", type: "dropdown", value: "", options: ["", "off", "check", "download"]},
@@ -519,9 +560,10 @@ const settings = [
             {
                 id: "icon",
                 name: "App Icon",
-                note: "An app icon previewer has been added to the to-do list.",
+                note: "If you choose the \"custom-style\" option, you can use any of the other icon settings to customize your icon with a live preview.",
                 settings: [
-                    {id: "macosIcon", name: "Icon", note: "Custom style must specify both ghost and screen colors.", type: "dropdown", value: "official", options: ["official", "blueprint", "chalkboard", "microchip", "glass", "holographic", "paper", "retro", "xray", "custom-style"]},
+                    {id: "macosIcon", name: "Icon", note: "Custom style must specify both ghost and screen colors.", type: "dropdown", value: "official", options: ["official", "blueprint", "chalkboard", "microchip", "glass", "holographic", "paper", "retro", "xray", "custom", "custom-style"]},
+                    {id: "macosCustomIcon", name: "Icon file", note: "Only used when \"custom\" is selected above.", type: "text", value: ""},
                     {id: "macosIconFrame", name: "Icon frame", type: "dropdown", value: "aluminum", options: ["aluminum", "beige", "plastic", "chrome"]},
                     {id: "macosIconGhostColor", name: "Ghost color", type: "color", value: ""},
                     {id: "macosIconScreenColor", name: "Screen color", type: "color", value: ""},
