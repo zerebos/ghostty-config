@@ -1,6 +1,6 @@
 <script lang="ts">
     import {onMount} from "svelte";
-    import InteractiveTerminal from "$lib/views/InteractiveTerminal.svelte";
+    import InteractiveTerminalDom from "$lib/views/InteractiveTerminalDom.svelte";
     import app from "$lib/stores/state.svelte";
 
     const WIDTH = 680;
@@ -74,7 +74,7 @@
             <div class="titlebar-end"></div>
         </div>
         <div class="terminal-body">
-            <InteractiveTerminal standalone={true} />
+            <InteractiveTerminalDom standalone={true} />
         </div>
     </div>
 {/if}
