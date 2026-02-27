@@ -1,8 +1,5 @@
 <script lang="ts">
     import {tick} from "svelte";
-    import Group from "$lib/components/settings/Group.svelte";
-
-    const {standalone = false}: {standalone?: boolean} = $props();
 
     // ── Filesystem simulation ──────────────────────────────────────────────────
 
@@ -415,131 +412,78 @@
     function focusTerminal() {
         container?.focus();
     }
+
+    interface Props {
+        onCwdChange?: (cwd: string) => void;
+    }
+
+    const {onCwdChange}: Props = $props();
+
+    $effect(() => {
+        onCwdChange?.(getCwdString());
+    });
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_tabindex a11y_no_noninteractive_element_interactions -->
-{#if standalone}
-    <div
-        class="term standalone"
-        role="application"
-        aria-label="Interactive terminal"
-        tabindex="0"
-        bind:this={container}
-        onkeydown={handleKeydown}
-        onclick={focusTerminal}
-    >
-        <div class="term-scroll">
-            {#each history as entry (entry)}
-                {#if entry.kind === "cmd"}
-                    <div class="line">
-                        <span class="p2 bold">{entry.user}</span><!--
-                        --><span class="p6">@</span><!--
-                        --><span class="p4 bold">{entry.host}</span><!--
-                        --><span class="fg">:</span><!--
-                        --><span class="p3">{entry.cwd}</span><!--
-                        --><span class="fg bold">$</span><!--
-                        --> <span class="fg">{entry.cmd}</span>
-                    </div>
-                {:else if entry.kind === "ctrlc"}
-                    <div class="line">
-                        <span class="p2 bold">{entry.user}</span><!--
-                        --><span class="p6">@</span><!--
-                        --><span class="p4 bold">{entry.host}</span><!--
-                        --><span class="fg">:</span><!--
-                        --><span class="p3">{entry.cwd}</span><!--
-                        --><span class="fg bold">$</span><!--
-                        --> <span class="fg">{entry.input}</span><!--
-                        --><span class="p1">^C</span>
-                    </div>
-                {:else}
-                    <div class="line">
-                        {#each entry.segments as seg (seg)}
-                            <span
-                                class:bold={seg.bold}
-                                class:dimmed={seg.dim}
-                                style:color={seg.palette !== undefined ? `var(--config-palette-${seg.palette})` : undefined}
-                            >{seg.text}</span>
-                        {/each}
-                    </div>
-                {/if}
-            {/each}
-            <div class="line input-line">
-                <span class="p2 bold">{USER}</span><!--
-                --><span class="p6">@</span><!--
-                --><span class="p4 bold">{HOST}</span><!--
-                --><span class="fg">:</span><!--
-                --><span class="p3">{currentCwd}</span><!--
-                --><span class="fg bold">$</span><!--
-                --> <span class="fg">{beforeCursor}</span><!--
-                --><span class="cursor">{cursorChar}</span><!--
-                --><span class="fg">{afterCursor}</span>
-            </div>
-            <div bind:this={scrollTarget}></div>
-        </div>
-    </div>
-{:else}
-    <Group title="Interactive Terminal" note="Try it out! Type commands to interact with a simulated shell. Supported: ls, cd, pwd, cat, echo, clear, whoami, hostname, date, uname, mkdir, touch, help">
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex a11y_no_noninteractive_element_interactions -->
-        <div
-            class="term"
-            role="application"
-            aria-label="Interactive terminal"
-            tabindex="0"
-            bind:this={container}
-            onkeydown={handleKeydown}
-            onclick={focusTerminal}
-        >
-            <div class="term-scroll">
-                {#each history as entry (entry)}
-                    {#if entry.kind === "cmd"}
-                        <div class="line">
-                            <span class="p2 bold">{entry.user}</span><!--
-                            --><span class="p6">@</span><!--
-                            --><span class="p4 bold">{entry.host}</span><!--
-                            --><span class="fg">:</span><!--
-                            --><span class="p3">{entry.cwd}</span><!--
-                            --><span class="fg bold">$</span><!--
-                            --> <span class="fg">{entry.cmd}</span>
-                        </div>
-                    {:else if entry.kind === "ctrlc"}
-                        <div class="line">
-                            <span class="p2 bold">{entry.user}</span><!--
-                            --><span class="p6">@</span><!--
-                            --><span class="p4 bold">{entry.host}</span><!--
-                            --><span class="fg">:</span><!--
-                            --><span class="p3">{entry.cwd}</span><!--
-                            --><span class="fg bold">$</span><!--
-                            --> <span class="fg">{entry.input}</span><!--
-                            --><span class="p1">^C</span>
-                        </div>
-                    {:else}
-                        <div class="line">
-                            {#each entry.segments as seg (seg)}
-                                <span
-                                    class:bold={seg.bold}
-                                    class:dimmed={seg.dim}
-                                    style:color={seg.palette !== undefined ? `var(--config-palette-${seg.palette})` : undefined}
-                                >{seg.text}</span>
-                            {/each}
-                        </div>
-                    {/if}
-                {/each}
-                <div class="line input-line">
-                    <span class="p2 bold">{USER}</span><!--
+<!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+<div
+    class="term standalone"
+    role="application"
+    aria-label="Interactive terminal"
+    tabindex="0"
+    bind:this={container}
+    onkeydown={handleKeydown}
+    onclick={focusTerminal}
+>
+    <div class="term-scroll">
+        {#each history as entry (entry)}
+            {#if entry.kind === "cmd"}
+                <div class="line">
+                    <span class="p2 bold">{entry.user}</span><!--
                     --><span class="p6">@</span><!--
-                    --><span class="p4 bold">{HOST}</span><!--
+                    --><span class="p4 bold">{entry.host}</span><!--
                     --><span class="fg">:</span><!--
-                    --><span class="p3">{currentCwd}</span><!--
-                    --><span class="fg bold">$</span><!--
-                    --> <span class="fg">{beforeCursor}</span><!--
-                    --><span class="cursor">{cursorChar}</span><!--
-                    --><span class="fg">{afterCursor}</span>
+                    --><span class="p3">{entry.cwd}</span><!--
+                    --><span class="fg bold">$&nbsp;</span><!--
+                    --><span class="fg">{entry.cmd}</span>
                 </div>
-                <div bind:this={scrollTarget}></div>
-            </div>
+            {:else if entry.kind === "ctrlc"}
+                <div class="line">
+                    <span class="p2 bold">{entry.user}</span><!--
+                    --><span class="p6">@</span><!--
+                    --><span class="p4 bold">{entry.host}</span><!--
+                    --><span class="fg">:</span><!--
+                    --><span class="p3">{entry.cwd}</span><!--
+                    --><span class="fg bold">$&nbsp;</span><!--
+                    --><span class="fg">{entry.input}</span><!--
+                    --><span class="p1">^C</span>
+                </div>
+            {:else}
+                <div class="line">
+                    {#each entry.segments as seg (seg)}
+                        <span
+                            class:bold={seg.bold}
+                            class:dimmed={seg.dim}
+                            style:color={seg.palette !== undefined ? `var(--config-palette-${seg.palette})` : undefined}
+                        >{seg.text}</span>
+                    {/each}
+                </div>
+            {/if}
+        {/each}
+        <div class="line input-line">
+            <span class="p2 bold">{USER}</span><!--
+            --><span class="p6">@</span><!--
+            --><span class="p4 bold">{HOST}</span><!--
+            --><span class="fg">:</span><!--
+            --><span class="p3">{currentCwd}</span><!--
+            --><span class="fg bold">$&nbsp;</span><!--
+            --><span class="fg">{beforeCursor}</span><!--
+            --><span class="cursor">{cursorChar}</span><!--
+            --><span class="fg">{afterCursor}</span>
         </div>
-    </Group>
-{/if}
+        <div bind:this={scrollTarget}></div>
+    </div>
+</div>
+
 
 <style>
 .term {

@@ -46,6 +46,11 @@
     function close() {
         app.floatingTerminalOpen = false;
     }
+
+    let title = $state(`Ghostty — Interactive Preview`);
+    function onCwdChange(cwd: string) {
+        title = `${cwd}`;
+    }
 </script>
 
 {#if app.floatingTerminalOpen}
@@ -61,20 +66,20 @@
         <div class="titlebar" role="presentation" onmousedown={startDrag}>
             <div class="traffic-lights">
                 <button type="button" class="dot dot-red" onclick={close} aria-label="Close preview window" title="Close">
-                    <span class="dot-symbol">✕</span>
+                    <span class="dot-symbol">&times;</span>
                 </button>
                 <button type="button" class="dot dot-yellow" aria-label="Minimize" title="Minimize">
-                    <span class="dot-symbol">−</span>
+                    <span class="dot-symbol">&ndash;</span>
                 </button>
                 <button type="button" class="dot dot-green" aria-label="Zoom" title="Zoom">
-                    <span class="dot-symbol">+</span>
+                    <span class="dot-symbol">&plus;</span>
                 </button>
             </div>
-            <span class="window-title">ghostty — Interactive Preview</span>
+            <span class="window-title">{title}</span>
             <div class="titlebar-end"></div>
         </div>
         <div class="terminal-body">
-            <InteractiveTerminalDom standalone={true} />
+            <InteractiveTerminalDom {onCwdChange} />
         </div>
     </div>
 {/if}
@@ -89,9 +94,24 @@
     flex-direction: column;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid #000;
-    box-shadow: 0 22px 70px 8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
+    border: 1px solid var(--border-level-1);
+    /* box-shadow: 0 22px 70px 8px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.07) inset; */
+    box-shadow: 0 0 20px -1px rgba(0,0,0,0.7);
     pointer-events: all;
+    background: var(--config-bg);
+}
+
+.ghostty-window::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    box-shadow: 0 0 1px white inset;
+    border-radius: inherit;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .titlebar {
@@ -100,14 +120,16 @@
     display: flex;
     align-items: center;
     padding: 0 12px;
-    background: #2A2434;
-    border-bottom: 1px solid #000;
+    /* background: #2A2434; */
+    border-bottom: 1px solid transparent;
     cursor: grab;
     user-select: none;
+    transition: border-color 250ms cubic-bezier(0, 0.3, 0.7, 1);
 }
 
 .titlebar:active {
     cursor: grabbing;
+    border-bottom: 1px solid var(--border-level-1);
 }
 
 .traffic-lights {
@@ -133,10 +155,11 @@
 .dot-green {background: #28C840;}
 
 .dot-symbol {
-    font-size: 8px;
+    /* font-size: 8px; */
     line-height: 1;
     color: rgba(0, 0, 0, 0);
-    font-weight: 700;
+    font-weight: 400;
+    margin-top: -3px;
 }
 
 .traffic-lights:hover .dot-symbol {
@@ -146,9 +169,9 @@
 .window-title {
     flex: 1;
     text-align: center;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: rgba(235, 230, 238, 0.6);
+    /* font-size: 0.75rem; */
+    font-weight: 700;
+    /* color: rgba(235, 230, 238, 0.6); */
     pointer-events: none;
 }
 

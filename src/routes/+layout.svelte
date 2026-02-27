@@ -74,9 +74,9 @@
         <div class="sidebar-header">
             <div class="window-actions-container">
                 <div class="window-actions">
-                    <div class="window-dot"><span>×</span></div>
-                    <div class="window-dot"><span>-</span></div>
-                    <div class="window-dot"><span>+</span></div>
+                    <div class="window-dot"><span>&times;</span></div>
+                    <div class="window-dot"><span>&ndash;</span></div>
+                    <div class="window-dot"><span>&plus;</span></div>
                 </div>
             </div>
         </div>
