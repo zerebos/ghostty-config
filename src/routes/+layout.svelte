@@ -157,8 +157,8 @@
     <div id="content-view">
         {@render children()}
     </div>
+    <MacDock />
 </div>
-<MacDock />
 
 <!-- <svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} /> -->
 
