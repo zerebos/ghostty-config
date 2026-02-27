@@ -4,6 +4,8 @@
     import Group from "$lib/components/settings/Group.svelte";
     import config from "$lib/stores/config.svelte";
 
+    const {standalone = false}: {standalone?: boolean} = $props();
+
     // ── Filesystem simulation ──────────────────────────────────────────────────
 
     type FileNode = {type: "file"; content: string};
@@ -527,9 +529,13 @@
     });
 </script>
 
-<Group title="Interactive Terminal" note="Try it out! Type commands to interact with a simulated shell. Supported: ls, cd, pwd, cat, echo, clear, whoami, hostname, date, uname, mkdir, touch, help">
-    <div class="terminal-wrapper" bind:this={container}></div>
-</Group>
+{#if standalone}
+    <div class="terminal-wrapper standalone" bind:this={container}></div>
+{:else}
+    <Group title="Interactive Terminal" note="Try it out! Type commands to interact with a simulated shell. Supported: ls, cd, pwd, cat, echo, clear, whoami, hostname, date, uname, mkdir, touch, help">
+        <div class="terminal-wrapper" bind:this={container}></div>
+    </Group>
+{/if}
 
 <style>
 .terminal-wrapper {
@@ -537,5 +543,10 @@
     height: 360px;
     overflow: hidden;
     border-radius: var(--radius-level-3);
+}
+
+.terminal-wrapper.standalone {
+    height: 100%;
+    border-radius: 0;
 }
 </style>

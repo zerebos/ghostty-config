@@ -2,6 +2,7 @@
     import Gap from "$lib/components/Gap.svelte";
     import Tab from "$lib/components/Tab.svelte";
     import User from "$lib/components/User.svelte";
+    import FloatingTerminal from "$lib/components/FloatingTerminal.svelte";
     import "../app.css";
 
     import application from "$lib/images/tabs/application.webp";
@@ -134,14 +135,21 @@
                 {#snippet icon()}<img src={calligraphy} alt="Font Playground" />{/snippet}
                 Font Playground
             </Tab>
-            <Tab route="/app/live-preview">
-                {#snippet icon()}
+            <button
+                type="button"
+                class="nav-tab-btn"
+                class:active={app.floatingTerminalOpen}
+                onclick={() => {app.floatingTerminalOpen = !app.floatingTerminalOpen;}}
+                aria-label="Toggle live preview terminal"
+                aria-pressed={app.floatingTerminalOpen}
+            >
+                <div class="tab-icon">
                     <div class="icon-wrapper terminal">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM6 15h5v2H6zm6.5-7.5 1.41-1.41L18 10.17l-4.09 4.08-1.41-1.41 2.67-2.67zM6 11.17l1.41-1.41 2.12 2.12-2.12 2.12L6 12.59z" /></svg>
                     </div>
-                {/snippet}
-                Live Preview
-            </Tab>
+                </div>
+                <div class="tab-label">Live Preview</div>
+            </button>
             <Gap expand={true} />
             <Tab route="https://github.com/zerebos/ghostty-config">
                 {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
@@ -156,7 +164,7 @@
     <div id="content-view">
         {@render children()}
     </div>
-
+    <FloatingTerminal />
 </div>
 
 <!-- <svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} /> -->
@@ -319,5 +327,46 @@
 #categories .icon-wrapper.terminal {
     background: linear-gradient(#2D9F6B, #1A5C3E);
     color: #e8eaed;
+}
+
+.nav-tab-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 6px;
+    border-radius: var(--radius-level-4);
+    font-weight: 600;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    color: var(--font-color);
+    font-size: 1rem;
+    font-family: inherit;
+    text-align: left;
+}
+
+.nav-tab-btn.active {
+    background: var(--color-selected);
+}
+
+.nav-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.nav-tab-btn.active:hover {
+    background: var(--color-selected);
+}
+
+.nav-tab-btn .tab-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.nav-tab-btn .tab-label {
+    flex: 1;
+    text-align: left;
 }
 </style>
