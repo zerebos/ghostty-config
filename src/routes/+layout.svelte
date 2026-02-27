@@ -199,8 +199,10 @@
 #sidebar {
     width: var(--sidebar-width);
     /* black: #272329; white: #544F57; */
-    background: rgba(50, 46, 52, 0.7);
-    backdrop-filter: blur(10px);
+    /* background: rgba(50, 46, 52, 0.7); */
+    /* backdrop-filter: blur(10px); */
+    background: rgba(from var(--bg-level-1) r g b / 0.78);
+    backdrop-filter: blur(20px) saturate(180%);
     padding: 5px;
     border-right: 2px solid var(--border-level-1);
     display: flex;

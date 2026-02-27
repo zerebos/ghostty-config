@@ -50,7 +50,7 @@ input[type="number"]:focus {
 input[type="range"] {
    border: 0;
    height: 5px;
-   background-color: var(--bg-separator);
+   background-color: var(--bg-level-5);
 }
 
 input[type="range"]::-moz-range-progress {

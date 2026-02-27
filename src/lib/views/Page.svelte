@@ -65,7 +65,8 @@
     font-size: 16pt;
     gap: 10px;
     padding: 10px 20px 5px 20px;
-    background: rgba(44, 39, 51, 0.9);
+    /* background: rgba(44, 39, 51, 0.9); */
+    background: var(--bg-level-1);
     /* not top: #2E2932 */
     backdrop-filter: blur(20px);
     position: absolute;
@@ -76,7 +77,8 @@
 }
 
 .content-header.scrolling {
-    background: rgba(46, 41, 50, 0.9);
+    /* background: rgba(46, 41, 50, 0.9); */
+    background: rgba(from var(--bg-level-1) r g b / 0.9);
     border-bottom: 1px solid black;
 }
 
