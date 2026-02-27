@@ -34,23 +34,24 @@
     function writeDemo() {
         if (!term) return;
         term.reset();
-        term.writeln("\x1b[1;32mjohn\x1b[0m\x1b[36m@\x1b[0m\x1b[1;34mdoe-pc\x1b[0m:\x1b[33m~\x1b[0m\x1b[1m$\x1b[0m ls -la");
-        term.writeln("\x1b[2mtotal 56\x1b[0m");
-        term.writeln("drwxr-xr-x  2 john john 4096 Jan  1 10:00 \x1b[1;34mDesktop\x1b[0m");
-        term.writeln("drwxr-xr-x  3 john john 4096 Jan  1 12:00 \x1b[1;34mDocuments\x1b[0m");
-        term.writeln("drwxr-xr-x  4 john john 4096 Jan  1 11:59 \x1b[1;34mDownloads\x1b[0m");
-        term.writeln("-rw-r--r--  1 john john  220 Jan  1 10:00 \x1b[32m.bash_profile\x1b[0m");
-        term.writeln("-rwxr-xr-x  1 john john  512 Jan  1 09:30 \x1b[32minstall.sh\x1b[0m");
-        term.writeln("drwxr-xr-x  2 john john 4096 Jan  1 08:00 \x1b[1;34mPictures\x1b[0m");
-        term.writeln("-rw-r--r--  1 john john  980 Jan  1 12:00 \x1b[31mREADME.md\x1b[0m");
-        term.writeln("lrwxrwxrwx  1 john john    6 Jan  1 07:00 \x1b[36msymlink\x1b[0m -> \x1b[33mtarget\x1b[0m");
+        term.writeln("\x1b[1;32mjohn\x1b[0m\x1b[36m@\x1b[0m\x1b[1;34mdoe-pc\x1b[0m:\x1b[33m~\x1b[0m\x1b[1m$\x1b[0m eza -la --color=always --icons");
+        term.writeln("\x1b[4mPermissions\x1b[0m \x1b[4mSize\x1b[0m \x1b[4mUser\x1b[0m \x1b[4mDate Modified\x1b[0m \x1b[4mName\x1b[0m");
+        term.writeln("\x1b[1;34md\x1b[33mr\x1b[31mw\x1b[32mx\x1b[90m------\x1b[0m     \x1b[1;90m-\x1b[0m \x1b[1;33mzack\x1b[0m \x1b[34m22 Feb 10:56\x1b[0m  \x1b[34m\uF115 \x1b[1m.cache\x1b[0m");
+        term.writeln("\x1b[1;34md\x1b[33mr\x1b[31mw\x1b[32mx\x1b[90m------\x1b[0m     \x1b[1;90m-\x1b[0m \x1b[1;33mzack\x1b[0m \x1b[34m22 Feb 10:56\x1b[0m  \x1b[34m\uE5FC \x1b[1m.config\x1b[0m");
+        term.writeln(".\x1b[1;33mr\x1b[31mw\x1b[90m-\x1b[0m\x1b[33mr\x1b[1;90m--\x1b[0m\x1b[33mr\x1b[1;90m--\x1b[0m     \x1b[32m0\x1b[0m \x1b[1;33mzack\x1b[0m \x1b[34m22 Feb 10:57\x1b[0m  \x1b[32m\uF15B \x1b[1m.hushlogin\x1b[0m");
+        term.writeln(".\x1b[1;33mr\x1b[31mw\x1b[90m-\x1b[0m\x1b[33mr\x1b[1;90m--\x1b[0m\x1b[33mr\x1b[1;90m--\x1b[0m     \x1b[32m0\x1b[0m \x1b[1;33mzack\x1b[0m \x1b[34m22 Feb 10:57\x1b[0m  \x1b[32m\uE7C5 \x1b[1m.viminfo\x1b[0m");
+        term.writeln("\x1b[1;36ml\x1b[33mr\x1b[31mw\x1b[32mx\x1b[0m\x1b[33mr\x1b[31mw\x1b[32mx\x1b[33mr\x1b[31mw\x1b[32mx\x1b[0m     \x1b[1;90m-\x1b[0m \x1b[1;33mzack\x1b[0m \x1b[34m22 Feb 10:57\x1b[0m  \x1b[36m\uE5FC \x1b[1metc\x1b[0m \x1b[1;90m->\x1b[0m \x1b[36m/\x1b[1;34metc\x1b[0m");
+        term.writeln(".\x1b[1;33mr\x1b[31mw\x1b[4;32mx\x1b[0m\x1b[33mr\x1b[1;90m-\x1b[0m\x1b[32mx\x1b[33mr\x1b[1;90m-\x1b[0m\x1b[32mx\x1b[0m     \x1b[32m0\x1b[0m \x1b[1;33mzack\x1b[0m \x1b[34m22 Feb 10:57\x1b[0m  \x1b[32m\u{F086F} \x1b[1mlsix\x1b[0m");
+        term.writeln("");
         term.writeln("\x1b[1;32mjohn\x1b[0m\x1b[36m@\x1b[0m\x1b[1;34mdoe-pc\x1b[0m:\x1b[33m~\x1b[0m\x1b[1m$\x1b[0m echo \"Hello, Ghostty! 👻\"");
         term.writeln("Hello, Ghostty! 👻");
-        term.writeln("\x1b[1;32mjohn\x1b[0m\x1b[36m@\x1b[0m\x1b[1;34mdoe-pc\x1b[0m:\x1b[33m~\x1b[0m\x1b[1m$\x1b[0m git status");
+        term.writeln("");
+        term.writeln("\x1b[1;32mjohn\x1b[0m\x1b[36m@\x1b[0m\x1b[1;34mdoe-pc\x1b[0m:\x1b[33m~/dev/project\x1b[0m\x1b[1m$\x1b[0m git status");
         term.writeln("\x1b[1mOn branch \x1b[33mmain\x1b[0m");
         term.writeln("Changes not staged for commit:");
         term.writeln("  \x1b[31mmodified:   config\x1b[0m");
         term.writeln("  \x1b[32mnew file:   preview.ts\x1b[0m");
+        term.writeln("");
         term.write("\x1b[1;32mjohn\x1b[0m\x1b[36m@\x1b[0m\x1b[1;34mdoe-pc\x1b[0m:\x1b[33m~\x1b[0m\x1b[1m$\x1b[0m ");
     }
 
@@ -65,8 +66,8 @@
         }
 
         term = new Terminal({
-            fontSize: config.fontSize || 14,
-            fontFamily: config.fontFamily || "monospace",
+            fontSize: config.fontSize || 13,
+            fontFamily: config.fontFamily || "JetBrainsMono NF, monospace",
             theme: getTheme(),
             convertEol: true,
             scrollback: 100,
@@ -121,6 +122,16 @@
     width: 100%;
     height: 400px;
     overflow: hidden;
+    background: var(--config-bg);
+    font-family: var(--config-font-family);
+    font-size: var(--config-font-size);
+    color: var(--config-fg);
+    padding: 8px 0;
     border-radius: var(--radius-level-3);
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>

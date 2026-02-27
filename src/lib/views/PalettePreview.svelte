@@ -145,6 +145,7 @@
 
 .fg {color: var(--config-fg);}
 
+/* Terminal Palette */
 /* .p0 {color: var(--config-palette-0);} */
 .p1 {color: var(--config-palette-1);}
 .p2 {color: var(--config-palette-2);}
@@ -158,7 +159,7 @@
 .p10 {color: var(--config-palette-10);}
 .p11 {color: var(--config-palette-11);}
 .p12 {color: var(--config-palette-12);}
-/* .p13 {color: var(--config-palette-13);}
-.p14 {color: var(--config-palette-14);}
-.p15 {color: var(--config-palette-15);} */
+/* .p13 {color: var(--config-palette-13);} */
+/* .p14 {color: var(--config-palette-14);} */
+/* .p15 {color: var(--config-palette-15);} */
 </style>

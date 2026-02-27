@@ -429,6 +429,7 @@
                 }
                 else {
                     for (const line of result.lines) term.writeln(line);
+                    if (result.lines.length > 0) term.writeln("");
                 }
                 writePrompt();
             }
@@ -478,8 +479,8 @@
         cmdHistory = [];
 
         term = new Terminal({
-            fontSize: config.fontSize || 14,
-            fontFamily: config.fontFamily || "monospace",
+            fontSize: config.fontSize || 13,
+            fontFamily: config.fontFamily || "JetBrainsMono NF, monospace",
             theme: getTheme(),
             convertEol: true,
             scrollback: 1000,
@@ -525,6 +526,7 @@
             config.selectionForeground,
             ...config.palette.slice(0, 16),
         ];
+        term?.clear();
         recreateTerminal();
     });
 </script>
@@ -542,11 +544,23 @@
     width: 100%;
     height: 360px;
     overflow: hidden;
+    background: var(--config-bg);
+    font-family: var(--config-font-family);
+    font-size: var(--config-font-size);
+    color: var(--config-fg);
+    padding: 8px 0;
     border-radius: var(--radius-level-3);
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .terminal-wrapper.standalone {
     height: 100%;
     border-radius: 0;
+    border: 0;
+    box-shadow: none;
 }
 </style>
