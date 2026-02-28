@@ -22,7 +22,7 @@
 
     function select(index: number) {
         // selected = [index];
-        return (event: MouseEvent) => {
+        return (event: MouseEvent | KeyboardEvent) => {
             if (!event.ctrlKey) return (selected = [index]);
             if (!selected.includes(index)) return selected.push(index);
             selected.splice(selected.indexOf(index), 1);
@@ -132,7 +132,7 @@
                 class:invalid={diagnostics[i]?.status === "invalid"}
                 class:duplicate={diagnostics[i]?.duplicate}
                 onclick={select(i)}
-                onkeypress={() => select(i)}
+                onkeypress={select(i)}
                 role="option"
                 tabindex="0"
                 aria-selected={selected.includes(i)}
@@ -160,20 +160,20 @@
 {/if}
 
 {#if showReset}
-    <div class="reset-backdrop" role="dialog" aria-modal="true" transition:fade={{duration: 200}}></div>
-        <div class="reset-card" transition:fly={{y: 30, duration: 200}}>
-            <header>
-                <img src={icon} alt="Warning" />
-                <h3>Are you sure?</h3>
-            </header>
-            <!-- <p>This will restore all keybinds to their default values.</p> -->
-            <footer class="reset-actions">
-                <button type="button" class="primary" onclick={resetDefaults}>Reset Keybinds</button>
-                <button type="button" onclick={() => (showReset = false)}>
-                    Cancel
-                </button>
-            </footer>
-        </div>
+<div class="reset-backdrop" transition:fade={{duration: 200}}></div>
+<div class="reset-card" transition:fly={{y: 30, duration: 200}} role="dialog" aria-modal="true" aria-labelledby="reset-title">
+    <header>
+        <img src={icon} alt="Warning" />
+        <h3 id="reset-title">Are you sure?</h3>
+    </header>
+    <!-- <p>This will restore all keybinds to their default values.</p> -->
+    <footer class="reset-actions">
+        <button type="button" class="primary" onclick={resetDefaults}>Reset Keybinds</button>
+        <button type="button" onclick={() => (showReset = false)}>
+            Cancel
+        </button>
+    </footer>
+</div>
     <!-- </div> -->
 {/if}
 

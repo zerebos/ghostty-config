@@ -10,7 +10,7 @@ export default function (configString: string) {
 
     const results = {
         palette: Array(256) as Array<HexColor | "">,
-        keybind: [] as string[]
+        keybind: [] as KeybindString[]
     } as {palette: Array<HexColor | "">, keybind: KeybindString[], [key: string]: string | string[];};
 
     for (let p = 0; p < 256; p++) results.palette[p] = "";

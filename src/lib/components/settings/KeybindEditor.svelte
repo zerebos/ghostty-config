@@ -189,13 +189,16 @@
     </Group>
     <Group title="Trigger" borderless>
         <div class="sequence">
+            <datalist id="key-options">
+                {#each KEY_NAMES as keyName (keyName)}
+                    <option value={keyName}></option>
+                {/each}
+            </datalist>
             {#each steps as step, index (index)}
                 <div class="sequence-step" class:invalid={!step.key}>
                     {#if steps.length > 1}
                         <button transition:scale={{duration: 200}} type="button" class="remove" onclick={() => removeSequenceStep(index)} disabled={steps.length === 1}>
-                            <!-- – -->
-                            ×
-                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg> -->
+                            &times;
                         </button>
                     {/if}
                     <div class="key-entry">
@@ -206,11 +209,6 @@
                             list="key-options"
                             oninput={(event) => updateStepKey(index, event.currentTarget.value)}
                         />
-                        <datalist id="key-options">
-                            {#each KEY_NAMES as keyName (keyName)}
-                                <option value={keyName}></option>
-                            {/each}
-                        </datalist>
                     </div>
                     <div class="modifiers">
                         {#each VALID_MODIFIERS as modifier (modifier)}

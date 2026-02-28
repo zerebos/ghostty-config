@@ -107,7 +107,7 @@ export interface ColorScheme {
 const fetchThemeFiles = async () => {
     const response = await fetch("https://api.github.com/repos/mbadolato/iTerm2-Color-Schemes/contents/ghostty");
     if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
-    return await response.json() as Promise<ThemeResponse[]>;
+    return await response.json() as ThemeResponse[];
 };
 
 export const fetchColorScheme = async (theme: string) => {

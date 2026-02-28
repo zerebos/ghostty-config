@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {resolve} from "$app/paths";
     import {page} from "$app/stores";
     import type {Snippet} from "svelte";
 
@@ -13,14 +14,20 @@
 
     const isExternal = $derived(route.startsWith("http"));
     const target = $derived(isExternal ? "_blank" : "");
-    const rel = $derived(isExternal ? "noopener noreferer" : "");
+    const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
     const selected = $derived(path === route);
 </script>
 
 
-<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-<a href={route} class="nav-tab" class:selected {target} {rel}>
+<a
+    // @ts-expect-error dynamic use of resolve
+    href={resolve(route)}
+    class="nav-tab"
+    class:selected
+    {target}
+    {rel}
+>
     <div class="tab-icon">{@render icon()}</div>
     <div class="tab-label">{@render children()}</div>
     {#if isExternal}

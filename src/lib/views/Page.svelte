@@ -70,7 +70,7 @@
     backdrop-filter: blur(20px);
     position: absolute;
     top: 0;
-    left: 215px;
+    left: var(--sidebar-width);
     right: 0;
     z-index: 1;
 }

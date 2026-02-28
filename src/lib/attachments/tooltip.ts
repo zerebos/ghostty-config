@@ -10,6 +10,7 @@ function getTooltipText(text: TooltipText): string {
 
 export function createTooltipAttachment(text: TooltipText): Attachment {
     return (element) => {
+        let component: Tooltip;
         let tooltipRoot: HTMLDivElement | null = null;
 
         const updatePosition = () => {
@@ -23,7 +24,7 @@ export function createTooltipAttachment(text: TooltipText): Attachment {
             if (!tooltipRoot) return;
             const root = tooltipRoot;
             tooltipRoot = null;
-            await unmount(root);
+            await unmount(component);
             root.remove();
             window.removeEventListener("scroll", updatePosition, true);
             window.removeEventListener("resize", updatePosition);
@@ -41,7 +42,7 @@ export function createTooltipAttachment(text: TooltipText): Attachment {
             tooltipRoot.style.pointerEvents = "none";
 
             document.body.append(tooltipRoot);
-            mount(Tooltip, {
+            component = mount(Tooltip, {
                 target: tooltipRoot,
                 props: {
                     text: content
@@ -54,14 +55,18 @@ export function createTooltipAttachment(text: TooltipText): Attachment {
         };
 
         element.addEventListener("mouseenter", showTooltip);
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         element.addEventListener("mouseleave", hideTooltip);
         element.addEventListener("focus", showTooltip);
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         element.addEventListener("blur", hideTooltip);
 
         return () => {
             element.removeEventListener("mouseenter", showTooltip);
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             element.removeEventListener("mouseleave", hideTooltip);
             element.removeEventListener("focus", showTooltip);
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             element.removeEventListener("blur", hideTooltip);
             void hideTooltip();
         };
