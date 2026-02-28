@@ -59,7 +59,7 @@
     const htmlTitle = $derived.by(() => {
         const name = app.title === "Ghostty Config" ? "" : app.title;
         let title = "Ghostty Config";
-        if (name) title = `${title} - ${name}`;
+        if (name) title = `${name} - ${title}`;
         return title;
     });
 </script>

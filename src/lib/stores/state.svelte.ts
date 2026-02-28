@@ -1,11 +1,17 @@
 interface AppState {
     title: string;
-    floatingTerminalOpen: boolean;
+    floatingTerminalRunning: boolean;
+    floatingTerminalVisible: boolean;
+    floatingTerminalMinimized: boolean;
+    floatingTerminalRestoreRequested: boolean;
 }
 
 const app: AppState = $state({
     title: "Home",
-    floatingTerminalOpen: false,
+    floatingTerminalRunning: false,
+    floatingTerminalVisible: false,
+    floatingTerminalMinimized: false,
+    floatingTerminalRestoreRequested: false,
 });
 
 export default app;

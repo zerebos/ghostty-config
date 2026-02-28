@@ -5,8 +5,23 @@
     import appIcon from "$lib/images/icon.webp";
     import GhosttyIcon from "./GhosttyIcon.svelte";
 
-    function toggleTerminal() {
-        app.floatingTerminalOpen = !app.floatingTerminalOpen;
+    function activateTerminal() {
+        if (!app.floatingTerminalRunning) {
+            app.floatingTerminalRunning = true;
+            app.floatingTerminalVisible = true;
+            app.floatingTerminalMinimized = false;
+            app.floatingTerminalRestoreRequested = false;
+            return;
+        }
+
+        if (app.floatingTerminalMinimized) {
+            app.floatingTerminalRestoreRequested = true;
+            app.floatingTerminalMinimized = false;
+            app.floatingTerminalVisible = true;
+            return;
+        }
+
+        app.floatingTerminalVisible = true;
     }
 
     const tileSize = $state(48);
@@ -25,16 +40,17 @@
             <div class="running-dot"></div>
         </div>
 
-        <!-- <div class="dock-separator" role="separator"></div> -->
+        <div class="dock-separator" role="separator"></div>
 
-        <!-- Ghostty terminal preview — running when floatingTerminalOpen -->
+        <!-- Ghostty terminal preview -->
         <button
             type="button"
             class="dock-item dock-btn"
+            id="ghostty-terminal-dock-button"
             title="Live Preview Terminal"
-            onclick={toggleTerminal}
-            aria-label="Toggle live preview terminal"
-            aria-pressed={app.floatingTerminalOpen}
+            onclick={activateTerminal}
+            aria-label="Open live preview terminal"
+            aria-pressed={app.floatingTerminalVisible}
         >
             <div class="dock-icon-wrap">
                 <!--
@@ -47,7 +63,7 @@
                 -->
                 <GhosttyIcon width={`${ghosttyTileSize}px`} height={`${ghosttyTileSize}px`} />
             </div>
-            {#if app.floatingTerminalOpen}
+            {#if app.floatingTerminalRunning}
                 <div class="running-dot"></div>
             {:else}
                 <div class="running-dot hidden"></div>
