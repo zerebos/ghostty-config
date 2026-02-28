@@ -8,6 +8,7 @@
         VALID_MODIFIERS,
         KEY_NAMES
     } from "$lib/utils/keybinds";
+    import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import {fly, scale} from "svelte/transition";
     import Switch from "./Switch.svelte";
     import Group from "./Group.svelte";
@@ -159,6 +160,18 @@
         resizeDirection = directionOptions[0];
         resizeAmount = "";
     }
+
+    const hasGlobalOrAllPrefix = $derived(prefixes.includes("global") || prefixes.includes("all"));
+    const hasMaxSequenceSteps = $derived(steps.length >= 4);
+    const isAddStepDisabled = $derived(hasGlobalOrAllPrefix || hasMaxSequenceSteps);
+
+    function getAddStepTooltipMessage() {
+        if (hasGlobalOrAllPrefix) return "Global/all keybinds cannot be sequences";
+        if (hasMaxSequenceSteps) return "Maximum of 4 sequence steps";
+        return "Add sequence step";
+    }
+
+    const addStepTooltipAttachment = createTooltipAttachment(getAddStepTooltipMessage);
 </script>
 
 
@@ -216,14 +229,12 @@
                 class="add-step"
                 type="button"
                 onclick={addSequenceStep}
-                disabled={prefixes.includes("global") || prefixes.includes("all")}
+                disabled={isAddStepDisabled}
+                {@attach addStepTooltipAttachment}
             >
                 <!-- Add Step -->
                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
             </button>
-            {#if prefixes.includes("global") || prefixes.includes("all")}
-                <div class="sequence-note">Global/all keybinds cannot be sequences.</div>
-            {/if}
         </div>
     </Group>
     <Group title="Action">
@@ -429,11 +440,6 @@
         cursor: not-allowed;
     }
 
-    .sequence-note {
-        font-size: 0.75rem;
-        color: var(--font-muted);
-    }
-
     .preview-box {
         background: var(--config-bg);
         font-family: var(--config-font-family);
@@ -524,8 +530,12 @@
     }
 
     .actions button.primary:disabled {
-        background: var(--color-danger);
+        /* background: var(--color-danger); */
         cursor: not-allowed;
         filter: brightness(0.6);
+    }
+
+    .actions button:active {
+        filter: brightness(1.2);
     }
 </style>

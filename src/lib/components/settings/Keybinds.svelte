@@ -3,7 +3,8 @@
     import Text from "./Text.svelte";
     import settings from "$lib/data/settings";
     import {getDiagnostics} from "$lib/utils/keybinds";
-    import {fly} from "svelte/transition";
+    import icon from "$lib/images/tabs/keybinds.webp";
+    import {fade, fly} from "svelte/transition";
 
     let selected: number[] = $state([]);
     let {value = $bindable([])}: {value: string[]} = $props();
@@ -143,12 +144,14 @@
         <!-- {/if} -->
     </div>
     <div class="list-controls">
-        <button onclick={addNew} type="button" title="Add Keybind">+</button>
-        <button onclick={remove} disabled={selected.length === 0} type="button" title="Remove Selected">-</button>
+        <button onclick={addNew} type="button" title="Add Keybind">&plus;</button>
+        <button onclick={remove} disabled={selected.length === 0} type="button" title="Remove Selected">&ndash;</button>
         <button onclick={editSelected} disabled={selected.length !== 1} type="button" title="Edit Selected">
             <!-- ✎ -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" /></svg>
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" /></svg> -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 56 56"><path fill="currentColor" d="m43.293 16.926l2.367-2.32c1.196-1.196 1.242-2.485.188-3.563l-.797-.797c-1.055-1.055-2.344-.937-3.54.211l-2.367 2.344ZM15.66 44.488l25.57-25.547l-4.101-4.125l-25.594 25.57L9.31 45.59c-.211.562.375 1.219.937.984Z" /></svg>
         </button>
+        <div class="list-controls-spacer"></div>
         <button onclick={() => (showReset = true)} type="button" title="Reset Defaults">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H3" /><path d="M7 12H3" /><path d="M7 19H3" /><path d="M12 18a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L11 14" /><path d="M11 10v4h4" /></svg>
         </button>
@@ -157,18 +160,21 @@
 {/if}
 
 {#if showReset}
-    <div class="reset-backdrop" role="dialog" aria-modal="true">
-        <div class="reset-card">
-            <h3>Reset keybinds?</h3>
-            <p>This will restore all keybinds to their default values.</p>
-            <div class="reset-actions">
-                <button type="button" class="ghost" onclick={() => (showReset = false)}>
+    <div class="reset-backdrop" role="dialog" aria-modal="true" transition:fade={{duration: 200}}></div>
+        <div class="reset-card" transition:fly={{y: 30, duration: 200}}>
+            <header>
+                <img src={icon} alt="Warning" />
+                <h3>Are you sure?</h3>
+            </header>
+            <!-- <p>This will restore all keybinds to their default values.</p> -->
+            <footer class="reset-actions">
+                <button type="button" class="primary" onclick={resetDefaults}>Reset Keybinds</button>
+                <button type="button" onclick={() => (showReset = false)}>
                     Cancel
                 </button>
-                <button type="button" class="primary" onclick={resetDefaults}>Reset</button>
-            </div>
+            </footer>
         </div>
-    </div>
+    <!-- </div> -->
 {/if}
 
 <svelte:document onkeydown={handleKeyPress} />
@@ -194,8 +200,12 @@
         border-top: 2px solid var(--border-level-4);
         display: flex;
         align-items: center;
-        padding-left: 10px;
+        padding: 0 10px;
         gap: 10px;
+    }
+
+    .list-controls-spacer {
+        flex: 1;
     }
 
     .item-list {
@@ -228,7 +238,7 @@
         background: rgba(255, 90, 90, 0.12);
     }
 
-    button {
+    .list-controls button {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -237,66 +247,91 @@
         color: var(--font-color);
         font-size: 1rem;
         position: relative;
+        cursor: pointer;
     }
 
-    button:first-child {
+    .list-controls button:first-child {
         font-size: 1.5rem;
     }
 
     .reset-backdrop {
-        position: fixed;
+        position: absolute;
         inset: 0;
-        background: rgba(18, 18, 18, 0.6);
+        background: rgba(18, 18, 18, 0.75);
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 40;
+        z-index: 100;
     }
 
     .reset-card {
+        position: absolute;
+        top: 30%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         background: var(--bg-level-1);
         border-radius: 14px;
         padding: 20px 24px;
-        width: min(90vw, 420px);
+        width: min(90vw, 260px);
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        gap: 24px;
+        z-index: 101;
+        /* box-sizing: content-box; */
+    }
+
+    .reset-card header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+    }
+
+    .reset-card header img {
+        width: 60px;
+        height: 60px;
     }
 
     .reset-card h3 {
         margin: 0 0 8px;
     }
 
-    .reset-card p {
+    /* .reset-card p {
         margin: 0 0 18px;
         color: var(--font-muted);
-    }
+    } */
 
     .reset-actions {
         display: flex;
+        flex-direction: column;
         justify-content: flex-end;
         gap: 10px;
+        width: 100%;
     }
 
     .reset-actions button {
         padding: 8px 16px;
         border-radius: 10px;
-        border: 1px solid var(--border-level-3);
-    }
-
-    .reset-actions .ghost {
-        background: transparent;
+        /* border: 1px solid var(--border-level-3); */
+        border: 0;
+        background: #818282;
+        flex: 1;
+        color: var(--font-color);
+        cursor: pointer;
     }
 
     .reset-actions .primary {
-        background: var(--accent-active);
-        color: #fff;
-        border-color: transparent;
+        background: var(--color-danger);
+        /* border-color: transparent; */
     }
     /*
-button + button {
+.list-controls button + button {
     margin-left: 2px;
 } */
 
-    button + button::before {
+    .list-controls button + button::before {
         content: "";
         position: absolute;
         left: -6px;
@@ -306,7 +341,7 @@ button + button {
         width: 2px;
     }
 
-    button:disabled {
+    .list-controls button:disabled {
         opacity: 0.5;
     }
 </style>
