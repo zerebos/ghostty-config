@@ -72,8 +72,8 @@ The only automated deployment built-in is via GitHub Actions which automatically
 - [x] Update for Ghostty 1.2
 - [x] Update for Ghostty 1.3 (nightly)
 - [x] Icon customization
+- [x] Keybinding validation
 - [ ] Detailed terminal playground
-- [ ] Keybinding validation
 - [ ] Command palette builder
 - [ ] Desktop version via Wails (if demand is there)
 - [ ] Community presets for quick setup

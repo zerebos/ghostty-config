@@ -21,11 +21,9 @@
         if (event.key === "Escape") selected = [];
         const shouldExpand = event.ctrlKey || event.shiftKey;
         if (!shouldExpand && selected.length) return;
-        // if (event.key === "ArrowUp") console.log("up");
     }
 
     function select(index: number) {
-        // selected = [index];
         return (event: MouseEvent | KeyboardEvent) => {
             if (!event.ctrlKey) return (selected = [index]);
             if (!selected.includes(index)) return selected.push(index);
@@ -64,14 +62,10 @@
     }
 
     function remove() {
-        // console.log(selected.map(i => i));
-        // console.log(value.map(v => v));
         value = value.filter((v, i) => {
             const shouldRemove = selected.includes(i);
-            // console.log(`Filtering ${v} ${i} ${shouldRemove}`);
             return !shouldRemove;
         });
-        // console.log(value.map(v => v));
         selected = [];
     }
 
@@ -149,15 +143,12 @@
                 <Text value={value[i].split("=")[1]} blank={true} change={update(i, true)} />
             </div>
         {/each}
-        <!-- {/if} -->
     </div>
     <div class="list-controls">
         <button onclick={addNew} type="button" title="Add Keybind">&plus;</button>
         <button onclick={remove} disabled={selected.length === 0} type="button" title="Remove Selected">&ndash;</button>
         <button onclick={editSelected} disabled={selected.length !== 1} type="button" title="Edit Selected">
-            <!-- ✎ -->
-            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" /></svg> -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 56 56"><path fill="currentColor" d="m43.293 16.926l2.367-2.32c1.196-1.196 1.242-2.485.188-3.563l-.797-.797c-1.055-1.055-2.344-.937-3.54.211l-2.367 2.344ZM15.66 44.488l25.57-25.547l-4.101-4.125l-25.594 25.57L9.31 45.59c-.211.562.375 1.219.937.984Z" /></svg>
+           <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 56 56"><path fill="currentColor" d="m43.293 16.926l2.367-2.32c1.196-1.196 1.242-2.485.188-3.563l-.797-.797c-1.055-1.055-2.344-.937-3.54.211l-2.367 2.344ZM15.66 44.488l25.57-25.547l-4.101-4.125l-25.594 25.57L9.31 45.59c-.211.562.375 1.219.937.984Z" /></svg>
         </button>
         <div class="list-controls-spacer"></div>
         <button onclick={() => (showReset = true)} type="button" title="Reset Defaults">
@@ -176,7 +167,6 @@
         <img src={icon} alt="Warning" />
         <h3 id="reset-title">Are you sure?</h3>
     </header>
-    <!-- <p>This will restore all keybinds to their default values.</p> -->
     <footer class="reset-actions">
         <button type="button" class="primary" onclick={resetDefaults}>Reset Keybinds</button>
         <button type="button" onclick={() => (showReset = false)}>
@@ -184,7 +174,6 @@
         </button>
     </footer>
 </div>
-    <!-- </div> -->
 {/if}
 
 <svelte:document onkeydown={handleKeyPress} />
@@ -194,7 +183,6 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        /* height: 100%; */
         position: relative;
         background: var(--bg-level-2);
         border-radius: var(--radius-level-3);
@@ -286,14 +274,12 @@
         border-radius: var(--radius-level-2);
         padding: 16px;
         width: min(90vw, 260px);
-        /* box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4); */
         border: 1px solid var(--border-level-1);
         box-shadow:
             0 0 20px -1px rgba(0,0,0,0.7),
             0 0 1px white inset;
         gap: 26px;
         z-index: 101;
-        /* box-sizing: content-box; */
     }
 
     .reset-card header {
@@ -301,7 +287,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        /* gap: 24px; */
     }
 
     .reset-card header img {
@@ -314,11 +299,6 @@
         margin: 0 0 8px;
     }
 
-    /* .reset-card p {
-        margin: 0 0 18px;
-        color: var(--font-muted);
-    } */
-
     .reset-actions {
         display: flex;
         flex-direction: column;
@@ -330,7 +310,6 @@
     .reset-actions button {
         padding: 6px 16px;
         border-radius: var(--radius-level-4);
-        /* border: 1px solid var(--border-level-3); */
         border: 0;
         font-weight: 600;
         background: #575559;
@@ -341,20 +320,11 @@
         box-shadow:
             0px 0px 1px 0px #000000,
             inset 0px 3px 1px -3px rgba(255, 255, 255, 0.65);
-            /* inset 0px -3px 1px -3px rgba(0, 0, 0, 0.6); */
     }
 
     .reset-actions .primary {
-        /* background: var(--color-danger); */
-        /* background: #FC5C58; */
-        /* background: #1769E6; */
         background: linear-gradient(0deg, #3C6EC9, #437AE2);
-        /* border-color: transparent; */
     }
-    /*
-.list-controls button + button {
-    margin-left: 2px;
-} */
 
     .list-controls button + button::before {
         content: "";

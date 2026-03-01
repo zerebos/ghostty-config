@@ -176,18 +176,11 @@
 
 
 <div class="editor" in:fly={{y: 30, duration: 200}}>
-    <main>
-    <!-- <Admonition>
-        <p>Use this editor to create or edit a keybind. A keybind consists of an optional prefix, a trigger sequence, and an action.</p>
-        <p><strong>Prefixes</strong> modify when the keybind is active, for example "global" means it will trigger regardless of which application is focused. Multiple prefixes can be combined for more specific behavior.</p>
-        <p>The <strong>trigger sequence</strong> is the combination of keys that must be pressed to activate the keybind. It can be a single key or a sequence of up to 4 steps. Each step can have optional modifiers like Ctrl or Shift.</p>
-        <p>The <strong>action</strong> is what happens when the keybind is triggered. There are various actions available, some of which may require additional arguments.</p>
-    </Admonition> -->
     <Group>
         <Item name="Prefixes">
             <div class="prefix-row">
                 {#each VALID_PREFIXES as prefix (prefix)}
-                    <label class:selected={prefixes.includes(prefix)}>
+                    <label>
                         <Checkbox checked={prefixes.includes(prefix)} onchange={() => togglePrefix(prefix)} />
                         {prefix}
                     </label>
@@ -222,11 +215,10 @@
                         </div>
                     </Item>
                     <Separator />
-                    <!-- <Item name="Modifiers" note={steps.length > 1 ? `Optional modifiers for step ${index + 1}.` : "Optional modifiers that must be held for this trigger."}> -->
-                     <Item name="Modifiers">
+                    <Item name="Modifiers">
                         <div class="modifiers">
                             {#each VALID_MODIFIERS as modifier (modifier)}
-                                <label class:selected={step.modifiers.includes(modifier)}>
+                                <label>
                                     <Checkbox checked={step.modifiers.includes(modifier)} onchange={() => toggleModifier(index, modifier)} />
                                     <span>{modifier}</span>
                                 </label>
@@ -297,7 +289,6 @@
             </ul>
         {/if}
     </Group>
-    </main>
     <div class="actions">
         <button type="button" onclick={close}>Cancel</button>
         <button
@@ -316,41 +307,25 @@
     .editor {
         width: 100%;
         flex: 1;
-        /* padding: 20px 28px; */
         padding-bottom: 20px;
         display: flex;
         flex-direction: column;
-    }
-
-    main {
-        flex: 1;
-        padding-bottom: 25px;
     }
 
     .prefix-row {
         display: flex;
         gap: 16px;
         flex-wrap: wrap;
-        /* margin-bottom: 12px; */
-        /* justify-content: space-between; */
     }
 
     .prefix-row label {
         border-radius: var(--radius-level-4);
-        /* border: 1px solid var(--border-level-3); */
-        /* padding: 6px 12px; */
         font-size: 0.8rem;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 8px;
         background: var(--bg-level-2);
-    }
-
-    .prefix-row label.selected {
-        /* background: rgba(255, 255, 255, 0.08); */
-        /* background: var(--color-selected); */
-        /* border-color: var(--color-selected); */
     }
 
     .sequence {
@@ -361,7 +336,6 @@
 
     .sequence-step {
         display: grid;
-        /* gap: 10px; */
         background: var(--bg-level-2);
         border: 1px solid var(--border-level-3);
         border-radius: var(--radius-level-3);
@@ -378,7 +352,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 16px;
-        /* justify-content: space-evenly; */
     }
 
     .modifiers label {
@@ -397,13 +370,6 @@
     }
 
     .key-entry input {
-        /* color: var(--font-color);
-        background: var(--bg-level-3);
-        border: 1px solid var(--border-level-3);
-        border-radius: var(--radius-level-4);
-        padding: 10px 14px;
-        flex: 1; */
-        /* background: var(--bg-level-2); */
         background: rgba(0, 0, 0, 0.15);
         border: 1px solid var(--border-input);
         border-radius: var(--radius-level-5);
@@ -411,13 +377,10 @@
         color: inherit;
         text-align: right;
         max-width: 150px;
-        /* padding: 4px 8px 4px 4px; */
         padding: 2px 8px 2px 0;
     }
 
     .key-entry input:focus {
-        /* outline: none; */
-        /* border-color: var(--accent-active); */
         background:var(--bg-input-focus);
         outline: var(--border-input-focus);
     }
@@ -495,40 +458,10 @@
         border-radius: var(--radius-level-4);
         border: 0;
         font-weight: 500;
-        /* font-size: 14px; */
-        /* height: 28px; */
-        /* height: 24px; */
-
-        /* border: 1px solid var(--border-level-2); */
-        /* box-shadow: inset 0px 2px 2px -3px white; */
         box-shadow:
             0px 0px 1px 0px #000000,
             inset 0px 3px 1px -3px rgba(255, 255, 255, 0.65);
 
-        /* border: 1px solid rgba(0,0,0,0.55);
-        height: 28px;
-        padding: 0 14px;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 400;
-        letter-spacing: -0.01em; */
-
-        /* Outer glow / halo — the bright top edge */
-        /* top inner highlight, bottom inner shadow, subtle outer drop shadow, faint outer glow */
-        /* box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.12),
-            inset 0 -1px 0 rgba(0,0,0,0.25),
-            0 1px 2px rgba(0,0,0,0.5),
-            0 0 0 0.5px rgba(255,255,255,0.04); */
-
-        /* box-shadow:
-            0 1px 0px rgba(0, 0, 0, 0.6),
-
-            inset 0 0 0 1px rgba(255, 255, 255, 0.15),
-
-            inset 0 0 0 0px rgba(0, 0, 0, 0.6); */
-        /* background: #5D595C; */
-        /* background: #514F56; */
         background: #59575C;
         color: var(--font-color);
         cursor: pointer;
@@ -540,24 +473,13 @@
     }
 
     .actions button.primary {
-        /* background:  #2f80f5; */
-        /* background: #3B6CD3; */
-        /* background: linear-gradient(0deg, #3665C3, #3D72DF); */
         background: linear-gradient(0deg, #3C6EC9, #437AE2);
         color: #fff;
-        /* border: 1px solid rgba(0,0,0,0.35); */
         border: 0;
         padding: 0 20px;
-
-        /* box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.25),
-            inset 0 -1px 0 rgba(0,0,0,0.2),
-            0 1px 3px rgba(0,0,0,0.45),
-            0 0 6px rgba(30,130,255,0.35); */
     }
 
     .actions button.primary:disabled {
-        /* background: var(--color-danger); */
         cursor: not-allowed;
         filter: brightness(0.6);
     }

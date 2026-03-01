@@ -35,6 +35,7 @@
     width: 12px;
     height: 12px;
     color: #fff;
+    pointer-events: none;
 }
 
 .checkbox-glyph path {
