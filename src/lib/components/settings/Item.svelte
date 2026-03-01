@@ -11,7 +11,9 @@
     </div>
     {#if note}
     <div class="note">
-        {note}
+        <!-- TODO: rework this so this isn't needed -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html note}
     </div>
     {/if}
 </div>

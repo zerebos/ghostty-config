@@ -5,6 +5,7 @@
     import {getDiagnostics} from "$lib/utils/keybinds";
     import icon from "$lib/images/tabs/keybinds.webp";
     import {fade, fly} from "svelte/transition";
+    import Admonition from "../Admonition.svelte";
 
     let selected: number[] = $state([]);
     let {value = $bindable([])}: {value: string[]} = $props();
@@ -85,6 +86,7 @@
         value = [...defaultKeybinds];
         selected = [];
         showReset = false;
+        if (scroller) scroller.scrollTop = 0;
     }
 
     function update(index: number, isAction: boolean = false) {
@@ -126,6 +128,9 @@
         oncancel={handleCancel}
     />
 {:else}
+    <Admonition>
+        If you're not familiar with keybinds, refer to <a href="https://ghostty.org/docs/config/keybind">the documentation</a>.
+    </Admonition>
 <div class="expandable-list" in:fly={{y: 30, duration: 200}}>
     <div class="item-list" bind:this={scroller} onscroll={onScroll}>
         {#each value as _, i (i)}
@@ -166,7 +171,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="reset-backdrop" onclick={() => (showReset = false)} transition:fade={{duration: 200}}></div>
-<div class="reset-card" transition:fly={{y: 30, duration: 200}} role="dialog" aria-modal="true" aria-labelledby="reset-title">
+<div class="reset-card" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-labelledby="reset-title">
     <header>
         <img src={icon} alt="Warning" />
         <h3 id="reset-title">Are you sure?</h3>
@@ -276,12 +281,17 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: var(--bg-level-1);
-        border-radius: 14px;
-        padding: 20px 24px;
+        background: rgba(from var(--bg-level-1) r g b / 0.7);
+        backdrop-filter: blur(20px);
+        border-radius: var(--radius-level-2);
+        padding: 16px;
         width: min(90vw, 260px);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-        gap: 24px;
+        /* box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4); */
+        border: 1px solid var(--border-level-1);
+        box-shadow:
+            0 0 20px -1px rgba(0,0,0,0.7),
+            0 0 1px white inset;
+        gap: 26px;
         z-index: 101;
         /* box-sizing: content-box; */
     }
@@ -291,12 +301,13 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 24px;
+        /* gap: 24px; */
     }
 
     .reset-card header img {
-        width: 60px;
-        height: 60px;
+        width: 52px;
+        height: 52px;
+        margin: 26px;
     }
 
     .reset-card h3 {
@@ -317,18 +328,27 @@
     }
 
     .reset-actions button {
-        padding: 8px 16px;
-        border-radius: 10px;
+        padding: 6px 16px;
+        border-radius: var(--radius-level-4);
         /* border: 1px solid var(--border-level-3); */
         border: 0;
-        background: #818282;
+        font-weight: 600;
+        background: #575559;
         flex: 1;
         color: var(--font-color);
         cursor: pointer;
+
+        box-shadow:
+            0px 0px 1px 0px #000000,
+            inset 0px 3px 1px -3px rgba(255, 255, 255, 0.65);
+            /* inset 0px -3px 1px -3px rgba(0, 0, 0, 0.6); */
     }
 
     .reset-actions .primary {
-        background: var(--color-danger);
+        /* background: var(--color-danger); */
+        /* background: #FC5C58; */
+        /* background: #1769E6; */
+        background: linear-gradient(0deg, #3C6EC9, #437AE2);
         /* border-color: transparent; */
     }
     /*

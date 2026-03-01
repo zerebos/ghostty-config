@@ -10,13 +10,13 @@
     } from "$lib/utils/keybinds";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import {fly, scale} from "svelte/transition";
-    import Switch from "./Switch.svelte";
     import Group from "./Group.svelte";
     import Item from "./Item.svelte";
     import Dropdown from "./Dropdown.svelte";
     import Separator from "./Separator.svelte";
     import Number from "./Number.svelte";
     import Text from "./Text.svelte";
+    import Checkbox from "./Checkbox.svelte";
 
     interface Props {
         value?: string;
@@ -177,15 +177,23 @@
 
 <div class="editor" in:fly={{y: 30, duration: 200}}>
     <main>
-    <Group title="Prefix">
-        <div class="prefix-row">
-            {#each VALID_PREFIXES as prefix (prefix)}
-                <label class:selected={prefixes.includes(prefix)}>
-                    <Switch checked={prefixes.includes(prefix)} onchange={() => togglePrefix(prefix)} />
-                    {prefix}
-                </label>
-            {/each}
-        </div>
+    <!-- <Admonition>
+        <p>Use this editor to create or edit a keybind. A keybind consists of an optional prefix, a trigger sequence, and an action.</p>
+        <p><strong>Prefixes</strong> modify when the keybind is active, for example "global" means it will trigger regardless of which application is focused. Multiple prefixes can be combined for more specific behavior.</p>
+        <p>The <strong>trigger sequence</strong> is the combination of keys that must be pressed to activate the keybind. It can be a single key or a sequence of up to 4 steps. Each step can have optional modifiers like Ctrl or Shift.</p>
+        <p>The <strong>action</strong> is what happens when the keybind is triggered. There are various actions available, some of which may require additional arguments.</p>
+    </Admonition> -->
+    <Group>
+        <Item name="Prefixes">
+            <div class="prefix-row">
+                {#each VALID_PREFIXES as prefix (prefix)}
+                    <label class:selected={prefixes.includes(prefix)}>
+                        <Checkbox checked={prefixes.includes(prefix)} onchange={() => togglePrefix(prefix)} />
+                        {prefix}
+                    </label>
+                {/each}
+            </div>
+        </Item>
     </Group>
     <Group title="Trigger" borderless>
         <div class="sequence">
@@ -201,23 +209,30 @@
                             &times;
                         </button>
                     {/if}
-                    <div class="key-entry">
-                        <input
-                            type="text"
-                            placeholder="key"
-                            bind:value={step.key}
-                            list="key-options"
-                            oninput={(event) => updateStepKey(index, event.currentTarget.value)}
-                        />
-                    </div>
-                    <div class="modifiers">
-                        {#each VALID_MODIFIERS as modifier (modifier)}
-                            <label class:selected={step.modifiers.includes(modifier)}>
-                                <Switch checked={step.modifiers.includes(modifier)} onchange={() => toggleModifier(index, modifier)} />
-                                <span>{modifier}</span>
-                            </label>
-                        {/each}
-                    </div>
+
+                    <Item name={steps.length > 1 ? `Key Name ${index + 1}` : "Key Name"} note={steps.length > 1 ? `The key to use for step ${index + 1} in the sequence.` : "The key to use for this action."}>
+                        <div class="key-entry">
+                            <input
+                                type="text"
+                                placeholder="key"
+                                bind:value={step.key}
+                                list="key-options"
+                                oninput={(event) => updateStepKey(index, event.currentTarget.value)}
+                            />
+                        </div>
+                    </Item>
+                    <Separator />
+                    <!-- <Item name="Modifiers" note={steps.length > 1 ? `Optional modifiers for step ${index + 1}.` : "Optional modifiers that must be held for this trigger."}> -->
+                     <Item name="Modifiers">
+                        <div class="modifiers">
+                            {#each VALID_MODIFIERS as modifier (modifier)}
+                                <label class:selected={step.modifiers.includes(modifier)}>
+                                    <Checkbox checked={step.modifiers.includes(modifier)} onchange={() => toggleModifier(index, modifier)} />
+                                    <span>{modifier}</span>
+                                </label>
+                            {/each}
+                        </div>
+                    </Item>
                 </div>
                 {#if index < steps.length - 1}
                     <div class="sequence-arrow">→</div>
@@ -309,6 +324,7 @@
 
     main {
         flex: 1;
+        padding-bottom: 25px;
     }
 
     .prefix-row {
@@ -333,8 +349,8 @@
 
     .prefix-row label.selected {
         /* background: rgba(255, 255, 255, 0.08); */
-        background: var(--color-selected);
-        border-color: var(--color-selected);
+        /* background: var(--color-selected); */
+        /* border-color: var(--color-selected); */
     }
 
     .sequence {
@@ -345,7 +361,7 @@
 
     .sequence-step {
         display: grid;
-        gap: 10px;
+        /* gap: 10px; */
         background: var(--bg-level-2);
         border: 1px solid var(--border-level-3);
         border-radius: var(--radius-level-3);
@@ -362,7 +378,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 16px;
-        /* justify-content: space-between; */
+        /* justify-content: space-evenly; */
     }
 
     .modifiers label {
@@ -381,19 +397,29 @@
     }
 
     .key-entry input {
-        color: var(--font-color);
+        /* color: var(--font-color);
         background: var(--bg-level-3);
         border: 1px solid var(--border-level-3);
         border-radius: var(--radius-level-4);
         padding: 10px 14px;
-        flex: 1;
+        flex: 1; */
+        /* background: var(--bg-level-2); */
+        background: rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--border-input);
+        border-radius: var(--radius-level-5);
+        outline: none;
+        color: inherit;
+        text-align: right;
+        max-width: 150px;
+        /* padding: 4px 8px 4px 4px; */
+        padding: 2px 8px 2px 0;
     }
 
     .key-entry input:focus {
         /* outline: none; */
         /* border-color: var(--accent-active); */
+        background:var(--bg-input-focus);
         outline: var(--border-input-focus);
-        box-shadow: 0 0 0 1px var(--accent-active);
     }
 
     .sequence-step .remove {
@@ -468,15 +494,16 @@
         padding: 4px 12px;
         border-radius: var(--radius-level-4);
         border: 0;
+        font-weight: 500;
         /* font-size: 14px; */
         /* height: 28px; */
-        height: 24px;
+        /* height: 24px; */
 
         /* border: 1px solid var(--border-level-2); */
         /* box-shadow: inset 0px 2px 2px -3px white; */
         box-shadow:
             0px 0px 1px 0px #000000,
-            inset 0px 3px 1px -3px #FFFFFF;
+            inset 0px 3px 1px -3px rgba(255, 255, 255, 0.65);
 
         /* border: 1px solid rgba(0,0,0,0.55);
         height: 28px;
@@ -501,8 +528,8 @@
 
             inset 0 0 0 0px rgba(0, 0, 0, 0.6); */
         /* background: #5D595C; */
-        background: #626065;
-        /* background: #59575C; */
+        /* background: #514F56; */
+        background: #59575C;
         color: var(--font-color);
         cursor: pointer;
         position: relative;
@@ -514,7 +541,9 @@
 
     .actions button.primary {
         /* background:  #2f80f5; */
-        background: #3B6CD3;
+        /* background: #3B6CD3; */
+        /* background: linear-gradient(0deg, #3665C3, #3D72DF); */
+        background: linear-gradient(0deg, #3C6EC9, #437AE2);
         color: #fff;
         /* border: 1px solid rgba(0,0,0,0.35); */
         border: 0;

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import {scale} from "svelte/transition";
+
     interface Props {
         text: string;
     }
@@ -6,34 +8,51 @@
     const {text}: Props = $props();
 </script>
 
-<div class="tooltip" role="tooltip">{text}</div>
+<div class="tooltip" role="tooltip" transition:scale={{duration: 150}}>
+    {text}
+</div>
 
 <style>
     .tooltip {
-        border-radius: var(--radius-level-4);
-        border: 1px solid var(--border-level-3);
-        background: color-mix(in srgb, var(--bg-level-3) 85%, black);
+        border-radius: var(--radius-level-2);
+        background: rgba(from var(--bg-level-1) r g b / 0.7);
+        backdrop-filter: blur(20px);
         color: var(--font-color);
-        font-size: 0.72rem;
-        line-height: 1.2;
-        letter-spacing: 0.01em;
-        padding: 5px 8px;
+        padding: 12px;
         white-space: nowrap;
+        border: 1px solid var(--border-level-1);
         box-shadow:
-            0 6px 18px rgba(0, 0, 0, 0.35),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(8px) saturate(1.2);
+            0 0 20px -1px rgba(0,0,0,0.7),
+            0 0 1px white inset;
         position: relative;
+        z-index: 1;
+        transform-origin: center bottom;
     }
 
-    .tooltip::after {
+    .tooltip::after,
+    .tooltip::before {
         content: "";
         position: absolute;
         left: 50%;
-        top: calc(100% - 1px);
-        transform: translateX(-50%);
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px solid color-mix(in srgb, var(--bg-level-3) 85%, black);
+        top: calc(100% - 7px);
+        transform: translateX(-50%) rotate(-135deg);
+        width: 12px;
+        height: 12px;
+        z-index: -1;
+        background: rgba(from var(--bg-level-1) r g b / 0.7);
+        backdrop-filter: blur(20px);
+        clip-path: polygon(0 0, 100% 0, 0% 100%);
+    }
+
+    .tooltip::after {
+        border: 1px solid var(--border-level-1);
+        box-shadow:
+            0 0 20px -1px rgba(0,0,0,0.7),
+            0 0 1px white inset;
+    }
+
+    .tooltip::before {
+        top: calc(100% - 8px);
+        background: var(--bg-level-1);
     }
 </style>
