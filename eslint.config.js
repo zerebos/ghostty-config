@@ -19,6 +19,6 @@ export default defineConfig(
         }
     },
     {
-        ignores: ["build/", ".svelte-kit/", "dist/", "custom/", "config/", "sverdle/"]
+        ignores: ["build/", ".svelte-kit/", "dist/", "custom/", "config/", "sverdle/", "notes/"]
     },
 );

@@ -14,6 +14,9 @@
     let showReset = $state(false);
 
     function handleKeyPress(event: KeyboardEvent) {
+        if (showReset) {
+            if (event.key === "Escape") return (showReset = false);
+        }
         if (event.key === "Escape") selected = [];
         const shouldExpand = event.ctrlKey || event.shiftKey;
         if (!shouldExpand && selected.length) return;
@@ -160,7 +163,9 @@
 {/if}
 
 {#if showReset}
-<div class="reset-backdrop" transition:fade={{duration: 200}}></div>
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="reset-backdrop" onclick={() => (showReset = false)} transition:fade={{duration: 200}}></div>
 <div class="reset-card" transition:fly={{y: 30, duration: 200}} role="dialog" aria-modal="true" aria-labelledby="reset-title">
     <header>
         <img src={icon} alt="Warning" />

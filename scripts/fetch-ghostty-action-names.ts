@@ -77,12 +77,10 @@ async function fetchActions(): Promise<ActionExtract> {
 
 async function main() {
     const result = await fetchActions();
-    // eslint-disable-next-line no-console
     console.log(JSON.stringify(result, null, 2));
 }
 
 main().catch((error) => {
-    // eslint-disable-next-line no-console
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);
 });
