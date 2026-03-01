@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {page} from "$app/stores";
+    import {page} from "$app/state";
     import type {Snippet} from "svelte";
 
 
@@ -9,17 +9,24 @@
         route?: string;
     }
     const {children, icon, route = ""}: Props = $props();
-    const path = $derived($page.url.pathname);
+    const path = $derived(page.url.pathname);
 
-    const isExternal = route.startsWith("http");
-    const target = isExternal ? "_blank" : "";
-    const rel = isExternal ? "noopener noreferer" : "";
+    const isExternal = $derived(route.startsWith("http"));
+    const target = $derived(isExternal ? "_blank" : "");
+    const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
     const selected = $derived(path === route);
 </script>
 
 
-<a href={route} class="nav-tab" class:selected {target} {rel}>
+<!-- Why is eslint like this? -->
+<!-- eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/first-attribute-linebreak -->
+<a href={route}
+    class="nav-tab"
+    class:selected
+    {target}
+    {rel}
+>
     <div class="tab-icon">{@render icon()}</div>
     <div class="tab-label">{@render children()}</div>
     {#if isExternal}

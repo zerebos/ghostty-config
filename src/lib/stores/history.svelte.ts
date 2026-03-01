@@ -28,7 +28,7 @@ export function processNavigation(navEvent: OnNavigate) {
     }
 
     if (navEvent.type === "popstate") {
-        index += navEvent.delta!;
+        index += navEvent.delta;
 
         // Clamp values if the user uses browser history
         // to navigate beyond our stack

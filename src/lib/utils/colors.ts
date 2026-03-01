@@ -1,7 +1,7 @@
 export type HexColor = `#${string}`;
 export type RgbArray = [number, number, number];
 export type HsvArray = [number, number, number];
-export type HsvObj = {hue: number, saturation: number, value: number};
+export type HsvObj = {hue: number, saturation: number, value: number;};
 
 export function luminosity(color: HexColor) {
     const int = parseInt(color.substring(1), 16);
@@ -74,5 +74,5 @@ export function rgbToHex(red: number, green: number, blue: number): HexColor {
 export function hexToRgb(string: HexColor): RgbArray {
     const hex = string.slice(1);
     const get = (s: number, e: number) => parseInt(hex.substring(s, e), 16);
-    return [get(0, 2), get(2, 4), get(4,6)];
+    return [get(0, 2), get(2, 4), get(4, 6)];
 }

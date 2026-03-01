@@ -1,3 +1,4 @@
+/* eslint-disable quote-props */
 /**
  * Ghostty Configuration Reference Schema
  *

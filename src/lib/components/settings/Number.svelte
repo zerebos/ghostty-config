@@ -6,20 +6,23 @@
         step?: number;
         size?: number;
         range?: boolean;
+        placeholder?: string;
     };
 
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), min, max, step, size, range}: Props = $props();
+    let {value = $bindable(), min, max, step, size, range, placeholder}: Props = $props();
 
-    const inputType = range ? "range" : "number";
-    if (!size && !range) size = max ? max.toString().length : value.toString().length + 2;
+    const inputType = $derived(range ? "range" : "number");
+    $effect(() => {
+        if (!size && !range) size = max ? max.toString().length : value.toString().length + 2;
+    });
 </script>
 
 <div class="input-wrapper">
     {#if range}
         <div>{value}</div>
     {/if}
-    <input type={inputType} bind:value {min} {max} {step} {size} />
+    <input type={inputType} bind:value {min} {max} {step} {size} {placeholder} />
 </div>
 
 <style>

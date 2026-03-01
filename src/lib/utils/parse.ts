@@ -5,13 +5,13 @@ const re = /^\s*([a-z-]+)[\s]*=\s*(.*)\s*$/;
 
 const colors = ["background", "foreground", "cursor-color", "selection-background", "selection-foreground"];
 
-export default function(configString: string) {
+export default function (configString: string) {
     const lines = configString.split("\n");
 
     const results = {
-        palette: Array(256),
-        keybind: [] as Array<string>
-    } as {palette: (HexColor|"")[], keybind: KeybindString[], [key: string]: string|string[]};
+        palette: Array(256) as Array<HexColor | "">,
+        keybind: [] as KeybindString[]
+    } as {palette: Array<HexColor | "">, keybind: KeybindString[], [key: string]: string | string[];};
 
     for (let p = 0; p < 256; p++) results.palette[p] = "";
 

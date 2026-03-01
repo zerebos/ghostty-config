@@ -55,7 +55,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    position: relative;
+    /* position: relative; */
     flex: 1;
 }
 
@@ -70,7 +70,7 @@
     backdrop-filter: blur(20px);
     position: absolute;
     top: 0;
-    left: 0;
+    left: var(--sidebar-width);
     right: 0;
     z-index: 1;
 }

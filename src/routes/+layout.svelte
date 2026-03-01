@@ -26,6 +26,7 @@
 
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
+    import type {Snippet} from "svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -50,7 +51,7 @@
         return str;
     });
 
-    const {children} = $props();
+    const {children}: {children: Snippet} = $props();
 
 
 
@@ -58,7 +59,7 @@
     const htmlTitle = $derived.by(() => {
         const name = app.title === "Ghostty Config" ? "" : app.title;
         let title = "Ghostty Config";
-        if (name) title = `${title} - ${name}`;
+        if (name) title = `${name} - ${title}`;
         return title;
     });
 </script>
@@ -73,9 +74,9 @@
         <div class="sidebar-header">
             <div class="window-actions-container">
                 <div class="window-actions">
-                    <div class="window-dot"><span>×</span></div>
-                    <div class="window-dot"><span>-</span></div>
-                    <div class="window-dot"><span>+</span></div>
+                    <div class="window-dot"><span>&times;</span></div>
+                    <div class="window-dot"><span>&ndash;</span></div>
+                    <div class="window-dot"><span>&plus;</span></div>
                 </div>
             </div>
         </div>

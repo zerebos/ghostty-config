@@ -14,7 +14,8 @@
     function loadConfig(candidate: string) {
         let parsed;
         try {
-            parsed = parse(candidate);
+            // TODO: remove this assertions when the return type of parse is fixed
+            parsed = parse(candidate) as Parameters<typeof load>[0];
         }
         catch (parseError) {
             // eslint-disable-next-line no-console
@@ -36,7 +37,7 @@
 
     function pasteConfig() {
         if (pasteConfigText === "Pasted!") return;
-        window.navigator.clipboard.readText().then(text => {
+        void window.navigator.clipboard.readText().then(text => {
             pasteConfigText = "Pasted!";
             setTimeout(() => (pasteConfigText = "Clipboard"), 3000);
             loadConfig(text);
@@ -52,6 +53,7 @@
         const file = filePicker.files![0];
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
             const loadedText = event.target?.result?.toString();
             if (loadedText) loadConfig(loadedText);
         });
@@ -79,7 +81,7 @@
     function copyConfig() {
         if (copyConfigText === "Copied!") return;
         const config = stringifyConfig();
-        window.navigator.clipboard.writeText(config).then(() => {
+        void window.navigator.clipboard.writeText(config).then(() => {
             copyConfigText = "Copied!";
             setTimeout(() => (copyConfigText = "Clipboard"), 3000);
         });

@@ -20,6 +20,8 @@
     import Admonition from "$lib/components/Admonition.svelte";
     import Theme from "$lib/components/settings/Theme.svelte";
     import AppIconPreview from "$lib/views/AppIconPreview.svelte";
+    import type {HexColor} from "$lib/utils/colors";
+    import {resolve} from "$app/paths";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -30,7 +32,7 @@
 <Page {title}>
     {#if category}
         {#if category.id === "fonts"}
-            <Admonition size="1.5rem">The font playground has moved to a <a href="/app/font-playground/">separate page</a>.</Admonition>
+            <Admonition size="1.5rem">The font playground has moved to a <a href={resolve("/app/font-playground")}>separate page</a>.</Admonition>
         {:else if category.id === "colors"}
             <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
         {/if}
@@ -53,19 +55,19 @@
                     {#if i !== 0}<Separator />{/if}
                     <Item name={setting.name} note={setting.note}>
                         {#if setting.type === "switch"}
-                            <Switch bind:checked={config[setting.id as keyof typeof config]} />
+                            <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
                         {:else if setting.type === "text"}
-                            <Text bind:value={config[setting.id as keyof typeof config]} />
+                            <Text bind:value={config[setting.id as keyof typeof config] as string} />
                         {:else if setting.type === "number"}
-                            <Number bind:value={config[setting.id as keyof typeof config]} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
+                            <Number bind:value={config[setting.id as keyof typeof config] as number} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
                         {:else if setting.type === "dropdown"}
-                            <Dropdown bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
+                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} />
                         {:else if setting.type === "theme"}
-                            <Theme bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
+                            <Theme bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} />
                         {:else if setting.type === "color"}
-                            <Color defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config]} />
+                            <Color defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config] as HexColor} />
                         {:else if setting.type === "palette"}
-                            <Palette defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config]} />
+                            <Palette defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config] as HexColor[]} />
                         {/if}
                     </Item>
                 {/each}

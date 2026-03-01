@@ -8,6 +8,7 @@
     const selected = $derived(path === route);
 </script>
 
+<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 <a href={route} class="user-tab" class:selected>
     <div class="user-avatar">
         <img src={logo} alt="Ghostty Config Logo" />

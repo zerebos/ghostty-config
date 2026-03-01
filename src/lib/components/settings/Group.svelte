@@ -1,10 +1,18 @@
 <script lang="ts">
     import type {Snippet} from "svelte";
 
-    const {title = "", note = "", children, flex = ""}: {title?: string, note?: string, children: Snippet, flex?: string|number} = $props();
+    interface Props {
+        title?: string;
+        note?: string;
+        flex?: string|number;
+        borderless?: boolean;
+        children: Snippet;
+    }
+
+    const {title = "", note = "", children, flex = "", borderless = false}: Props = $props();
 </script>
 
-<div class="setting-group">
+<div class="setting-group" class:borderless style:flex={flex ? flex : ""}>
     <div class="group-info">
         {#if title}<h2>{title}</h2>{/if}
         {#if note}<h4>{note}</h4>{/if}
@@ -18,7 +26,7 @@
 .setting-group {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    /* flex: 1; */
     width: 100%;
 }
 
@@ -54,5 +62,13 @@ h4 {
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
     padding: 12px;
     margin-bottom: 12px;
+}
+
+.borderless .settings-items {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
 }
 </style>

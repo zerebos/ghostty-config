@@ -1,15 +1,19 @@
 <script lang="ts">
     type Props = {
         value: string;
-        options: (string | {name: string, value: string})[];
+        options: Array<string | {name: string, value: string}>;
+        placeholder?: string;
         change?: () => void;
     };
 
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), options, change}: Props = $props();
+    let {value = $bindable(), options, placeholder, change}: Props = $props();
 </script>
 
 <select bind:value onchange={change}>
+    {#if placeholder}
+        <option value="" disabled selected hidden>{placeholder}</option>
+    {/if}
     {#each options as option, i (i)}
         {#if typeof(option) === "string"}
             <option value={option}>{option}</option>

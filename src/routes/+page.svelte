@@ -3,6 +3,8 @@
     import logo from "$lib/images/icon.webp";
     import Admonition from "$lib/components/Admonition.svelte";
     import Group from "$lib/components/settings/Group.svelte";
+    import {resolve} from "$app/paths";
+    import Checkbox from "$lib/components/settings/Checkbox.svelte";
 </script>
 
 <Page title="Ghostty Config">
@@ -21,36 +23,30 @@
             <a href="https://github.com/zerebos/ghostty-config/issues" target="_blank" rel="noopener noreferrer">on GitHub</a>.
         </Admonition>
         <Group title="Recent Changes">
-            <ul class="recent-changes">
-                <li>Updated settings to match Ghostty 1.2 (and 1.3-nightly)</li>
-                <li>Designed a brand new logo by hand using <a href="https://www.photopea.com/" target="_blank" rel="noopener noreferrer">Photopea</a></li>
-                <li>Added new custom app icon preview on the <a href="/settings/macos">macOS page</a></li>
-                <li>New script for easier updates to future Ghostty versions</li>
-                <li>Fixed old settings that had outdated options</li>
-                <li>Fix extra line breaks when exporting to clipboard by <a href="https://github.com/reussio" target="_blank" rel="noopener noreferrer">@reussio</a></li>
-                <li>Better theme sorting by <a href="https://github.com/adamalston" target="_blank" rel="noopener noreferrer">@adamalston</a></li>
+            <ul>
+                <li><Checkbox checked />New keybind builder with sequence support</li>
+                <li><Checkbox checked />Updated settings to match Ghostty 1.2 (and 1.3-nightly)</li>
+                <li><Checkbox checked /><span>Designed a brand new logo by hand using <a href="https://www.photopea.com/" target="_blank" rel="noopener noreferrer">Photopea</a></span></li>
+                <li><Checkbox checked /><span>Added new custom app icon preview on the <a href={resolve("/settings/macos")}>macOS page</a></span></li>
+                <li><Checkbox checked />New script for easier updates to future Ghostty versions</li>
+                <li><Checkbox checked />Fixed old settings that had outdated options</li>
+                <li><Checkbox checked /><span>Fix extra line breaks exporting to clipboard by <a href="https://github.com/reussio" target="_blank" rel="noopener noreferrer">@reussio</a></span></li>
+                <li><Checkbox checked /><span>Better theme sorting by <a href="https://github.com/adamalston" target="_blank" rel="noopener noreferrer">@adamalston</a></span></li>
             </ul>
         </Group>
-        <div class="group-wrapper">
-            <Group title="Roadmap" flex={1}>
-                <ul>
-                    <li>Validation of keybindings</li>
-                    <li>Command palette builder</li>
-                    <li>Help documentation</li>
-                    <li>Unit testing import/export</li>
-                    <li>Unify color scheme</li>
-                    <li>Refactor & cleanup code</li>
-                </ul>
-            </Group>
-            <Group title="Potential Ideas">
-                <ul>
-                    <li>Custom setting types to more closely match Ghostty's config</li>
-                    <li>Add a way to reset individual settings</li>
-                    <li>Change color picker from modal to popout</li>
-                    <li>A ghostty-web terminal preview and playground</li>
-                </ul>
-            </Group>
-        </div>
+        <Group title="Roadmap">
+            <ul>
+                <li><Checkbox />Command palette builder</li>
+                <li><Checkbox />Help documentation</li>
+                <li><Checkbox />Unit testing import/export</li>
+                <li><Checkbox />Unify color scheme</li>
+                <li><Checkbox />Refactor & cleanup code</li>
+                <li><Checkbox />Custom setting types to more closely match Ghostty's config</li>
+                <li><Checkbox />Add a way to reset individual settings</li>
+                <li><Checkbox />Change color picker from modal to popout</li>
+                <li><Checkbox />A ghostty-web terminal preview and playground</li>
+            </ul>
+        </Group>
     </section>
 </Page>
 
@@ -106,13 +102,6 @@
         font-weight: 600;
     }
 
-    sup {
-        position: absolute;
-        color: var(--font-color-accent);
-        right: -11px;
-        top: -5px;
-    }
-
     .user-subtext {
         display: flex;
         justify-content: center;
@@ -120,17 +109,11 @@
         gap: 3px;
     }
 
-    .group-wrapper {
-        display: flex;
-        width: 100%;
-        gap: 12px;
-    }
-
-    ul,
-    .group-wrapper ul {
-        list-style: "↪ ";
-        /* list-style: disclosure-closed; */
-        padding-left: 15px;
+    ul {
+        /* list-style: "↪ "; */
+        /* list-style: "🠶 "; */
+        list-style: none;
+        padding-left: 0;
         margin: 0;
         display: flex;
         flex-direction: column;
@@ -138,14 +121,10 @@
         justify-content: space-evenly;
     }
 
-    .recent-changes li {
+    ul li {
         margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-
-    /* code {
-        background: var(--bg-input-focus);
-        padding: 2px 4px;
-        border: 1px solid var(--border-input);
-        border-radius: var(--radius-level-4);
-    } */
 </style>
