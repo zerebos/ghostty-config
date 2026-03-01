@@ -16,14 +16,28 @@
 
 
     /* Background levels */
-    --bg-level-1: #2C2733;
-    --bg-level-2: #2F2935;
-    --bg-level-3: #332D38;
-    --bg-level-4: #39343F;
-    --bg-separator: #39333F;
+    /* --bg-level-1: #2C2733; */
+    /* --bg-level-1: #2D2C3A; */
+    /*
+    level #313138
+    border outer #55555A
+    border inner #3E3E44
+    separator #3D3D43
+    */
+    --bg-level-1: #2D2D34;
+    /* --bg-level-2: #2F2935; */
+    --bg-level-2: #313138;
+    /* --bg-level-3: #332D38; */
+    --bg-level-3: #36363D;
+    /* --bg-level-4: #39343F; */
+    --bg-level-4: #3E3E43;
+    /* --bg-separator: #39333F; */
+    --bg-separator: #3D3D43;
     --bg-input-focus: #1F1E1F;
     --bg-modal: #231E2A;
     --bg-basic-button: #635F68;
+
+    --bg-level-5: #4A4A50;
 
     /* Corresponding border levels */
     --border-level-1: #000000;
