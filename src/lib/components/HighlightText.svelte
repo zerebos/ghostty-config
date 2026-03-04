@@ -37,7 +37,7 @@
 
 <style>
     .highlight {
-        color: white;
+        color: var(--color-selected, #4a9eff);
         font-weight: 600;
     }
 </style>

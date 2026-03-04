@@ -1,8 +1,15 @@
 <script lang="ts">
-    import search from "$lib/stores/search.svelte";
+    import search, {clearSearch} from "$lib/stores/search.svelte";
     import {onMount} from "svelte";
 
     let inputRef: HTMLInputElement | undefined = $state();
+    let isMac = $state(false);
+
+    onMount(() => {
+        isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+        window.addEventListener("keydown", handleKeydown);
+        return () => window.removeEventListener("keydown", handleKeydown);
+    });
 
     function handleKeydown(e: KeyboardEvent) {
         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -14,20 +21,15 @@
     function handleInputKeydown(e: KeyboardEvent) {
         if (e.key === "Escape") {
             e.preventDefault();
-            search.query = "";
+            clearSearch();
             inputRef?.blur();
         }
     }
 
     function clearInput() {
-        search.query = "";
+        clearSearch();
         inputRef?.focus();
     }
-
-    onMount(() => {
-        window.addEventListener("keydown", handleKeydown);
-        return () => window.removeEventListener("keydown", handleKeydown);
-    });
 </script>
 
 <div class="search-container">
@@ -66,6 +68,13 @@
                 />
             </svg>
         </button>
+    {:else}
+        <kbd
+            class="shortcut-hint"
+            aria-label="Press {isMac ? 'Command' : 'Control'} plus K to focus search"
+        >
+            {isMac ? "⌘K" : "Ctrl+K"}
+        </kbd>
     {/if}
 </div>
 
@@ -120,5 +129,17 @@
 
     .clear-button:hover {
         color: var(--font-color, #fff);
+    }
+
+    .shortcut-hint {
+        font-family: inherit;
+        font-size: 0.75rem;
+        color: var(--font-color-muted, #888);
+        background: var(--bg-level-3, rgba(0, 0, 0, 0.3));
+        padding: 2px 6px;
+        border-radius: var(--radius-level-4, 4px);
+        border: 1px solid var(--border-level-1, rgba(255, 255, 255, 0.1));
+        flex-shrink: 0;
+        user-select: none;
     }
 </style>

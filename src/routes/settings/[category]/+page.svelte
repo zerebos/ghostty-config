@@ -28,7 +28,7 @@
     const category = $derived(settings.find((c) => c.id === $page.params.category));
     const title = $derived(category?.name ?? $page.params.category);
 
-    let highlightedElement: HTMLDivElement | null = $state(null);
+    let highlightTimeout: number | null = null;
 
     function smoothScrollTo(element: HTMLElement, duration: number = 300) {
         const container = document.querySelector(".content-container") as HTMLElement;
@@ -65,6 +65,10 @@
         const highlightedId = search.highlightedSettingId;
         if (!highlightedId) return;
 
+        if (highlightTimeout !== null) {
+            clearTimeout(highlightTimeout);
+        }
+
         await tick();
         await new Promise((r) => setTimeout(r, 50));
 
@@ -75,9 +79,11 @@
         if (element) {
             smoothScrollTo(element, 200);
             element.classList.add("highlight-flash");
-            setTimeout(() => {
-                element.classList.remove("highlight-flash");
-                clearHighlightedSetting();
+            highlightTimeout = window.setTimeout(() => {
+                if (search.highlightedSettingId === highlightedId) {
+                    element.classList.remove("highlight-flash");
+                    clearHighlightedSetting();
+                }
             }, 2000);
         }
     }
