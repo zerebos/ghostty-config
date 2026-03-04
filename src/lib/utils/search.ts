@@ -48,7 +48,7 @@ export interface FlattenedItem {
     setting?: MatchedSetting;
 }
 
-function getMatchRanges(text: string, query: string): MatchRange[] {
+export function getMatchRanges(text: string, query: string): MatchRange[] {
     if (!query) return [];
 
     const ranges: MatchRange[] = [];
@@ -66,7 +66,7 @@ function getMatchRanges(text: string, query: string): MatchRange[] {
     return ranges;
 }
 
-function hasMatch(text: string, query: string): boolean {
+export function hasMatch(text: string, query: string): boolean {
     if (!query) return false;
     return text.toLowerCase().includes(query.toLowerCase());
 }
@@ -76,24 +76,22 @@ export function searchSettings(
     settingsData: SettingsPanel[],
     externalTabs: ExternalTab[] = []
 ): SearchResult[] {
-    if (!query.trim()) return [];
+    const q = query.trim();
+    if (!q) return [];
 
     const results: SearchResult[] = [];
 
     for (const panel of settingsData) {
-        const categoryMatchRanges = getMatchRanges(panel.name, query);
+        const categoryMatchRanges = getMatchRanges(panel.name, q);
         const matchedSettings: MatchedSetting[] = [];
 
         for (const group of panel.groups) {
             for (const setting of group.settings) {
-                if (
-                    hasMatch(setting.name, query) ||
-                    (setting.note && hasMatch(setting.note, query))
-                ) {
+                if (hasMatch(setting.name, q) || (setting.note && hasMatch(setting.note, q))) {
                     matchedSettings.push({
                         id: setting.id,
                         name: setting.name,
-                        matchRanges: getMatchRanges(setting.name, query)
+                        matchRanges: getMatchRanges(setting.name, q)
                     });
                 }
             }
@@ -112,7 +110,7 @@ export function searchSettings(
     }
 
     for (const tab of externalTabs) {
-        const matchRanges = getMatchRanges(tab.name, query);
+        const matchRanges = getMatchRanges(tab.name, q);
         if (matchRanges.length > 0) {
             results.push({
                 type: "external",

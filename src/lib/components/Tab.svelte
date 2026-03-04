@@ -10,22 +10,31 @@
         route?: string;
         highlightRanges?: MatchRange[];
         label?: string;
+        selected?: boolean;
     }
-    const {children, icon, route = "", highlightRanges = [], label = ""}: Props = $props();
+    const {
+        children,
+        icon,
+        route = "",
+        highlightRanges = [],
+        label = "",
+        selected = false
+    }: Props = $props();
     const path = $derived(page.url.pathname);
 
     const isExternal = $derived(route.startsWith("http"));
     const target = $derived(isExternal ? "_blank" : "");
     const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
-    const selected = $derived(path === route);
+    const pageSelected = $derived(path === route);
+    const isSelected = $derived(pageSelected || selected);
 
     const hasHighlight = $derived(highlightRanges.length > 0);
 </script>
 
 <!-- Why is eslint like this? -->
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/first-attribute-linebreak -->
-<a href={route} class="nav-tab" class:selected {target} {rel}>
+<a href={route} class="nav-tab" class:isSelected {target} {rel}>
     <div class="tab-icon">{@render icon()}</div>
     <div class="tab-label">
         {#if hasHighlight && label}
@@ -63,7 +72,7 @@
         text-decoration: none;
     }
 
-    .nav-tab.selected {
+    .nav-tab.isSelected {
         background: var(--color-selected);
     }
 

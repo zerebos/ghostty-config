@@ -13,11 +13,21 @@
     async function handleClick() {
         setHighlightedSetting(setting.id);
         clearSearch();
+        // Restore focus to search input before navigation
+        const searchInput = document.querySelector(".search-input") as HTMLElement | null;
+        searchInput?.focus();
         await goto(categoryRoute);
     }
 </script>
 
-<button type="button" class="sub-item" class:selected onclick={handleClick}>
+<button
+    type="button"
+    class="sub-item"
+    class:selected
+    onclick={handleClick}
+    role="option"
+    aria-selected={selected}
+>
     <HighlightText text={setting.name} ranges={setting.matchRanges} />
 </button>
 

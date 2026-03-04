@@ -76,8 +76,49 @@
     const isSearching = $derived(search.query.trim().length > 0);
     const hasResults = $derived(flattenedResults.length > 0);
 
+    // Track when query changes to reset selectedIndex
+    let lastQuery = $state(search.query);
+
+    $effect(() => {
+        const currentQuery = search.query;
+        const totalItems = flattenedResults.length;
+
+        // If query changed, reset to 0
+        if (currentQuery !== lastQuery) {
+            lastQuery = currentQuery;
+            if (search.selectedIndex !== 0) {
+                search.selectedIndex = 0;
+            }
+        } else if (totalItems > 0 && search.selectedIndex >= totalItems) {
+            // Clamp if index is out of bounds
+            search.selectedIndex = totalItems - 1;
+        } else if (totalItems === 0 && search.selectedIndex !== 0) {
+            search.selectedIndex = 0;
+        }
+    });
+
+    let searchNavContainer: HTMLElement | undefined = $state();
+
+    function scrollSelectedIntoView(index: number) {
+        if (!searchNavContainer) return;
+        const items = searchNavContainer.querySelectorAll('[role="option"]');
+        const selectedItem = items[index] as HTMLElement | undefined;
+        if (selectedItem) {
+            selectedItem.scrollIntoView({block: "nearest", behavior: "smooth"});
+        }
+    }
+
     function handleKeydown(e: KeyboardEvent) {
         if (!isSearching) return;
+
+        const activeElement = document.activeElement;
+        const isInputActive =
+            activeElement?.tagName === "INPUT" ||
+            activeElement?.tagName === "TEXTAREA" ||
+            activeElement?.tagName === "SELECT" ||
+            activeElement?.getAttribute("contenteditable") === "true";
+
+        if (isInputActive && !activeElement?.classList.contains("search-input")) return;
 
         const totalItems = flattenedResults.length;
         if (totalItems === 0) return;
@@ -85,12 +126,22 @@
         if (e.key === "ArrowDown") {
             e.preventDefault();
             search.selectedIndex = (search.selectedIndex + 1) % totalItems;
+            scrollSelectedIntoView(search.selectedIndex);
         } else if (e.key === "ArrowUp") {
             e.preventDefault();
             search.selectedIndex = (search.selectedIndex - 1 + totalItems) % totalItems;
+            scrollSelectedIntoView(search.selectedIndex);
         } else if (e.key === "Enter") {
             e.preventDefault();
             selectItem(search.selectedIndex);
+        } else if (e.key === "Tab" && !e.shiftKey) {
+            // Allow tab to move focus out of search results
+            clearSearch();
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            clearSearch();
+            const searchInput = document.querySelector(".search-input") as HTMLElement | null;
+            searchInput?.focus();
         }
     }
 
@@ -98,11 +149,22 @@
         const item = flattenedResults[index];
         if (!item) return;
 
+        const route = item.result.categoryRoute;
+        const isExternal = item.type === "external" || route.startsWith("http");
+
         if (item.type === "setting" && item.setting) {
             setHighlightedSetting(item.setting.id);
-            await goto(item.result.categoryRoute);
+            if (isExternal) {
+                globalThis.open(route, "_blank", "noopener noreferrer");
+            } else {
+                await goto(route);
+            }
         } else {
-            await goto(item.result.categoryRoute);
+            if (isExternal) {
+                globalThis.open(route, "_blank", "noopener noreferrer");
+            } else {
+                await goto(route);
+            }
         }
         clearSearch();
     }
@@ -154,43 +216,56 @@
         <nav id="categories">
             {#if isSearching}
                 {#if hasResults}
-                    {#each flattenedResults as item, index (`${item.result.categoryId}-${item.type}-${item.setting?.id || ""}`)}
-                        {#if item.type === "category" || item.type === "external"}
-                            <div class="search-result-group">
-                                <Tab
-                                    route={item.result.categoryRoute}
-                                    highlightRanges={item.result.categoryMatchRanges}
-                                    label={item.result.categoryName}
+                    <div
+                        bind:this={searchNavContainer}
+                        role="listbox"
+                        aria-label="Search results"
+                        class="search-results-list"
+                    >
+                        {#each flattenedResults as item, index (`${item.result.categoryId}-${item.type}-${item.setting?.id || ""}`)}
+                            {#if item.type === "category" || item.type === "external"}
+                                <div
+                                    class="search-result-group"
+                                    role="option"
+                                    aria-selected={index === search.selectedIndex}
                                 >
-                                    {#snippet icon()}
-                                        {#if isExternalCategory(item.result.categoryId)}
-                                            <div
-                                                class="icon-wrapper"
-                                                class:github={item.result.categoryId === "github"}
-                                            >
+                                    <Tab
+                                        route={item.result.categoryRoute}
+                                        highlightRanges={item.result.categoryMatchRanges}
+                                        label={item.result.categoryName}
+                                        selected={index === search.selectedIndex}
+                                    >
+                                        {#snippet icon()}
+                                            {#if isExternalCategory(item.result.categoryId)}
+                                                <div
+                                                    class="icon-wrapper"
+                                                    class:github={item.result.categoryId ===
+                                                        "github"}
+                                                >
+                                                    <img
+                                                        src={getResultIcon(item.result.categoryId)}
+                                                        alt={item.result.categoryName}
+                                                    />
+                                                </div>
+                                            {:else}
                                                 <img
                                                     src={getResultIcon(item.result.categoryId)}
                                                     alt={item.result.categoryName}
                                                 />
-                                            </div>
-                                        {:else}
-                                            <img
-                                                src={getResultIcon(item.result.categoryId)}
-                                                alt={item.result.categoryName}
-                                            />
-                                        {/if}
-                                    {/snippet}
-                                    {item.result.categoryName}
-                                </Tab>
-                            </div>
-                        {:else if item.type === "setting" && item.setting}
-                            <SearchSubItem
-                                setting={item.setting}
-                                categoryRoute={item.result.categoryRoute}
-                                selected={index === search.selectedIndex}
-                            />
-                        {/if}
-                    {/each}
+                                            {/if}
+                                        {/snippet}
+                                        {item.result.categoryName}
+                                    </Tab>
+                                </div>
+                            {:else if item.type === "setting" && item.setting}
+                                <SearchSubItem
+                                    setting={item.setting}
+                                    categoryRoute={item.result.categoryRoute}
+                                    selected={index === search.selectedIndex}
+                                />
+                            {/if}
+                        {/each}
+                    </div>
                 {:else}
                     <div class="no-results">
                         <svg
