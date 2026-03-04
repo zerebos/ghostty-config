@@ -15,23 +15,14 @@
     $effect(() => {app.title = title;});
 
     let isScrolling = $state(false);
-    let bufferHeight = $state(53);
 
     function containerScroll(event: Event) {
         isScrolling = (event.target as HTMLDivElement).scrollTop > 0;
-        const scrollerPos = (event.target as HTMLDivElement).scrollTop;
-        if (scrollerPos >= 53) {
-            bufferHeight = 0;
-        }
-        else {
-            bufferHeight = 53 - scrollerPos;
-        }
     }
 
     let scroller: HTMLDivElement|undefined = $state();
     onNavigate(() => {
         isScrolling = false;
-        bufferHeight = 53;
         if (scroller) scroller.scrollTop = 0;
     });
 </script>
@@ -43,7 +34,7 @@
         <History /><h1>{app.title}</h1>
     </div>
     {#key app.title}
-    <div class="content-container" in:fly={{y: 30, duration: 200}} bind:this={scroller} style:margin-top="{bufferHeight}px" onscroll={containerScroll}>
+    <div class="content-container" in:fly={{y: 30, duration: 200}} bind:this={scroller} onscroll={containerScroll}>
         {@render children()}
     </div>
     {/key}
@@ -90,7 +81,8 @@
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    padding: 8px 20px 10px 20px;
+    margin: 54px 0px 0px 0px;
+    padding: 7px 20px 10px 20px;
     flex: 1;
 }
 </style>
