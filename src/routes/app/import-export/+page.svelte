@@ -5,10 +5,30 @@
     import Separator from "$lib/components/settings/Separator.svelte";
     import {diff, load} from "$lib/stores/config.svelte";
     import parse from "$lib/utils/parse";
+    import {isDesktop, readGhosttyConfig, writeGhosttyConfig, getGhosttyConfigPath} from "$lib/wails";
+    import {onMount} from "svelte";
 
     let pasteConfigText = $state("Clipboard");
     let copyConfigText = $state("Clipboard");
 
+    let desktop = $state(false);
+    let configPath = $state("");
+    let readConfigText = $state("Load from disk");
+    let writeConfigText = $state("Save to disk");
+
+    onMount(async () => {
+        desktop = isDesktop();
+        if (desktop) {
+            try {
+                configPath = await getGhosttyConfigPath();
+            }
+            catch (err) {
+                // eslint-disable-next-line no-console
+                console.error("Could not resolve Ghostty config path:", err);
+                configPath = "~/.config/ghostty/config";
+            }
+        }
+    });
 
     // TODO: move alert() to real modals
     function loadConfig(candidate: string) {
@@ -60,6 +80,21 @@
         reader.readAsText(file);
     }
 
+    async function loadFromDisk() {
+        if (readConfigText === "Loaded!") return;
+        try {
+            const text = await readGhosttyConfig();
+            if (text) loadConfig(text);
+            readConfigText = "Loaded!";
+            setTimeout(() => (readConfigText = "Load from disk"), 3000);
+        }
+        catch (err) {
+            // eslint-disable-next-line no-console
+            console.error(err);
+            alert("Could not read Ghostty config from disk. Please open an issue on GitHub!");
+        }
+    }
+
     // Move to module
     function stringifyConfig() {
         const config = diff();
@@ -99,6 +134,20 @@
         link.remove();
         URL.revokeObjectURL(url);
     }
+
+    async function saveToDisk() {
+        if (writeConfigText === "Saved!") return;
+        try {
+            await writeGhosttyConfig(stringifyConfig());
+            writeConfigText = "Saved!";
+            setTimeout(() => (writeConfigText = "Save to disk"), 3000);
+        }
+        catch (err) {
+            // eslint-disable-next-line no-console
+            console.error(err);
+            alert("Could not save Ghostty config to disk. Please open an issue on GitHub!");
+        }
+    }
 </script>
 
 <Page title="Import & Export">
@@ -123,6 +172,9 @@
                 <button type="button" onclick={pasteConfig} title="Paste">{pasteConfigText}</button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
                 <button type="button" onclick={openFilePicker} title="Upload">File...</button>
+                {#if desktop}
+                    <button type="button" class="desktop-btn" onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</button>
+                {/if}
             </div>
         </Item>
         <Separator />
@@ -130,8 +182,17 @@
             <div class="button-group">
                 <button type="button" onclick={copyConfig} title="Copy">{copyConfigText}</button>
                 <button type="button" onclick={downloadConfig} title="Download">File...</button>
+                {#if desktop}
+                    <button type="button" class="desktop-btn" onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</button>
+                {/if}
             </div>
         </Item>
+        {#if desktop && configPath}
+            <Separator />
+            <Item name="Config path">
+                <span class="config-path">{configPath}</span>
+            </Item>
+        {/if}
     </Group>
 </Page>
 
@@ -200,5 +261,16 @@ button {
 
 button:active {
     filter: brightness(115%);
+}
+
+.desktop-btn {
+    background: var(--color-input-accent);
+}
+
+.config-path {
+    font-family: var(--font-family-mono);
+    font-size: 0.9em;
+    color: var(--font-color-muted);
+    user-select: text;
 }
 </style>

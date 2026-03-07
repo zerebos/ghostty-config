@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "Ghostty Config",
+  "outputfilename": "ghostty-config",
+  "frontend": {
+    "dir": ".",
+    "installCommand": "npm install",
+    "buildCommand": "npm run build:desktop",
+    "devCommand": "npm run dev -- --port $PORT",
+    "outputDir": "build"
+  },
+  "info": {
+    "companyName": "Zerebos",
+    "productName": "Ghostty Config",
+    "productVersion": "0.2.0",
+    "copyright": "Copyright © 2024 Zerebos",
+    "comments": "A beautiful config generator for Ghostty terminal."
+  },
+  "version": "2"
+}

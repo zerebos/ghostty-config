@@ -26,7 +26,8 @@
 
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
-    import type {Snippet} from "svelte";
+    import {isDesktop, windowMinimise, windowToggleMaximise, windowQuit} from "$lib/wails";
+    import {onMount, type Snippet} from "svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -53,8 +54,12 @@
 
     const {children}: {children: Snippet} = $props();
 
+    let desktop = $state(false);
 
-
+    onMount(() => {
+        desktop = isDesktop();
+        if (desktop) document.body.classList.add("desktop-mode");
+    });
 
     const htmlTitle = $derived.by(() => {
         const name = app.title === "Ghostty Config" ? "" : app.title;
@@ -69,14 +74,23 @@
 </svelte:head>
 
 <!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
-<div class="app-window" style={cssConfigVars}>
+<div class="app-window" class:desktop style={cssConfigVars}>
     <div id="sidebar">
-        <div class="sidebar-header">
+        <!-- In desktop mode the sidebar header doubles as the draggable title bar. -->
+        <div class="sidebar-header" style:--wails-draggable={desktop ? "drag" : undefined}>
             <div class="window-actions-container">
                 <div class="window-actions">
-                    <div class="window-dot"><span>&times;</span></div>
-                    <div class="window-dot"><span>&ndash;</span></div>
-                    <div class="window-dot"><span>&plus;</span></div>
+                    {#if desktop}
+                        <!-- Functional window controls in desktop mode -->
+                        <button type="button" class="window-dot" onclick={windowQuit} title="Close" aria-label="Close"><span>&times;</span></button>
+                        <button type="button" class="window-dot" onclick={windowMinimise} title="Minimise" aria-label="Minimise"><span>&ndash;</span></button>
+                        <button type="button" class="window-dot" onclick={windowToggleMaximise} title="Maximise" aria-label="Maximise"><span>&plus;</span></button>
+                    {:else}
+                        <!-- Decorative dots on web -->
+                        <div class="window-dot"><span>&times;</span></div>
+                        <div class="window-dot"><span>&ndash;</span></div>
+                        <div class="window-dot"><span>&plus;</span></div>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -303,9 +317,23 @@
     background: linear-gradient(#9C45A9, #3B1E68);
 }
 
-#categories .icon-wrapper.github img {
-    filter: invert(100%);
-    height: 18px;
-    width: 18px;
+/* --- Desktop (Wails) mode ------------------------------------------ */
+
+/* When inside the Wails shell the window IS the whole viewport. */
+.app-window.desktop {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+}
+
+/* Dots become interactive buttons; reset default button appearance. */
+.app-window button.window-dot {
+    cursor: pointer;
+    appearance: none;
+    -webkit-app-region: no-drag;
 }
 </style>
+
