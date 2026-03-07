@@ -23,6 +23,45 @@ if (dev) {
 
 const config = $state(Object.assign({}, defaults));
 
+const STORAGE_KEY = "ghostty-config";
+
+function saveToStorage() {
+    const d = diff();
+    if (Object.keys(d).length === 0) {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+    else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+    }
+}
+
+function loadFromStorage() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    try {
+        const parsed = JSON.parse(saved) as Partial<typeof config>;
+        // Convert kebab-case keys back to camelCase
+        const converted: Record<string, unknown> = {};
+        for (const key in parsed) {
+            const camelKey = key.replaceAll(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+            converted[camelKey] = parsed[key as keyof typeof parsed];
+        }
+        load(converted as Partial<typeof config>);
+    }
+    catch {
+        // Ignore corrupt data
+    }
+}
+
+loadFromStorage();
+
+$effect.root(() => {
+    $effect(() => {
+        // Access config deeply to track all changes
+        JSON.stringify(config);
+        saveToStorage();
+    });
+});
 
 export function keyToConfig(key: string) {
     return key.replaceAll(/([A-Z])/g, "-$1").toLowerCase();
