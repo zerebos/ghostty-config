@@ -5,9 +5,27 @@
     import Separator from "$lib/components/settings/Separator.svelte";
     import {diff, load} from "$lib/stores/config.svelte";
     import parse from "$lib/utils/parse";
+    import {encodeConfig, decodeConfig} from "$lib/utils/share";
+    import {page} from "$app/state";
 
     let pasteConfigText = $state("Clipboard");
     let copyConfigText = $state("Clipboard");
+    let shareLinkText = $state("Share Link");
+
+    let sharedConfigPreview = $state<string | null>(null);
+    let showShareModal = $state(false);
+
+    $effect(() => {
+        const shareParam = page.url.searchParams.get("share");
+        if (!shareParam) return;
+        try {
+            sharedConfigPreview = decodeConfig(shareParam);
+            showShareModal = true;
+        }
+        catch {
+            // ignore malformed share params
+        }
+    });
 
 
     // TODO: move alert() to real modals
@@ -87,6 +105,28 @@
         });
     }
 
+    function shareConfig() {
+        if (shareLinkText === "Copied!") return;
+        const config = stringifyConfig();
+        const encoded = encodeConfig(config);
+        const shareUrl = `${window.location.origin}${window.location.pathname}?share=${encoded}`;
+        void window.navigator.clipboard.writeText(shareUrl).then(() => {
+            shareLinkText = "Copied!";
+            setTimeout(() => (shareLinkText = "Share Link"), 3000);
+        });
+    }
+
+    function importSharedConfig() {
+        if (sharedConfigPreview) loadConfig(sharedConfigPreview);
+        closeShareModal();
+    }
+
+    function closeShareModal() {
+        showShareModal = false;
+        sharedConfigPreview = null;
+        window.history.replaceState(null, "", window.location.pathname);
+    }
+
     function downloadConfig() {
         const file = new File([stringifyConfig()], "config", {type: "text/plain"});
         const link = document.createElement("a");
@@ -100,6 +140,8 @@
         URL.revokeObjectURL(url);
     }
 </script>
+
+<svelte:window onkeydown={(e: KeyboardEvent) => {if (showShareModal && e.key === "Escape") closeShareModal();}} />
 
 <Page title="Import & Export">
     <Group flex={1}>
@@ -130,10 +172,42 @@
             <div class="button-group">
                 <button type="button" onclick={copyConfig} title="Copy">{copyConfigText}</button>
                 <button type="button" onclick={downloadConfig} title="Download">File...</button>
+                <button type="button" onclick={shareConfig} title="Copy share link" class="share-btn">{shareLinkText}</button>
             </div>
         </Item>
     </Group>
 </Page>
+
+{#if showShareModal}
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div class="share-modal-backdrop" role="presentation" onclick={closeShareModal}>
+    <div class="share-modal" role="dialog" aria-modal="true" aria-label="Shared Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
+        <div class="share-modal-header">
+            <span class="share-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                </svg>
+            </span>
+            <h2>Shared Config</h2>
+            <button type="button" class="close-btn" onclick={closeShareModal} aria-label="Dismiss">&times;</button>
+        </div>
+        <p class="share-modal-desc">Someone shared their Ghostty config with you. Preview it below and import it if you'd like.</p>
+        <div class="share-preview">
+            {#each (sharedConfigPreview ?? "").split("\n") as line, i (i)}
+                <div class="row">{line}</div>
+            {/each}
+        </div>
+        <div class="share-modal-actions">
+            <button type="button" class="action-btn primary" onclick={importSharedConfig}>Import Config</button>
+            <button type="button" class="action-btn" onclick={closeShareModal}>Dismiss</button>
+        </div>
+    </div>
+</div>
+{/if}
 
 <style>
 .preview {
@@ -200,5 +274,109 @@ button {
 
 button:active {
     filter: brightness(115%);
+}
+
+.share-btn {
+    background: var(--color-input-accent);
+}
+
+.share-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: var(--radius-level-1);
+}
+
+.share-modal {
+    background: var(--bg-modal);
+    border: 1px solid var(--border-level-3);
+    border-radius: var(--radius-level-2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    width: 90%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    max-height: 80%;
+}
+
+.share-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.share-modal-header h2 {
+    flex: 1;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.share-icon {
+    display: flex;
+    align-items: center;
+    color: var(--color-input-accent);
+}
+
+.close-btn {
+    background: transparent;
+    box-shadow: none;
+    font-size: 1.4rem;
+    padding: 0 4px;
+    line-height: 1;
+    color: var(--font-color-muted);
+}
+
+.close-btn:hover {
+    color: var(--font-color);
+}
+
+.share-modal-desc {
+    color: var(--font-color-muted);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.share-preview {
+    background: var(--config-bg);
+    font-family: var(--config-font-family);
+    font-size: var(--config-font-size);
+    color: var(--config-fg);
+    overflow-y: auto;
+    padding: 8px;
+    border-radius: var(--radius-level-3);
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    flex: 1;
+    user-select: text;
+    min-height: 80px;
+    max-height: 280px;
+}
+
+.share-preview .row {
+    display: block;
+    white-space: pre;
+}
+
+.share-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    padding: 4px 16px;
+    font-size: 1rem;
+}
+
+.action-btn.primary {
+    background: var(--color-input-accent);
 }
 </style>
