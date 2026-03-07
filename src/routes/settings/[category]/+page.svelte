@@ -53,7 +53,7 @@
                 {/if}
                 {#each group.settings as setting, i (setting.id)}
                     {#if i !== 0}<Separator />{/if}
-                    <Item name={setting.name} note={setting.note}>
+                    <Item name={setting.name} note={setting.note} settingId={setting.id}>
                         {#if setting.type === "switch"}
                             <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
                         {:else if setting.type === "text"}
