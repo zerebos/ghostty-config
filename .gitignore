@@ -28,3 +28,6 @@ vite.config.ts.timestamp-*
 
 # Go / Wails
 /wailsjs
+
+# npm lockfile (project uses Bun)
+package-lock.json
