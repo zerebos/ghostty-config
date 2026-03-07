@@ -5,20 +5,20 @@
     import Separator from "$lib/components/settings/Separator.svelte";
     import {diff, load} from "$lib/stores/config.svelte";
     import parse from "$lib/utils/parse";
-    import {isDesktop, readGhosttyConfig, writeGhosttyConfig, getGhosttyConfigPath} from "$lib/wails";
+    import {DESKTOP, readGhosttyConfig, writeGhosttyConfig, getGhosttyConfigPath} from "$lib/wails";
     import {onMount} from "svelte";
 
     let pasteConfigText = $state("Clipboard");
     let copyConfigText = $state("Clipboard");
 
-    let desktop = $state(false);
     let configPath = $state("");
     let readConfigText = $state("Load from disk");
     let writeConfigText = $state("Save to disk");
 
+    // DESKTOP is a build-time constant; the `if` body is tree-shaken out of
+    // the web bundle entirely when building with the default Vite mode.
     onMount(async () => {
-        desktop = isDesktop();
-        if (desktop) {
+        if (DESKTOP) {
             try {
                 configPath = await getGhosttyConfigPath();
             }
@@ -29,7 +29,6 @@
             }
         }
     });
-
     // TODO: move alert() to real modals
     function loadConfig(candidate: string) {
         let parsed;
@@ -172,7 +171,7 @@
                 <button type="button" onclick={pasteConfig} title="Paste">{pasteConfigText}</button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
                 <button type="button" onclick={openFilePicker} title="Upload">File...</button>
-                {#if desktop}
+                {#if DESKTOP}
                     <button type="button" class="desktop-btn" onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</button>
                 {/if}
             </div>
@@ -182,12 +181,12 @@
             <div class="button-group">
                 <button type="button" onclick={copyConfig} title="Copy">{copyConfigText}</button>
                 <button type="button" onclick={downloadConfig} title="Download">File...</button>
-                {#if desktop}
+                {#if DESKTOP}
                     <button type="button" class="desktop-btn" onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</button>
                 {/if}
             </div>
         </Item>
-        {#if desktop && configPath}
+        {#if DESKTOP && configPath}
             <Separator />
             <Item name="Config path">
                 <span class="config-path">{configPath}</span>

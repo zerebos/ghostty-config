@@ -26,8 +26,8 @@
 
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
-    import {isDesktop, windowMinimise, windowToggleMaximise, windowQuit} from "$lib/wails";
-    import {onMount, type Snippet} from "svelte";
+    import {DESKTOP, windowMinimise, windowToggleMaximise, windowQuit} from "$lib/wails";
+    import type {Snippet} from "svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -54,13 +54,6 @@
 
     const {children}: {children: Snippet} = $props();
 
-    let desktop = $state(false);
-
-    onMount(() => {
-        desktop = isDesktop();
-        if (desktop) document.body.classList.add("desktop-mode");
-    });
-
     const htmlTitle = $derived.by(() => {
         const name = app.title === "Ghostty Config" ? "" : app.title;
         let title = "Ghostty Config";
@@ -73,14 +66,16 @@
     <title>{htmlTitle}</title>
 </svelte:head>
 
+<svelte:body class:desktop-mode={DESKTOP} />
+
 <!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
-<div class="app-window" class:desktop style={cssConfigVars}>
+<div class="app-window" class:desktop={DESKTOP} style={cssConfigVars}>
     <div id="sidebar">
         <!-- In desktop mode the sidebar header doubles as the draggable title bar. -->
-        <div class="sidebar-header" style:--wails-draggable={desktop ? "drag" : undefined}>
+        <div class="sidebar-header" style:--wails-draggable={DESKTOP ? "drag" : undefined}>
             <div class="window-actions-container">
                 <div class="window-actions">
-                    {#if desktop}
+                    {#if DESKTOP}
                         <!-- Functional window controls in desktop mode -->
                         <button type="button" class="window-dot" onclick={windowQuit} title="Close" aria-label="Close"><span>&times;</span></button>
                         <button type="button" class="window-dot" onclick={windowMinimise} title="Minimise" aria-label="Minimise"><span>&ndash;</span></button>

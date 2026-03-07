@@ -1,13 +1,24 @@
 /**
- * Wails desktop runtime integration helpers.
+ * Wails desktop build helpers.
  *
- * These rely on the Go method bindings that Wails injects into `window.go`
- * at runtime when the app is running inside the Wails desktop shell.
+ * `DESKTOP` is a **build-time** constant baked in by Vite when the project is
+ * built with `--mode desktop` (i.e. `npm run build:desktop`).  It is `false`
+ * for the standard web build so that all desktop-only code paths are
+ * tree-shaken out of the web bundle.
  *
- * All exported functions are safe to call from any context:
- * – On the web they no-op or throw, guarded by `isDesktop()`.
- * – On desktop the real Go backend methods are invoked.
+ * The Go method wrappers (`readGhosttyConfig`, etc.) call the bindings that
+ * Wails injects at runtime into `window.go`.  They should only be called from
+ * code that is already guarded by `DESKTOP`.
  */
+
+/**
+ * Build-time flag — `true` when built with `vite build --mode desktop`
+ * (the Wails build), `false` for the standard web build.
+ *
+ * Evaluated at compile time; the inactive branch is tree-shaken by the
+ * bundler so desktop-only code never ships in the web build.
+ */
+export const DESKTOP = import.meta.env.VITE_DESKTOP === "true";
 
 interface WailsGoApp {
     ReadGhosttyConfig: () => Promise<string>;
@@ -23,18 +34,10 @@ function getWailsApp(): WailsGoApp | null {
 }
 
 /**
- * Returns `true` when the page is running inside the Wails desktop shell.
- * Safe to call during SSR – always returns `false` server-side.
- */
-export function isDesktop(): boolean {
-    return getWailsApp() !== null;
-}
-
-/**
  * Reads the user's Ghostty config file from disk.
  * Returns an empty string when no config file exists yet.
  *
- * @throws {Error} when called outside the desktop shell.
+ * Only call this from desktop-guarded code (`if (DESKTOP) { ... }`).
  */
 export async function readGhosttyConfig(): Promise<string> {
     const app = getWailsApp();
@@ -47,7 +50,7 @@ export async function readGhosttyConfig(): Promise<string> {
  * Writes `content` to the user's Ghostty config file on disk,
  * creating parent directories as needed.
  *
- * @throws {Error} when called outside the desktop shell.
+ * Only call this from desktop-guarded code (`if (DESKTOP) { ... }`).
  */
 export async function writeGhosttyConfig(content: string): Promise<void> {
     const app = getWailsApp();
@@ -60,7 +63,7 @@ export async function writeGhosttyConfig(content: string): Promise<void> {
  * Returns the platform-resolved path to the Ghostty config file
  * (e.g. `~/.config/ghostty/config`).
  *
- * @throws {Error} when called outside the desktop shell.
+ * Only call this from desktop-guarded code (`if (DESKTOP) { ... }`).
  */
 export async function getGhosttyConfigPath(): Promise<string> {
     const app = getWailsApp();
@@ -84,19 +87,19 @@ function getRuntime(): WailsRuntime | null {
     return (window as unknown as {runtime?: WailsRuntime}).runtime ?? null;
 }
 
-/** Minimise the desktop window. No-op on web. */
+/** Minimise the desktop window. */
 export function windowMinimise(): void {
     // eslint-disable-next-line new-cap
     getRuntime()?.WindowMinimise();
 }
 
-/** Toggle the desktop window between normal and maximised. No-op on web. */
+/** Toggle the desktop window between normal and maximised. */
 export function windowToggleMaximise(): void {
     // eslint-disable-next-line new-cap
     getRuntime()?.WindowToggleMaximise();
 }
 
-/** Close/quit the desktop application. No-op on web. */
+/** Close/quit the desktop application. */
 export function windowQuit(): void {
     // eslint-disable-next-line new-cap
     getRuntime()?.Quit();
