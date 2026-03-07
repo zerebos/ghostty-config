@@ -7,10 +7,11 @@
 
     interface Props {
         children: Snippet;
+        actions?: Snippet;
         title?: string;
     }
 
-    const {children, title = "Ghostty Config"}: Props = $props();
+    const {children, actions, title = "Ghostty Config"}: Props = $props();
 
     $effect(() => {app.title = title;});
 
@@ -40,7 +41,7 @@
 
 <div class="content-page">
     <div class="content-header" class:scrolling={isScrolling}>
-        <History /><h1>{app.title}</h1>
+        <History /><h1>{app.title}</h1>{#if actions}<div class="header-actions">{@render actions()}</div>{/if}
     </div>
     {#key app.title}
     <div class="content-container" in:fly={{y: 30, duration: 200}} bind:this={scroller} style:margin-top="{bufferHeight}px" onscroll={containerScroll}>
@@ -78,6 +79,13 @@
 .content-header.scrolling {
     background: rgba(46, 41, 50, 0.9);
     border-bottom: 1px solid black;
+}
+
+.header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .content-header h1 {
