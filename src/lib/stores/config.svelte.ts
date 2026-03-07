@@ -24,8 +24,10 @@ if (dev) {
 const config = $state(Object.assign({}, defaults));
 
 const STORAGE_KEY = "ghostty-config";
+const PERSIST_ENABLED = import.meta.env.VITE_PERSIST_STATE !== "false";
 
 function saveToStorage() {
+    if (!PERSIST_ENABLED) return;
     const d = diff();
     if (Object.keys(d).length === 0) {
         localStorage.removeItem(STORAGE_KEY);
@@ -36,6 +38,7 @@ function saveToStorage() {
 }
 
 function loadFromStorage() {
+    if (!PERSIST_ENABLED) return;
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) return;
     try {
