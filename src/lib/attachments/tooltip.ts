@@ -10,6 +10,8 @@ function getTooltipText(text: TooltipText): string {
 
 export function createTooltipAttachment(text: TooltipText): Attachment {
     return (element) => {
+        if (!element) return;
+        if (getTooltipText(text).trim() === "") return;
         let component: Tooltip;
         let tooltipRoot: HTMLDivElement | null = null;
 
