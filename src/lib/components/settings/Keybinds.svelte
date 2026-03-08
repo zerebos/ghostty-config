@@ -6,6 +6,7 @@
     import icon from "$lib/images/tabs/keybinds.webp";
     import {fade, fly} from "svelte/transition";
     import Admonition from "../Admonition.svelte";
+    import Button from "../Button.svelte";
 
     let selected: number[] = $state([]);
     let {value = $bindable([])}: {value: string[]} = $props();
@@ -168,10 +169,10 @@
         <h3 id="reset-title">Are you sure?</h3>
     </header>
     <footer class="reset-actions">
-        <button type="button" class="primary" onclick={resetDefaults}>Reset Keybinds</button>
-        <button type="button" onclick={() => (showReset = false)}>
+        <Button primary onclick={resetDefaults}>Reset Keybinds</Button>
+        <Button onclick={() => (showReset = false)}>
             Cancel
-        </button>
+        </Button>
     </footer>
 </div>
 {/if}
@@ -307,23 +308,10 @@
         width: 100%;
     }
 
-    .reset-actions button {
-        padding: 6px 16px;
-        border-radius: var(--radius-level-4);
-        border: 0;
-        font-weight: 600;
-        background: #575559;
+    .reset-actions :global(button),
+    .reset-actions :global(button.primary) {
         flex: 1;
-        color: var(--font-color);
-        cursor: pointer;
-
-        box-shadow:
-            0px 0px 1px 0px #000000,
-            inset 0px 3px 1px -3px rgba(255, 255, 255, 0.65);
-    }
-
-    .reset-actions .primary {
-        background: linear-gradient(0deg, #3C6EC9, #437AE2);
+        padding: 6px 16px;
     }
 
     .list-controls button + button::before {

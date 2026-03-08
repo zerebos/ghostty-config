@@ -13,6 +13,7 @@
         removeSharePayloadFromHash
     } from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
+    import Button from "$lib/components/Button.svelte";
     import {onMount} from "svelte";
     import {fade, fly} from "svelte/transition";
 
@@ -298,33 +299,30 @@
         <Separator />
         <Item name="Import">
             <div class="button-group">
-                <button type="button" onclick={pasteConfig} title="Paste">{pasteConfigText}</button>
+                <Button onclick={pasteConfig} title="Paste">{pasteConfigText}</Button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <button type="button" onclick={openFilePicker} title="Upload">File...</button>
+                <Button onclick={openFilePicker} title="Upload">File...</Button>
             </div>
         </Item>
         <Separator />
         <Item name="Export">
             <div class="button-group">
-                <button
-                    type="button"
+                <Button
                     onclick={copyConfig}
                     title={hasExportableConfig ? "Copy" : "No changes yet!"}
                     disabled={!hasExportableConfig}
-                >{copyConfigText}</button>
-                <button
-                    type="button"
+                >{copyConfigText}</Button>
+                <Button
                     onclick={downloadConfig}
                     title={hasExportableConfig ? "Download" : "No changes yet!"}
                     disabled={!hasExportableConfig}
-                >File...</button>
-                <button
-                    type="button"
+                >File...</Button>
+                <Button
+                    primary
                     onclick={openShareComposer}
                     title={hasExportableConfig ? "Share your config" : "No changes yet!"}
-                    class="share-btn"
                     disabled={!hasExportableConfig}
-                >Share...</button>
+                >Share...</Button>
             </div>
             {#if pageNotice}
                 <p class="status-text" role="status">{pageNotice}</p>
@@ -353,9 +351,9 @@
         {#if isShareTooLong}
             <p class="share-modal-desc">This config is too large for reliable URL sharing across apps and browsers.</p>
             <div class="share-modal-actions">
-                <button type="button" class="action-btn primary" onclick={copyConfigForFallback}>Copy Config Text</button>
-                <button type="button" class="action-btn" onclick={downloadConfig}>Download File</button>
-                <button type="button" class="action-btn" onclick={closeShareComposer}>Close</button>
+                <Button primary onclick={copyConfigForFallback}>Copy Config Text</Button>
+                <Button onclick={downloadConfig}>Download File</Button>
+                <Button onclick={closeShareComposer}>Close</Button>
             </div>
         {:else}
             <p class="share-modal-desc">Review and copy the share link below.</p>
@@ -370,11 +368,11 @@
                 <p class="status-text" role="status">{shareNotice}</p>
             {/if}
             <div class="share-modal-actions">
-                <button type="button" class="action-btn" onclick={closeShareComposer}>Close</button>
+                <Button onclick={closeShareComposer}>Close</Button>
                 {#if canUseNativeShare}
-                    <button type="button" class="action-btn" onclick={nativeShareLink}>Share...</button>
+                    <Button onclick={nativeShareLink}>Share...</Button>
                 {/if}
-                <button type="button" class="action-btn primary" onclick={copyShareLink}>{shareCopyText}</button>
+                <Button primary onclick={copyShareLink}>{shareCopyText}</Button>
             </div>
         {/if}
     </div>
@@ -425,8 +423,8 @@
             {/if}
         </div>
         <div class="share-modal-actions">
-            <button type="button" class="action-btn" onclick={closeSharedConfigModal}>Dismiss</button>
-            <button type="button" class="action-btn primary" onclick={importSharedConfig}>Import Config</button>
+            <Button onclick={closeSharedConfigModal}>Dismiss</Button>
+            <Button primary onclick={importSharedConfig}>Import Config</Button>
         </div>
     </div>
 </div>
@@ -484,31 +482,6 @@
     gap: 12px;
 }
 
-/* TODO: extract to a separate component for usage elsewhere */
-button {
-    background: var(--bg-basic-button);
-    border-radius: var(--radius-level-4);
-    border: 0;
-    color: inherit;
-    padding: 2px 10px;
-    font-size: 1.1rem;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
-}
-
-button:active {
-    filter: brightness(115%);
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    filter: grayscale(0.2);
-}
-
-.share-btn {
-    background: var(--color-input-accent);
-}
-
 .status-text {
     color: var(--font-color-muted);
     font-size: 0.9rem;
@@ -561,12 +534,14 @@ button:disabled {
 }
 
 .close-btn {
+    border: 0;
     background: transparent;
     box-shadow: none;
     font-size: 1.4rem;
     padding: 0 4px;
     line-height: 1;
     color: var(--font-color-muted);
+    cursor: pointer;
 }
 
 .close-btn:hover {
@@ -599,7 +574,7 @@ button:disabled {
 .share-link-input {
     width: 100%;
     resize: vertical;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: var(--config-font-family);
     border: 1px solid var(--border-level-3);
     border-radius: var(--radius-level-4);
     background: var(--bg-input);
@@ -633,14 +608,5 @@ button:disabled {
     top: 0;
     height: 1px;
     background: var(--bg-level-3);
-}
-
-.action-btn {
-    padding: 4px 16px;
-    font-size: 1rem;
-}
-
-.action-btn.primary {
-    background: var(--color-input-accent);
 }
 </style>

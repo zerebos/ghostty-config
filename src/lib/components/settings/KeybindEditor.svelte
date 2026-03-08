@@ -17,6 +17,7 @@
     import Number from "./Number.svelte";
     import Text from "./Text.svelte";
     import Checkbox from "./Checkbox.svelte";
+    import Button from "../Button.svelte";
 
     interface Props {
         value?: string;
@@ -290,15 +291,14 @@
         {/if}
     </Group>
     <div class="actions">
-        <button type="button" onclick={close}>Cancel</button>
-        <button
-            type="button"
-            class="primary"
+        <Button onclick={close}>Cancel</Button>
+        <Button
+            primary
             onclick={handleSave}
             disabled={getErrors().length > 0}
         >
             Done
-        </button>
+        </Button>
     </div>
 </div>
 
@@ -451,40 +451,5 @@
         justify-content: flex-end;
         gap: 10px;
         margin-top: 20px;
-    }
-
-    .actions button {
-        padding: 4px 12px;
-        border-radius: var(--radius-level-4);
-        border: 0;
-        font-weight: 500;
-        box-shadow:
-            0px 0px 1px 0px #000000,
-            inset 0px 3px 1px -3px rgba(255, 255, 255, 0.65);
-
-        background: #59575C;
-        color: var(--font-color);
-        cursor: pointer;
-        position: relative;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .actions button.primary {
-        background: linear-gradient(0deg, #3C6EC9, #437AE2);
-        color: #fff;
-        border: 0;
-        padding: 0 20px;
-    }
-
-    .actions button.primary:disabled {
-        cursor: not-allowed;
-        filter: brightness(0.6);
-    }
-
-    .actions button:active {
-        filter: brightness(1.2);
     }
 </style>
