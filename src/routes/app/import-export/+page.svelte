@@ -19,6 +19,7 @@
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
     import Admonition from "$lib/components/Admonition.svelte";
+    import {success} from "$lib/stores/toasts.svelte";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -116,6 +117,7 @@
         try {
             const text = await window.navigator.clipboard.readText();
             pasteConfigText = "Pasted!";
+            success("Config pasted from clipboard");
             setTimeout(() => (pasteConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
             await loadConfig(text);
         }
@@ -168,6 +170,7 @@
         try {
             await window.navigator.clipboard.writeText(stringifyConfig());
             copyConfigText = "Copied!";
+            success("Config copied to clipboard");
             setTimeout(() => (copyConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
         }
         catch {

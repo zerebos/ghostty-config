@@ -3,6 +3,7 @@
     import ShareIcon from "$lib/components/icons/ShareIcon.svelte";
     import DialogModal from "$lib/components/modals/DialogModal.svelte";
     import Button from "$lib/components/Button.svelte";
+    import {error, success} from "$lib/stores/toasts.svelte";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -40,11 +41,13 @@
             await window.navigator.clipboard.writeText(shareUrl);
             copyLinkText = "Copied!";
             notice = "Share link copied to clipboard.";
+            success("Share link copied to clipboard");
             setTimeout(() => (copyLinkText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
         }
         catch {
             copyLinkText = "Copy Failed";
             notice = "Select the link and copy manually.";
+            error("Failed to copy share link to clipboard");
             setTimeout(() => (copyLinkText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
         }
     }

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {sequoiaFlyFast} from "$lib/utils/animations";
     import type {Snippet} from "svelte";
     import {fade, fly} from "svelte/transition";
 
@@ -33,12 +34,12 @@
     class="dialog-backdrop"
     role="presentation"
     onclick={handleBackdropClick}
-    transition:fade={{duration: 200}}
+    transition:fade={{duration: 250}}
 >
     <div
         class="dialog"
         style:--dialog-max-width={maxWidth}
-        transition:fly={{y: -30, duration: 200}}
+        transition:fly={sequoiaFlyFast}
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}

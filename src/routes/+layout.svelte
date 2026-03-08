@@ -27,6 +27,7 @@
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
     import ModalStack from "$lib/components/modals/ModalStack.svelte";
+    import ToastStack from "$lib/components/ToastStack.svelte";
     import type {Snippet} from "svelte";
 
     const cssConfigVars = $derived.by(() => {
@@ -151,7 +152,7 @@
         {@render children()}
     </div>
     <ModalStack />
-
+    <ToastStack />
 </div>
 
 <!-- <svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} /> -->
