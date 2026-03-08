@@ -24,7 +24,7 @@
         <span style="color: var(--config-palette-6);">@</span>
         <span style="color: var(--config-palette-4);">doe-pc</span>
         <span style="color: var(--config-palette-1); font-weight: 700;">$</span>
-        ls
+        ls -la
     </div>
     <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-3); font-weight: 700;">Documents</span></div>
     <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-0); background: var(--config-palette-2); font-weight: 700;">Downloads</span></div>
@@ -32,6 +32,7 @@
     <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-12); font-weight: 700;">Music</span></div>
     <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-2);">実行可能ファイル</span></div>
     <div class="row">-rwxr-xr-x 1 root <span style="color: var(--config-palette-6);">sym</span> -> <span style="color: var(--config-palette-1);">link</span></div>
+    <div class="row">&nbsp;</div>
     <div class="row">Icons:     <span style="background-color: var(--config-palette-1); color: var(--config-bg);"> Powerline</span><span style="color: var(--config-palette-1);"></span></div>
     </div>
     <Separator />
@@ -49,7 +50,7 @@
 .preview {
     background: var(--config-bg);
     color: var(--config-fg);
-    height: 160px;
+    height: 180px;
     overflow-y: auto;
     padding: 8px;
     border-radius: var(--radius-level-3);

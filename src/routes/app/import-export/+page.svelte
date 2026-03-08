@@ -16,6 +16,7 @@
     import Button from "$lib/components/Button.svelte";
     import {onMount} from "svelte";
     import {fade, fly} from "svelte/transition";
+    import Admonition from "$lib/components/Admonition.svelte";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -275,6 +276,9 @@
 <svelte:window onkeydown={handleWindowKeydown} />
 
 <Page title="Import & Export">
+    {#if pageNotice}
+        <Admonition>{pageNotice}</Admonition>
+    {/if}
     <Group flex={1}>
         <div class="preview">
             {#if hasExportableConfig}
@@ -324,9 +328,6 @@
                     disabled={!hasExportableConfig}
                 >Share...</Button>
             </div>
-            {#if pageNotice}
-                <p class="status-text" role="status">{pageNotice}</p>
-            {/if}
         </Item>
     </Group>
 </Page>

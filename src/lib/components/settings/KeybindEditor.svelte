@@ -281,7 +281,13 @@
         {/if}
      </Group>
     <Group title="Result" borderless>
-        <div class="preview-box">{getPreview()}</div>
+        <div class="preview-box">
+            <div class="row">
+                    <span class="p4">{getTrigger()}</span>
+                    <span> = </span>
+                    <span class="p5">{actionName}{getComputedArg() ? `:${getComputedArg()}` : ""}</span>
+            </div>
+        </div>
         {#if getErrors().length}
             <ul class="errors">
                 {#each getErrors() as error (error)}
@@ -438,7 +444,16 @@
         border-radius: var(--radius-level-3);
         border: 1px solid rgba(0, 0, 0, 0.5);
         box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
+        user-select: text;
     }
+
+    .preview-box .row {
+        display: block;
+        white-space: pre;
+    }
+
+    .p4 {color: var(--config-palette-4);}
+    .p5 {color: var(--config-palette-5);}
 
     .errors {
         margin-top: 8px;
