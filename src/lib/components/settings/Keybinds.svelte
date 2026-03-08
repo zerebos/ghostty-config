@@ -7,6 +7,7 @@
     import icon from "$lib/images/tabs/keybinds.webp";
     import {fly} from "svelte/transition";
     import Admonition from "../Admonition.svelte";
+    import {success} from "$lib/stores/toasts.svelte";
 
     let selected: number[] = $state([]);
     let {value = $bindable([])}: {value: string[]} = $props();
@@ -64,6 +65,7 @@
             return !shouldRemove;
         });
         selected = [];
+        success("Selected keybind(s) removed");
     }
 
     const defaultKeybinds = (() => {
@@ -77,6 +79,7 @@
         value = [...defaultKeybinds];
         selected = [];
         if (scroller) scroller.scrollTop = 0;
+        success("Keybinds reset to defaults");
     }
 
     async function requestResetDefaults() {
@@ -102,6 +105,7 @@
 
     function handleSave(detail: string) {
         if (editorMode === "add") {
+            success("Keybind added");
             value = [...value, detail];
 
             // Queue up scrolling to the bottom where the new item is added
@@ -110,6 +114,7 @@
             }, 1);
         }
         else if (selected.length === 1) {
+            success("Keybind updated");
             value[selected[0]] = detail;
         }
         showEditor = false;

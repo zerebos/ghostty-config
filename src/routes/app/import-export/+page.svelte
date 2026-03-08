@@ -18,14 +18,12 @@
     import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
-    import Admonition from "$lib/components/Admonition.svelte";
-    import {success} from "$lib/stores/toasts.svelte";
+    import {error, success} from "$lib/stores/toasts.svelte";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
     let pasteConfigText = $state("Clipboard");
     let copyConfigText = $state("Clipboard");
-    let pageNotice = $state<string | null>(null);
 
     let sharedConfigPreview = $state<string | null>(null);
     let sharedConfigParsed = $state<Record<string, string | string[]> | null>(null);
@@ -65,11 +63,10 @@
                 sharedConfigParseError = true;
             }
 
-            pageNotice = null;
             showSharedConfigModal = true;
         }
         catch {
-            pageNotice = "Could not read shared config link.";
+            error("Failed to read shared config from URL");
             clearShareHashFromAddressBar();
         }
     }
@@ -80,7 +77,7 @@
         window.history.replaceState(null, "", nextUrl);
     }
 
-    async function loadConfig(candidate: string) {
+    async function loadConfig(candidate: string): Promise<boolean> {
         let parsed;
         try {
             // TODO: remove this assertions when the return type of parse is fixed
@@ -94,7 +91,7 @@
                 message: "Something went wrong while parsing your config. Please open an issue on GitHub.",
                 buttonText: "Dismiss"
             });
-            return;
+            return false;
         }
 
         try {
@@ -108,7 +105,10 @@
                 message: "Something went wrong while loading your parsed config. Please open an issue on GitHub.",
                 buttonText: "Dismiss"
             });
+            return false;
         }
+
+        return true;
     }
 
     async function pasteConfig() {
@@ -117,12 +117,12 @@
         try {
             const text = await window.navigator.clipboard.readText();
             pasteConfigText = "Pasted!";
-            success("Config pasted from clipboard");
             setTimeout(() => (pasteConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
-            await loadConfig(text);
+            const loaded = await loadConfig(text);
+            if (loaded) success("Config loaded from clipboard");
         }
         catch {
-            pageNotice = "Clipboard access failed. Paste manually or import from file.";
+            error("Clipboard access failed! Please paste manually or import from file.");
         }
     }
 
@@ -137,7 +137,10 @@
         reader.addEventListener("load", (event) => {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
             const loadedText = event.target?.result?.toString();
-            if (loadedText) void loadConfig(loadedText);
+            if (!loadedText) return;
+            void loadConfig(loadedText).then((didLoad) => {
+                if (didLoad) success("Config loaded from file");
+            });
         });
         reader.readAsText(file);
     }
@@ -162,7 +165,6 @@
 
     async function copyConfig() {
         if (!hasExportableConfig) {
-            pageNotice = "No changes to export yet.";
             return;
         }
         if (copyConfigText === "Copied!") return;
@@ -174,13 +176,12 @@
             setTimeout(() => (copyConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
         }
         catch {
-            pageNotice = "Clipboard access failed. Use file export instead.";
+            error("Clipboard access failed! Please copy manually or export to file.");
         }
     }
 
     function openShareComposer() {
         if (!hasExportableConfig) {
-            pageNotice = "No changes to export yet.";
             return;
         }
 
@@ -210,7 +211,10 @@
     }
 
     async function importSharedConfig() {
-        if (sharedConfigPreview) await loadConfig(sharedConfigPreview);
+        if (sharedConfigPreview) {
+            const loaded = await loadConfig(sharedConfigPreview);
+            if (loaded) success("Shared config imported");
+        }
         closeSharedConfigModal();
     }
 
@@ -224,7 +228,6 @@
 
     function downloadConfig() {
         if (!hasExportableConfig) {
-            pageNotice = "No changes to export yet.";
             return;
         }
 
@@ -238,6 +241,7 @@
         link.click();
         link.remove();
         URL.revokeObjectURL(url);
+        success("Config file downloaded");
     }
 
     function handleWindowKeydown(e: KeyboardEvent) {
@@ -250,9 +254,6 @@
 <svelte:window onkeydown={handleWindowKeydown} />
 
 <Page title="Import & Export">
-    {#if pageNotice}
-        <Admonition>{pageNotice}</Admonition>
-    {/if}
     <Group flex={1}>
         <div class="preview">
             {#if hasExportableConfig}
