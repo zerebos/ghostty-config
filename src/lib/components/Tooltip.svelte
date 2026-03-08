@@ -14,16 +14,16 @@
 
 <style>
     .tooltip {
-        border-radius: var(--radius-level-2);
-        background: rgba(from var(--bg-level-1) r g b / 0.7);
+        border-radius: var(--radius-level-4);
+        background: rgba(from var(--bg-level-2) r g b / 0.6);
         backdrop-filter: blur(20px);
         color: var(--font-color);
-        padding: 12px;
+        padding: 10px 18px;
         white-space: nowrap;
         border: 1px solid var(--border-level-1);
         box-shadow:
             0 0 20px -1px rgba(0,0,0,0.7),
-            0 0 1px white inset;
+            -0.5px 0 1px white inset;
         position: relative;
         z-index: 1;
         transform-origin: center bottom;
@@ -39,7 +39,7 @@
         width: 12px;
         height: 12px;
         z-index: -1;
-        background: rgba(from var(--bg-level-1) r g b / 0.7);
+        background: rgba(from var(--bg-level-2) r g b / 0.6);
         backdrop-filter: blur(20px);
         clip-path: polygon(0 0, 100% 0, 0% 100%);
     }
@@ -48,11 +48,11 @@
         border: 1px solid var(--border-level-1);
         box-shadow:
             0 0 20px -1px rgba(0,0,0,0.7),
-            0 0 1px white inset;
+            -0.5px 0 1px white inset;
     }
 
     .tooltip::before {
         top: calc(100% - 8px);
-        background: var(--bg-level-1);
+        background: var(--bg-level-2);
     }
 </style>

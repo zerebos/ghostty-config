@@ -71,11 +71,11 @@
 
 .alert-card {
     position: absolute;
-    top: 30%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    /* background: var(--bg-modal); */
     background: rgba(from var(--bg-level-1) r g b / 0.7);
     backdrop-filter: blur(20px);
     border-radius: var(--radius-level-2);
