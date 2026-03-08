@@ -1,6 +1,6 @@
 <script lang="ts">
     type Props = {
-        value: number;
+        value: number | undefined;
         min?: number;
         max?: number;
         step?: number;
@@ -17,25 +17,31 @@
     const inputType = $derived(range ? "range" : "text");
 
     // Check if the current value is valid (within min/max bounds)
+    // undefined is considered valid (it just means "no value")
     const isValid = $derived(() => {
+        if (value === undefined) return true;
         if (min !== undefined && value < min) return false;
         if (max !== undefined && value > max) return false;
         return true;
     });
 
-    // Display value - show empty string if invalid, otherwise show the value
-    const displayValue = $derived.by(() => isValid() ? value.toString() : "");
+    // Display value - show empty string if undefined or invalid
+    const displayValue = $derived.by(() => {
+        if (value === undefined) return "";
+        if (!isValid()) return "";
+        return value.toString();
+    });
 
     $effect(() => {
         if (!size && !range) {
-            const referenceValue = isValid() ? value : (max ?? 100);
+            const referenceValue = (value !== undefined && isValid()) ? value : (max ?? 100);
             size = referenceValue.toString().length + 2;
         }
     });
 
     function increment() {
-        // If current value is invalid, start from min (or 0)
-        if (!isValid()) {
+        // If current value is undefined or invalid, start from min (or 0)
+        if (value === undefined || !isValid()) {
             value = min ?? 0;
             return;
         }
@@ -47,9 +53,9 @@
     }
 
     function decrement() {
-        // If current value is invalid, start from max (or 0)
-        if (!isValid()) {
-            value = max ?? Math.min(0, min ?? 0);
+        // If current value is undefined or invalid, start from max (or min, or 0)
+        if (value === undefined || !isValid()) {
+            value = max ?? Math.max(0, min ?? 0);
             return;
         }
 
@@ -63,16 +69,15 @@
         const target = event.target as HTMLInputElement;
         const inputText = target.value;
 
-        // Allow empty input (shows placeholder)
-        if (inputText === "" && placeholder) {
-            value = 0; // TODO: this is currently what "clearable" numbers use as a placeholder, I need to rework the settings system to allow clearable settings more elegantly, but for now this will do. It just needs to be some number that is outside the valid range so that it shows as empty. If you are still reading this comment, why?
+        // Allow empty input - set to undefined
+        if (inputText === "") {
+            value = undefined;
             return;
         }
 
         const numValue = integer ? parseInt(inputText, 10) : parseFloat(inputText);
 
         if (!isNaN(numValue)) {
-
             let constrainedValue = integer ? Math.round(numValue) : numValue;
             if (min !== undefined && constrainedValue < min) constrainedValue = min;
             if (max !== undefined && constrainedValue > max) constrainedValue = max;
@@ -80,7 +85,7 @@
         }
         else {
             // If input is not a valid number, reset to previous valid value
-            target.value = value.toString();
+            target.value = displayValue;
         }
     }
 
