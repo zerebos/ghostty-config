@@ -6,7 +6,7 @@
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
 
-    let fontFamily = $state("monospace");
+    let fontFamily = $state("JetBrainsMono Nerd Font");
     let fontSize = $state(13);
     let bold = $state(false);
     let italic = $state(false);
