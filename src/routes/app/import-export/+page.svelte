@@ -14,6 +14,7 @@
     } from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import {onMount} from "svelte";
+    import {fade, fly} from "svelte/transition";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -334,8 +335,8 @@
 
 {#if showShareComposer}
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="share-modal-backdrop" role="presentation" onclick={closeShareComposer}>
-    <div class="share-modal" role="dialog" aria-modal="true" aria-label="Share Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
+<div class="share-modal-backdrop" role="presentation" transition:fade={{duration: 200}} onclick={closeShareComposer}>
+    <div class="share-modal" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-label="Share Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
         <div class="share-modal-header">
             <span class="share-icon" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -369,11 +370,11 @@
                 <p class="status-text" role="status">{shareNotice}</p>
             {/if}
             <div class="share-modal-actions">
-                <button type="button" class="action-btn primary" onclick={copyShareLink}>{shareCopyText}</button>
+                <button type="button" class="action-btn" onclick={closeShareComposer}>Close</button>
                 {#if canUseNativeShare}
                     <button type="button" class="action-btn" onclick={nativeShareLink}>Share...</button>
                 {/if}
-                <button type="button" class="action-btn" onclick={closeShareComposer}>Close</button>
+                <button type="button" class="action-btn primary" onclick={copyShareLink}>{shareCopyText}</button>
             </div>
         {/if}
     </div>
@@ -382,8 +383,8 @@
 
 {#if showSharedConfigModal}
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="share-modal-backdrop" role="presentation" onclick={closeSharedConfigModal}>
-    <div class="share-modal" role="dialog" aria-modal="true" aria-label="Shared Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
+<div class="share-modal-backdrop" role="presentation" transition:fade={{duration: 200}} onclick={closeSharedConfigModal}>
+    <div class="share-modal" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-label="Shared Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
         <div class="share-modal-header">
             <span class="share-icon" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -424,8 +425,8 @@
             {/if}
         </div>
         <div class="share-modal-actions">
-            <button type="button" class="action-btn primary" onclick={importSharedConfig}>Import Config</button>
             <button type="button" class="action-btn" onclick={closeSharedConfigModal}>Dismiss</button>
+            <button type="button" class="action-btn primary" onclick={importSharedConfig}>Import Config</button>
         </div>
     </div>
 </div>
@@ -619,6 +620,19 @@ button:disabled {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
+    padding-top: 20px;
+    margin-top: 20px;
+    position: relative;
+}
+
+.share-modal-actions::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    right: -20px;
+    top: 0;
+    height: 1px;
+    background: var(--bg-level-3);
 }
 
 .action-btn {
