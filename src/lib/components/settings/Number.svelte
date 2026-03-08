@@ -32,6 +32,28 @@
         return value.toString();
     });
 
+    // Determine if the input should be treated as an integer based on props and value
+    const isDetectedAsInteger = $derived.by(() => {
+        if (value === undefined || Number.isNaN(value)) return false;
+        if (!Number.isInteger(value)) return false;
+        if (step < 1 && !Number.isInteger(step)) return false;
+        if (min !== undefined && !Number.isInteger(min)) return false;
+        if (max !== undefined && !Number.isInteger(max)) return false;
+        return true;
+    });
+
+    // Determine if we should enforce integer values based on props
+    const isActuallyInteger = $derived.by(() => integer && isDetectedAsInteger);
+
+    // Calculate the number of decimal places to show based on step, min, and max
+    const numDecimalPlaces = $derived.by(() => {
+        if (isDetectedAsInteger) return 0;
+        const stepDecimalPlaces = step.toString().split(".")[1]?.length ?? 0;
+        const minDecimalPlaces = min?.toString().split(".")[1]?.length ?? 0;
+        const maxDecimalPlaces = max?.toString().split(".")[1]?.length ?? 0;
+        return Math.max(stepDecimalPlaces, minDecimalPlaces, maxDecimalPlaces);
+    });
+
     $effect(() => {
         if (!size && !range) {
             const referenceValue = (value !== undefined && !Number.isNaN(value) && isValid()) ? value : (max ?? 100);
@@ -75,17 +97,16 @@
             return;
         }
 
-        const numValue = integer ? parseInt(inputText, 10) : parseFloat(inputText);
+        const numValue = isActuallyInteger ? parseInt(inputText, 10) : parseFloat(inputText);
 
         if (!isNaN(numValue)) {
-            let constrainedValue = integer ? Math.round(numValue) : numValue;
+            let constrainedValue = isActuallyInteger ? Math.round(numValue) : numValue;
             if (min !== undefined && constrainedValue < min) constrainedValue = min;
             if (max !== undefined && constrainedValue > max) constrainedValue = max;
             value = constrainedValue;
         }
         else {
-            // If input is not a valid number, reset to previous valid value
-            target.value = displayValue;
+            // Cleanup for this will happen onBlur rather than trying to be smart while they type
         }
     }
 
@@ -109,8 +130,8 @@
 
 <div class="input-wrapper">
     {#if range}
-        <div>{value}</div>
-        <input type={inputType} bind:value {min} {max} {step} {size} {placeholder} />
+        <div class="label">{value?.toFixed(numDecimalPlaces)}</div>
+        <input type={inputType} bind:value {min} {max} {step} />
     {:else}
         <div class="number-input">
             <input
@@ -139,6 +160,10 @@
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.label {
+    font-variant-numeric: tabular-nums;
 }
 
 .number-input {

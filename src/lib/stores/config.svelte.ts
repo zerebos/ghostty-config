@@ -184,8 +184,8 @@ interface DefaultConfig {
     windowTitleFontFamily: string;
     windowTheme: string;
     windowColorspace: string;
-    windowHeight: number;
-    windowWidth: number;
+    windowHeight: number | undefined;
+    windowWidth: number | undefined;
     windowSaveState: string;
     windowStepResize: boolean;
     windowNewTabPosition: string;

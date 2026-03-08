@@ -43,7 +43,7 @@
 
 <style>
     .toast-container {
-        display: contents;
+        display: flex;
     }
 
     .toast {

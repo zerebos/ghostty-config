@@ -13,7 +13,7 @@
 <label>
     <select bind:value onchange={change}>
         {#if placeholder}
-            <option value="" disabled selected hidden>{placeholder}</option>
+            <option value="" disabled hidden>{placeholder}</option>
         {/if}
         {#each options as option, i (i)}
             {#if typeof(option) === "string"}
@@ -23,9 +23,9 @@
             {/if}
         {/each}
     </select>
-    <button class="icon" type="button" aria-label="Open dropdown">
+    <div class="icon" aria-label="Open dropdown">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" /></svg>
-    </button>
+    </div>
 </label>
 
 <style>
