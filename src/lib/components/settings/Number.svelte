@@ -177,7 +177,7 @@
 }
 
 .stepper {
-    background: #535258;
+    background: var(--bg-stepper);
     border: none;
     padding: 0px;
     cursor: pointer;
@@ -201,7 +201,7 @@
 }
 
 .stepper svg {
-    stroke: #fff;
+    stroke: var(--input-icon-color);
 }
 
 .stepper:hover svg {

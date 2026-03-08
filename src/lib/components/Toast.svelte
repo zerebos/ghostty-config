@@ -118,34 +118,4 @@
         line-height: 1.4;
         letter-spacing: -0.01em;
     }
-
-    /* @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-100%);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .toast {
-            animation: fadeIn 0.2s ease;
-        }
-
-        .toast:hover {
-            transform: none;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-    } */
 </style>
