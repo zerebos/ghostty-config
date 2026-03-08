@@ -14,8 +14,8 @@
     } from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
+    import DialogModal from "$lib/components/modals/DialogModal.svelte";
     import {onMount} from "svelte";
-    import {fade, fly} from "svelte/transition";
     import Admonition from "$lib/components/Admonition.svelte";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
@@ -333,102 +333,92 @@
 </Page>
 
 {#if showShareComposer}
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="share-modal-backdrop" role="presentation" transition:fade={{duration: 200}} onclick={closeShareComposer}>
-    <div class="share-modal" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-label="Share Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
-        <div class="share-modal-header">
-            <span class="share-icon" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="18" cy="5" r="3" />
-                    <circle cx="6" cy="12" r="3" />
-                    <circle cx="18" cy="19" r="3" />
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                </svg>
-            </span>
-            <h2>Share Config</h2>
-            <button type="button" class="close-btn" onclick={closeShareComposer} aria-label="Dismiss">&times;</button>
-        </div>
-        {#if isShareTooLong}
-            <p class="share-modal-desc">This config is too large for reliable URL sharing across apps and browsers.</p>
-            <div class="share-modal-actions">
-                <Button primary onclick={copyConfigForFallback}>Copy Config Text</Button>
-                <Button onclick={downloadConfig}>Download File</Button>
-                <Button onclick={closeShareComposer}>Close</Button>
-            </div>
-        {:else}
-            <p class="share-modal-desc">Review and copy the share link below.</p>
-            <input
-                type="text"
-                class="share-link-input"
-                value={shareUrl ?? ""}
-                readonly
-                onclick={(event) => event.currentTarget.select()}
-            />
-            {#if shareNotice}
-                <p class="status-text" role="status">{shareNotice}</p>
-            {/if}
-            <div class="share-modal-actions">
-                <Button onclick={closeShareComposer}>Close</Button>
-                {#if canUseNativeShare}
-                    <Button onclick={nativeShareLink}>Share...</Button>
-                {/if}
-                <Button primary onclick={copyShareLink}>{shareCopyText}</Button>
-            </div>
+<DialogModal title="Share Config" onclose={closeShareComposer}>
+    {#snippet icon()}
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+    {/snippet}
+
+    {#if isShareTooLong}
+        <p class="share-modal-desc">This config is too large for reliable URL sharing across apps and browsers.</p>
+    {:else}
+        <p class="share-modal-desc">Review and copy the share link below.</p>
+        <input
+            type="text"
+            class="share-link-input"
+            value={shareUrl ?? ""}
+            readonly
+            onclick={(event) => event.currentTarget.select()}
+        />
+        {#if shareNotice}
+            <p class="status-text" role="status">{shareNotice}</p>
         {/if}
-    </div>
-</div>
+    {/if}
+
+    {#snippet footer()}
+        {#if isShareTooLong}
+            <Button primary onclick={copyConfigForFallback}>Copy Config Text</Button>
+            <Button onclick={downloadConfig}>Download File</Button>
+            <Button onclick={closeShareComposer}>Close</Button>
+        {:else}
+            <Button onclick={closeShareComposer}>Close</Button>
+            {#if canUseNativeShare}
+                <Button onclick={nativeShareLink}>Share...</Button>
+            {/if}
+            <Button primary onclick={copyShareLink}>{shareCopyText}</Button>
+        {/if}
+    {/snippet}
+</DialogModal>
 {/if}
 
 {#if showSharedConfigModal}
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="share-modal-backdrop" role="presentation" transition:fade={{duration: 200}} onclick={closeSharedConfigModal}>
-    <div class="share-modal" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-label="Shared Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
-        <div class="share-modal-header">
-            <span class="share-icon" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="18" cy="5" r="3" />
-                    <circle cx="6" cy="12" r="3" />
-                    <circle cx="18" cy="19" r="3" />
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                </svg>
-            </span>
-            <h2>Shared Config</h2>
-            <button type="button" class="close-btn" onclick={closeSharedConfigModal} aria-label="Dismiss">&times;</button>
-        </div>
-        <p class="share-modal-desc">Someone shared a Ghostty config with you. Review it before importing.</p>
-        <div class="share-preview">
-            {#if sharedConfigParsed}
-                <div class="row p2"># Config generated by Ghostty Config</div>
-                <div class="row">&nbsp;</div>
-                {#each Object.entries(sharedConfigParsed) as [key, value], i (i)}
-                    {#if Array.isArray(value)}
-                        {#each value as val, v (v)}
-                        {#if val !== ""}
-                            <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{val}</span></div>
-                        {/if}
-                        {/each}
-                    {:else}
-                        <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{value}</span></div>
+<DialogModal title="Shared Config" onclose={closeSharedConfigModal}>
+    {#snippet icon()}
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+    {/snippet}
+    <p class="share-modal-desc">Someone shared a Ghostty config with you. Review it before importing.</p>
+    <div class="share-preview">
+        {#if sharedConfigParsed}
+            <div class="row p2"># Config generated by Ghostty Config</div>
+            <div class="row">&nbsp;</div>
+            {#each Object.entries(sharedConfigParsed) as [key, value], i (i)}
+                {#if Array.isArray(value)}
+                    {#each value as val, v (v)}
+                    {#if val !== ""}
+                        <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{val}</span></div>
                     {/if}
-                {/each}
-            {:else}
-                {#if sharedConfigParseError}
-                    <div class="row p2"># Could not parse config structure. Showing raw text:</div>
-                    <div class="row">&nbsp;</div>
+                    {/each}
+                {:else}
+                    <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{value}</span></div>
                 {/if}
-                {#each (sharedConfigPreview ?? "").split("\n") as line, i (i)}
-                    <div class="row">{line}</div>
-                {/each}
+            {/each}
+        {:else}
+            {#if sharedConfigParseError}
+                <div class="row p2"># Could not parse config structure. Showing raw text:</div>
+                <div class="row">&nbsp;</div>
             {/if}
-        </div>
-        <div class="share-modal-actions">
-            <Button onclick={closeSharedConfigModal}>Dismiss</Button>
-            <Button primary onclick={importSharedConfig}>Import Config</Button>
-        </div>
+            {#each (sharedConfigPreview ?? "").split("\n") as line, i (i)}
+                <div class="row">{line}</div>
+            {/each}
+        {/if}
     </div>
-</div>
+
+    {#snippet footer()}
+        <Button onclick={closeSharedConfigModal}>Dismiss</Button>
+        <Button primary onclick={importSharedConfig}>Import Config</Button>
+    {/snippet}
+</DialogModal>
 {/if}
 
 <style>
@@ -490,65 +480,6 @@
     margin: 8px 0 0;
 }
 
-.share-modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border-radius: var(--radius-level-1);
-}
-
-.share-modal {
-    background: var(--bg-modal);
-    border: 1px solid var(--border-level-3);
-    border-radius: var(--radius-level-2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    width: 90%;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px;
-    max-height: 80%;
-}
-
-.share-modal-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.share-modal-header h2 {
-    flex: 1;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.share-icon {
-    display: flex;
-    align-items: center;
-    color: var(--color-input-accent);
-}
-
-.close-btn {
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-    font-size: 1.4rem;
-    padding: 0 4px;
-    line-height: 1;
-    color: var(--font-color-muted);
-    cursor: pointer;
-}
-
-.close-btn:hover {
-    color: var(--font-color);
-}
-
 .share-modal-desc {
     color: var(--font-color-muted);
     font-size: 0.9rem;
@@ -592,22 +523,4 @@
     white-space: pre;
 }
 
-.share-modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    padding-top: 20px;
-    margin-top: 20px;
-    position: relative;
-}
-
-.share-modal-actions::before {
-    content: "";
-    position: absolute;
-    left: -20px;
-    right: -20px;
-    top: 0;
-    height: 1px;
-    background: var(--bg-level-3);
-}
 </style>

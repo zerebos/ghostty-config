@@ -4,8 +4,9 @@
     import settings from "$lib/data/settings";
     import {getDiagnostics} from "$lib/utils/keybinds";
     import icon from "$lib/images/tabs/keybinds.webp";
-    import {fade, fly} from "svelte/transition";
+    import {fly} from "svelte/transition";
     import Admonition from "../Admonition.svelte";
+    import AlertModal from "$lib/components/modals/AlertModal.svelte";
     import Button from "../Button.svelte";
 
     let selected: number[] = $state([]);
@@ -160,21 +161,14 @@
 {/if}
 
 {#if showReset}
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="reset-backdrop" onclick={() => (showReset = false)} transition:fade={{duration: 200}}></div>
-<div class="reset-card" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-labelledby="reset-title">
-    <header>
-        <img src={icon} alt="Warning" />
-        <h3 id="reset-title">Are you sure?</h3>
-    </header>
-    <footer class="reset-actions">
+<AlertModal title="Are you sure?" iconSrc={icon} onclose={() => (showReset = false)}>
+    {#snippet actions()}
         <Button primary onclick={resetDefaults}>Reset Keybinds</Button>
         <Button onclick={() => (showReset = false)}>
             Cancel
         </Button>
-    </footer>
-</div>
+    {/snippet}
+</AlertModal>
 {/if}
 
 <svelte:document onkeydown={handleKeyPress} />
@@ -251,67 +245,6 @@
 
     .list-controls button:first-child {
         font-size: 1.5rem;
-    }
-
-    .reset-backdrop {
-        position: absolute;
-        inset: 0;
-        background: rgba(18, 18, 18, 0.75);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 100;
-    }
-
-    .reset-card {
-        position: absolute;
-        top: 30%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: rgba(from var(--bg-level-1) r g b / 0.7);
-        backdrop-filter: blur(20px);
-        border-radius: var(--radius-level-2);
-        padding: 16px;
-        width: min(90vw, 260px);
-        border: 1px solid var(--border-level-1);
-        box-shadow:
-            0 0 20px -1px rgba(0,0,0,0.7),
-            0 0 1px white inset;
-        gap: 26px;
-        z-index: 101;
-    }
-
-    .reset-card header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .reset-card header img {
-        width: 52px;
-        height: 52px;
-        margin: 26px;
-    }
-
-    .reset-card h3 {
-        margin: 0 0 8px;
-    }
-
-    .reset-actions {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        gap: 10px;
-        width: 100%;
-    }
-
-    .reset-actions :global(button),
-    .reset-actions :global(button.primary) {
-        flex: 1;
-        padding: 6px 16px;
     }
 
     .list-controls button + button::before {
