@@ -17,31 +17,31 @@
     const inputType = $derived(range ? "range" : "text");
 
     // Check if the current value is valid (within min/max bounds)
-    // undefined is considered valid (it just means "no value")
+    // undefined and NaN are considered valid (they just mean "no value")
     const isValid = $derived(() => {
-        if (value === undefined) return true;
+        if (value === undefined || Number.isNaN(value)) return true;
         if (min !== undefined && value < min) return false;
         if (max !== undefined && value > max) return false;
         return true;
     });
 
-    // Display value - show empty string if undefined or invalid
+    // Display value - show empty string if undefined, NaN, or invalid
     const displayValue = $derived.by(() => {
-        if (value === undefined) return "";
+        if (value === undefined || Number.isNaN(value)) return "";
         if (!isValid()) return "";
         return value.toString();
     });
 
     $effect(() => {
         if (!size && !range) {
-            const referenceValue = (value !== undefined && isValid()) ? value : (max ?? 100);
+            const referenceValue = (value !== undefined && !Number.isNaN(value) && isValid()) ? value : (max ?? 100);
             size = referenceValue.toString().length + 2;
         }
     });
 
     function increment() {
-        // If current value is undefined or invalid, start from min (or 0)
-        if (value === undefined || !isValid()) {
+        // If current value is undefined, NaN, or invalid, start from min (or 0)
+        if (value === undefined || Number.isNaN(value) || !isValid()) {
             value = min ?? 0;
             return;
         }
@@ -53,8 +53,8 @@
     }
 
     function decrement() {
-        // If current value is undefined or invalid, start from max (or min, or 0)
-        if (value === undefined || !isValid()) {
+        // If current value is undefined, NaN, or invalid, start from max (or min, or 0)
+        if (value === undefined || Number.isNaN(value) || !isValid()) {
             value = max ?? Math.max(0, min ?? 0);
             return;
         }

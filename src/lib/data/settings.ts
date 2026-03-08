@@ -307,8 +307,8 @@ const settings = [
                 id: "resize",
                 name: "Sizing & Resizing",
                 settings: [
-                    {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 4, step: 1, size: 4, placeholder: "e.g. 24"},
-                    {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 10, step: 1, size: 4, placeholder: "e.g. 80"},
+                    {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", min: 4, step: 1, size: 4, placeholder: "e.g. 24"},
+                    {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", min: 10, step: 1, size: 4, placeholder: "e.g. 80"},
                     {id: "windowPositionY", name: "Initial window Y", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4, placeholder: "e.g. 0"},
                     {id: "windowPositionX", name: "Initial window X", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4, placeholder: "e.g. 0"},
                     {id: "windowStepResize", name: "Resize in grid cell increments", type: "switch", value: false},
@@ -398,8 +398,9 @@ const settings = [
             {
                 id: "family",
                 name: "Font Families",
+                note: "By default Ghostty embeds and uses JetBrainsMono Nerd Font so you don't need to install it on your system or set it in your configuration.",
                 settings: [
-                    {id: "fontFamily", name: "Main font family", type: "text", value: ""},
+                    {id: "fontFamily", name: "Main font family", type: "text", value: "", placeholder: "JetBrainsMono NF"},
                     {id: "fontFamilyBold", name: "Font family for bold text", type: "text", value: ""},
                     {id: "fontFamilyItalic", name: "Font family for italic text", type: "text", value: ""},
                     {id: "fontFamilyBoldItalic", name: "Font family for bold italic text", type: "text", value: ""},
