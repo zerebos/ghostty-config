@@ -14,7 +14,8 @@
     } from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
-    import DialogModal from "$lib/components/modals/DialogModal.svelte";
+    import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
+    import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
     import Admonition from "$lib/components/Admonition.svelte";
 
@@ -31,10 +32,7 @@
 
     let showShareComposer = $state(false);
     let shareUrl = $state<string | null>(null);
-    let shareCopyText = $state("Copy Link");
-    let shareNotice = $state<string | null>(null);
     let isShareTooLong = $state(false);
-    let canUseNativeShare = $state(false);
 
     const currentConfigDiff = $derived(diff());
     const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
@@ -179,59 +177,24 @@
         const encoded = encodeConfig(config);
         const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
 
-        shareCopyText = "Copy Link";
-        shareNotice = "This link contains your config data. Share only with people you trust.";
         isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
         shareUrl = isShareTooLong ? null : nextShareUrl;
-        canUseNativeShare = !!navigator.share;
         showShareComposer = true;
     }
 
     function closeShareComposer() {
         showShareComposer = false;
         shareUrl = null;
-        shareNotice = null;
         isShareTooLong = false;
-    }
-
-    async function copyShareLink() {
-        if (!shareUrl || shareCopyText === "Copied!") return;
-
-        try {
-            await window.navigator.clipboard.writeText(shareUrl);
-            shareCopyText = "Copied!";
-            shareNotice = "Share link copied to clipboard.";
-            setTimeout(() => (shareCopyText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
-        }
-        catch {
-            shareCopyText = "Copy Failed";
-            shareNotice = "Select the link and copy manually.";
-            setTimeout(() => (shareCopyText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
-        }
-    }
-
-    async function nativeShareLink() {
-        if (!shareUrl || !navigator.share) return;
-
-        try {
-            await navigator.share({
-                title: "Ghostty Config",
-                text: "Ghostty config share link",
-                url: shareUrl
-            });
-        }
-        catch {
-            // User cancellation should not show an error.
-        }
     }
 
     async function copyConfigForFallback() {
         try {
             await window.navigator.clipboard.writeText(stringifyConfig(false));
-            shareNotice = "Config copied. You can share it as plain text instead of a link.";
+            return true;
         }
         catch {
-            shareNotice = "Clipboard access failed. Use file export instead.";
+            return false;
         }
     }
 
@@ -333,92 +296,24 @@
 </Page>
 
 {#if showShareComposer}
-<DialogModal title="Share Config" onclose={closeShareComposer}>
-    {#snippet icon()}
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-        </svg>
-    {/snippet}
-
-    {#if isShareTooLong}
-        <p class="share-modal-desc">This config is too large for reliable URL sharing across apps and browsers.</p>
-    {:else}
-        <p class="share-modal-desc">Review and copy the share link below.</p>
-        <input
-            type="text"
-            class="share-link-input"
-            value={shareUrl ?? ""}
-            readonly
-            onclick={(event) => event.currentTarget.select()}
-        />
-        {#if shareNotice}
-            <p class="status-text" role="status">{shareNotice}</p>
-        {/if}
-    {/if}
-
-    {#snippet footer()}
-        {#if isShareTooLong}
-            <Button primary onclick={copyConfigForFallback}>Copy Config Text</Button>
-            <Button onclick={downloadConfig}>Download File</Button>
-            <Button onclick={closeShareComposer}>Close</Button>
-        {:else}
-            <Button onclick={closeShareComposer}>Close</Button>
-            {#if canUseNativeShare}
-                <Button onclick={nativeShareLink}>Share...</Button>
-            {/if}
-            <Button primary onclick={copyShareLink}>{shareCopyText}</Button>
-        {/if}
-    {/snippet}
-</DialogModal>
+<ShareComposerModal
+    isTooLong={isShareTooLong}
+    {shareUrl}
+    onclose={closeShareComposer}
+    ondownload={downloadConfig}
+    oncopyconfigtext={copyConfigForFallback}
+/>
 {/if}
 
 {#if showSharedConfigModal}
-<DialogModal title="Shared Config" onclose={closeSharedConfigModal}>
-    {#snippet icon()}
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-        </svg>
-    {/snippet}
-    <p class="share-modal-desc">Someone shared a Ghostty config with you. Review it before importing.</p>
-    <div class="share-preview">
-        {#if sharedConfigParsed}
-            <div class="row p2"># Config generated by Ghostty Config</div>
-            <div class="row">&nbsp;</div>
-            {#each Object.entries(sharedConfigParsed) as [key, value], i (i)}
-                {#if Array.isArray(value)}
-                    {#each value as val, v (v)}
-                    {#if val !== ""}
-                        <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{val}</span></div>
-                    {/if}
-                    {/each}
-                {:else}
-                    <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{value}</span></div>
-                {/if}
-            {/each}
-        {:else}
-            {#if sharedConfigParseError}
-                <div class="row p2"># Could not parse config structure. Showing raw text:</div>
-                <div class="row">&nbsp;</div>
-            {/if}
-            {#each (sharedConfigPreview ?? "").split("\n") as line, i (i)}
-                <div class="row">{line}</div>
-            {/each}
-        {/if}
-    </div>
-
-    {#snippet footer()}
-        <Button onclick={closeSharedConfigModal}>Dismiss</Button>
-        <Button primary onclick={importSharedConfig}>Import Config</Button>
-    {/snippet}
-</DialogModal>
+<SharedConfigModal
+    parsedConfig={sharedConfigParsed}
+    previewText={sharedConfigPreview}
+    parseError={sharedConfigParseError}
+    keyFormatter={keyToConfig}
+    onclose={closeSharedConfigModal}
+    onimport={importSharedConfig}
+/>
 {/if}
 
 <style>
@@ -471,56 +366,6 @@
 .button-group {
     display: flex;
     gap: 12px;
-}
-
-.status-text {
-    color: var(--font-color-muted);
-    font-size: 0.9rem;
-    line-height: 1.4;
-    margin: 8px 0 0;
-}
-
-.share-modal-desc {
-    color: var(--font-color-muted);
-    font-size: 0.9rem;
-    margin: 0;
-    line-height: 1.5;
-}
-
-.share-preview {
-    background: var(--config-bg);
-    font-family: var(--config-font-family);
-    font-size: var(--config-font-size);
-    color: var(--config-fg);
-    overflow-y: auto;
-    padding: 8px;
-    border-radius: var(--radius-level-3);
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
-    flex: 1;
-    user-select: text;
-    min-height: 80px;
-    max-height: 280px;
-}
-
-.share-link-input {
-    width: 100%;
-    resize: vertical;
-    font-family: var(--config-font-family);
-    border: 1px solid var(--border-level-3);
-    border-radius: var(--radius-level-4);
-    background: var(--bg-input);
-    color: var(--font-color);
-    padding: 8px;
-}
-
-.share-link-input:focus-visible {
-    outline: 1px solid var(--color-input-accent);
-}
-
-.share-preview .row {
-    display: block;
-    white-space: pre;
 }
 
 </style>
