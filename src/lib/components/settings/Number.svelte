@@ -7,10 +7,12 @@
         size?: number;
         range?: boolean;
         placeholder?: string;
+        integer?: boolean;
     };
 
+    // why is eslint like this smh
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), min, max, step = 1, size, range, placeholder}: Props = $props();
+    let {value = $bindable(), min, max, step = 1, size, range, placeholder, integer = true}: Props = $props();
 
     const inputType = $derived(range ? "range" : "text");
 
@@ -22,7 +24,7 @@
     });
 
     // Display value - show empty string if invalid, otherwise show the value
-    const displayValue = $derived(isValid() ? value.toString() : "");
+    const displayValue = $derived.by(() => isValid() ? value.toString() : "");
 
     $effect(() => {
         if (!size && !range) {
@@ -67,13 +69,18 @@
             return;
         }
 
-        const numValue = parseFloat(inputText);
+        const numValue = integer ? parseInt(inputText, 10) : parseFloat(inputText);
 
         if (!isNaN(numValue)) {
-            let constrainedValue = numValue;
+
+            let constrainedValue = integer ? Math.round(numValue) : numValue;
             if (min !== undefined && constrainedValue < min) constrainedValue = min;
             if (max !== undefined && constrainedValue > max) constrainedValue = max;
             value = constrainedValue;
+        }
+        else {
+            // If input is not a valid number, reset to previous valid value
+            target.value = value.toString();
         }
     }
 
@@ -86,6 +93,12 @@
             event.preventDefault();
             decrement();
         }
+    }
+
+    // Reset any abnormal user input after they click out
+    function onBlur(e: FocusEvent) {
+        const target = e.target as HTMLInputElement;
+        target.value = displayValue;
     }
 </script>
 
@@ -102,6 +115,7 @@
                 {placeholder}
                 oninput={handleInput}
                 onkeydown={handleKeyDown}
+                onblur={onBlur}
             />
             <div class="steppers">
                 <button type="button" class="stepper up" onclick={increment} aria-label="Increment">
