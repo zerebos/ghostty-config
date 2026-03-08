@@ -3,6 +3,7 @@
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
     import {diff, load, keyToConfig} from "$lib/stores/config.svelte";
+    import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
     import {
         buildShareUrl,
@@ -78,8 +79,7 @@
         window.history.replaceState(null, "", nextUrl);
     }
 
-    // TODO: move alert() to real modals
-    function loadConfig(candidate: string) {
+    async function loadConfig(candidate: string) {
         let parsed;
         try {
             // TODO: remove this assertions when the return type of parse is fixed
@@ -88,7 +88,11 @@
         catch (parseError) {
             // eslint-disable-next-line no-console
             console.error(parseError);
-            alert("Something went wrong trying to parse your config. Please open an issue on GitHub!");
+            await showAlert({
+                title: "Could not parse config",
+                message: "Something went wrong while parsing your config. Please open an issue on GitHub.",
+                buttonText: "Dismiss"
+            });
             return;
         }
 
@@ -98,7 +102,11 @@
         catch (loadError) {
             // eslint-disable-next-line no-console
             console.error(loadError);
-            alert("Something went wrong trying to load your parsed config. Please open an issue on GitHub!");
+            await showAlert({
+                title: "Could not load config",
+                message: "Something went wrong while loading your parsed config. Please open an issue on GitHub.",
+                buttonText: "Dismiss"
+            });
         }
     }
 
@@ -109,7 +117,7 @@
             const text = await window.navigator.clipboard.readText();
             pasteConfigText = "Pasted!";
             setTimeout(() => (pasteConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
-            loadConfig(text);
+            await loadConfig(text);
         }
         catch {
             pageNotice = "Clipboard access failed. Paste manually or import from file.";
@@ -127,7 +135,7 @@
         reader.addEventListener("load", (event) => {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
             const loadedText = event.target?.result?.toString();
-            if (loadedText) loadConfig(loadedText);
+            if (loadedText) void loadConfig(loadedText);
         });
         reader.readAsText(file);
     }
@@ -198,8 +206,8 @@
         }
     }
 
-    function importSharedConfig() {
-        if (sharedConfigPreview) loadConfig(sharedConfigPreview);
+    async function importSharedConfig() {
+        if (sharedConfigPreview) await loadConfig(sharedConfigPreview);
         closeSharedConfigModal();
     }
 

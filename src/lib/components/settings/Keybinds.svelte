@@ -2,24 +2,19 @@
     import KeybindEditor from "./KeybindEditor.svelte";
     import Text from "./Text.svelte";
     import settings from "$lib/data/settings";
+    import {confirm} from "$lib/stores/modals.svelte";
     import {getDiagnostics} from "$lib/utils/keybinds";
     import icon from "$lib/images/tabs/keybinds.webp";
     import {fly} from "svelte/transition";
     import Admonition from "../Admonition.svelte";
-    import AlertModal from "$lib/components/modals/AlertModal.svelte";
-    import Button from "../Button.svelte";
 
     let selected: number[] = $state([]);
     let {value = $bindable([])}: {value: string[]} = $props();
     let showEditor = $state(false);
     let editorMode = $state<"add" | "edit">("add");
     let editorValue = $state("");
-    let showReset = $state(false);
 
     function handleKeyPress(event: KeyboardEvent) {
-        if (showReset) {
-            if (event.key === "Escape") return (showReset = false);
-        }
         if (event.key === "Escape") selected = [];
         const shouldExpand = event.ctrlKey || event.shiftKey;
         if (!shouldExpand && selected.length) return;
@@ -81,8 +76,19 @@
     function resetDefaults() {
         value = [...defaultKeybinds];
         selected = [];
-        showReset = false;
         if (scroller) scroller.scrollTop = 0;
+    }
+
+    async function requestResetDefaults() {
+        const shouldReset = await confirm({
+            title: "Are you sure?",
+            message: "This will reset all keybinds to their defaults.",
+            confirmText: "Reset Keybinds",
+            cancelText: "Cancel",
+            iconSrc: icon
+        });
+
+        if (shouldReset) resetDefaults();
     }
 
     function update(index: number, isAction: boolean = false) {
@@ -153,22 +159,11 @@
            <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 56 56"><path fill="currentColor" d="m43.293 16.926l2.367-2.32c1.196-1.196 1.242-2.485.188-3.563l-.797-.797c-1.055-1.055-2.344-.937-3.54.211l-2.367 2.344ZM15.66 44.488l25.57-25.547l-4.101-4.125l-25.594 25.57L9.31 45.59c-.211.562.375 1.219.937.984Z" /></svg>
         </button>
         <div class="list-controls-spacer"></div>
-        <button onclick={() => (showReset = true)} type="button" title="Reset Defaults">
+        <button onclick={requestResetDefaults} type="button" title="Reset Defaults">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H3" /><path d="M7 12H3" /><path d="M7 19H3" /><path d="M12 18a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L11 14" /><path d="M11 10v4h4" /></svg>
         </button>
     </div>
 </div>
-{/if}
-
-{#if showReset}
-<AlertModal title="Are you sure?" iconSrc={icon} onclose={() => (showReset = false)}>
-    {#snippet actions()}
-        <Button primary onclick={resetDefaults}>Reset Keybinds</Button>
-        <Button onclick={() => (showReset = false)}>
-            Cancel
-        </Button>
-    {/snippet}
-</AlertModal>
 {/if}
 
 <svelte:document onkeydown={handleKeyPress} />

@@ -26,6 +26,7 @@
 
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
+    import ModalStack from "$lib/components/modals/ModalStack.svelte";
     import type {Snippet} from "svelte";
 
     const cssConfigVars = $derived.by(() => {
@@ -149,6 +150,7 @@
     <div id="content-view">
         {@render children()}
     </div>
+    <ModalStack />
 
 </div>
 

@@ -85,7 +85,7 @@
     box-shadow:
         0 0 20px -1px rgba(0, 0, 0, 0.7),
         0 0 1px white inset;
-    gap: 26px;
+    /* gap: 26px; */
     z-index: 101;
 }
 
@@ -112,6 +112,7 @@
     color: var(--font-color-muted);
     line-height: 1.4;
     text-align: center;
+    margin-top: 13px;
 }
 
 .alert-actions {
@@ -120,6 +121,7 @@
     justify-content: flex-end;
     gap: 10px;
     width: 100%;
+    margin-top: 26px;
 }
 
 .alert-actions :global(button),
