@@ -66,9 +66,15 @@
 
 <svelte:head>
     <title>{htmlTitle}</title>
+    {#if DESKTOP}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <style>
+            body {
+                background: transparent;
+            }
+        </style>
+    {/if}
 </svelte:head>
-
-<svelte:body class:desktop-mode={DESKTOP} />
 
 <!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
 <div class="app-window" class:desktop={DESKTOP} style={cssConfigVars}>

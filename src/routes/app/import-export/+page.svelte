@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {PUBLIC_APP_ORIGIN} from "$env/static/public";
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
@@ -169,16 +170,19 @@
 
     async function loadFromDisk() {
         if (readConfigText === "Loaded!") return;
+
         try {
             const text = await readGhosttyConfig();
-            if (text) loadConfig(text);
             readConfigText = "Loaded!";
             setTimeout(() => (readConfigText = "Load from disk"), 3000);
+            if (!text) return;
+            const loaded = await loadConfig(text);
+            if (loaded) success("Config loaded from disk");
         }
         catch (err) {
             // eslint-disable-next-line no-console
             console.error(err);
-            alert("Could not read Ghostty config from disk. Please open an issue on GitHub!");
+            error("Could not read Ghostty config from disk. Please open an issue on GitHub!");
         }
     }
 
@@ -224,7 +228,7 @@
 
         const config = stringifyConfig(false);
         const encoded = encodeConfig(config);
-        const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
+        const nextShareUrl = buildShareUrl(PUBLIC_APP_ORIGIN ?? window.location.origin, window.location.pathname, encoded);
 
         isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
         shareUrl = isShareTooLong ? null : nextShareUrl;
@@ -289,15 +293,17 @@
 
     async function saveToDisk() {
         if (writeConfigText === "Saved!") return;
+
         try {
             await writeGhosttyConfig(stringifyConfig());
             writeConfigText = "Saved!";
+            success("Config saved to disk");
             setTimeout(() => (writeConfigText = "Save to disk"), 3000);
         }
         catch (err) {
             // eslint-disable-next-line no-console
             console.error(err);
-            alert("Could not save Ghostty config to disk. Please open an issue on GitHub!");
+            error("Could not save Ghostty config to disk. Please open an issue on GitHub!");
         }
     }
 </script>
@@ -333,7 +339,7 @@
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
                 <Button onclick={openFilePicker} title="Upload">File...</Button>
                 {#if DESKTOP}
-                    <Button onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</Button>
+                    <Button primary onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</Button>
                 {/if}
             </div>
         </Item>
@@ -351,7 +357,7 @@
                     disabled={!hasExportableConfig}
                 >File...</Button>
                 {#if DESKTOP}
-                    <Button onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</Button>
+                    <Button primary onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</Button>
                 {/if}
                 <Button
                     primary

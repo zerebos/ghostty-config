@@ -21,13 +21,14 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
+!.env.desktop
 
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Go / Wails
-/wailsjs
+/bindings
 
 # npm lockfile (project uses Bun)
 package-lock.json
