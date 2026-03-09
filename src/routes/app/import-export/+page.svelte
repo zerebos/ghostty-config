@@ -1,12 +1,28 @@
 <script lang="ts">
-    import Page from "$lib/views/Page.svelte";
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
-    import {diff, load} from "$lib/stores/config.svelte";
+    import {diff, load, keyToConfig} from "$lib/stores/config.svelte";
+    import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
     import {DESKTOP, readGhosttyConfig, writeGhosttyConfig, getGhosttyConfigPath} from "$lib/wails";
+
+    import {
+        buildShareUrl,
+        decodeConfig,
+        encodeConfig,
+        getSharePayloadFromHash,
+        MAX_SHARE_URL_LENGTH,
+        removeSharePayloadFromHash
+    } from "$lib/utils/share";
+    import Page from "$lib/views/Page.svelte";
+    import Button from "$lib/components/Button.svelte";
+    import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
+    import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
+    import {error, success} from "$lib/stores/toasts.svelte";
+
+    const LABEL_RESET_TIMEOUT_MS = 3000;
 
     let pasteConfigText = $state("Clipboard");
     let copyConfigText = $state("Clipboard");
@@ -14,6 +30,11 @@
     let configPath = $state("");
     let readConfigText = $state("Load from disk");
     let writeConfigText = $state("Save to disk");
+
+    let sharedConfigPreview = $state<string | null>(null);
+    let sharedConfigParsed = $state<Record<string, string | string[]> | null>(null);
+    let sharedConfigParseError = $state(false);
+    let showSharedConfigModal = $state(false);
 
     // DESKTOP is a build-time constant; the `if` body is tree-shaken out of
     // the web bundle entirely when building with the default Vite mode.
@@ -29,8 +50,56 @@
             }
         }
     });
-    // TODO: move alert() to real modals
-    function loadConfig(candidate: string) {
+
+
+    let showShareComposer = $state(false);
+    let shareUrl = $state<string | null>(null);
+    let isShareTooLong = $state(false);
+
+    const currentConfigDiff = $derived(diff());
+    const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
+
+    onMount(() => {
+        maybeShowSharedConfigFromHash();
+        const handler = () => maybeShowSharedConfigFromHash();
+        window.addEventListener("hashchange", handler);
+        return () => window.removeEventListener("hashchange", handler);
+    });
+
+    function maybeShowSharedConfigFromHash() {
+        const shareParam = getSharePayloadFromHash(window.location.hash);
+        if (!shareParam) return;
+
+        try {
+            const decodedConfig = decodeConfig(shareParam);
+            sharedConfigPreview = decodedConfig;
+
+            // Try to parse for pretty display
+            try {
+                sharedConfigParsed = parse(decodedConfig) as Record<string, string | string[]>;
+                sharedConfigParseError = false;
+            }
+            catch {
+                // Parsing failed, will fall back to raw text display
+                sharedConfigParsed = null;
+                sharedConfigParseError = true;
+            }
+
+            showSharedConfigModal = true;
+        }
+        catch {
+            error("Failed to read shared config from URL");
+            clearShareHashFromAddressBar();
+        }
+    }
+
+    function clearShareHashFromAddressBar() {
+        const cleanedHash = removeSharePayloadFromHash(window.location.hash);
+        const nextUrl = `${window.location.pathname}${window.location.search}${cleanedHash}`;
+        window.history.replaceState(null, "", nextUrl);
+    }
+
+    async function loadConfig(candidate: string): Promise<boolean> {
         let parsed;
         try {
             // TODO: remove this assertions when the return type of parse is fixed
@@ -39,8 +108,12 @@
         catch (parseError) {
             // eslint-disable-next-line no-console
             console.error(parseError);
-            alert("Something went wrong trying to parse your config. Please open an issue on GitHub!");
-            return;
+            await showAlert({
+                title: "Could not parse config",
+                message: "Something went wrong while parsing your config. Please open an issue on GitHub.",
+                buttonText: "Dismiss"
+            });
+            return false;
         }
 
         try {
@@ -49,18 +122,30 @@
         catch (loadError) {
             // eslint-disable-next-line no-console
             console.error(loadError);
-            alert("Something went wrong trying to load your parsed config. Please open an issue on GitHub!");
-            return;
+            await showAlert({
+                title: "Could not load config",
+                message: "Something went wrong while loading your parsed config. Please open an issue on GitHub.",
+                buttonText: "Dismiss"
+            });
+            return false;
         }
+
+        return true;
     }
 
-    function pasteConfig() {
+    async function pasteConfig() {
         if (pasteConfigText === "Pasted!") return;
-        void window.navigator.clipboard.readText().then(text => {
+
+        try {
+            const text = await window.navigator.clipboard.readText();
             pasteConfigText = "Pasted!";
-            setTimeout(() => (pasteConfigText = "Clipboard"), 3000);
-            loadConfig(text);
-        });
+            setTimeout(() => (pasteConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
+            const loaded = await loadConfig(text);
+            if (loaded) success("Config loaded from clipboard");
+        }
+        catch {
+            error("Clipboard access failed! Please paste manually or import from file.");
+        }
     }
 
     let filePicker: HTMLInputElement;
@@ -74,7 +159,10 @@
         reader.addEventListener("load", (event) => {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
             const loadedText = event.target?.result?.toString();
-            if (loadedText) loadConfig(loadedText);
+            if (!loadedText) return;
+            void loadConfig(loadedText).then((didLoad) => {
+                if (didLoad) success("Config loaded from file");
+            });
         });
         reader.readAsText(file);
     }
@@ -95,9 +183,9 @@
     }
 
     // Move to module
-    function stringifyConfig() {
-        const config = diff();
-        const lines = ["# Config generated by Ghostty Config\n"];
+    function stringifyConfig(includeHeader = true) {
+        const config = currentConfigDiff;
+        const lines = includeHeader ? ["# Config generated by Ghostty Config\n"] : [];
         for (const key in config) {
             if (!Array.isArray(config[key])) {
                 lines.push(`${key} = ${config[key]}`);
@@ -112,16 +200,74 @@
         return lines.join("\n");
     }
 
-    function copyConfig() {
+    async function copyConfig() {
+        if (!hasExportableConfig) {
+            return;
+        }
         if (copyConfigText === "Copied!") return;
-        const config = stringifyConfig();
-        void window.navigator.clipboard.writeText(config).then(() => {
+
+        try {
+            await window.navigator.clipboard.writeText(stringifyConfig());
             copyConfigText = "Copied!";
-            setTimeout(() => (copyConfigText = "Clipboard"), 3000);
-        });
+            success("Config copied to clipboard");
+            setTimeout(() => (copyConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
+        }
+        catch {
+            error("Clipboard access failed! Please copy manually or export to file.");
+        }
+    }
+
+    function openShareComposer() {
+        if (!hasExportableConfig) {
+            return;
+        }
+
+        const config = stringifyConfig(false);
+        const encoded = encodeConfig(config);
+        const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
+
+        isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
+        shareUrl = isShareTooLong ? null : nextShareUrl;
+        showShareComposer = true;
+    }
+
+    function closeShareComposer() {
+        showShareComposer = false;
+        shareUrl = null;
+        isShareTooLong = false;
+    }
+
+    async function copyConfigForFallback() {
+        try {
+            await window.navigator.clipboard.writeText(stringifyConfig(false));
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    async function importSharedConfig() {
+        if (sharedConfigPreview) {
+            const loaded = await loadConfig(sharedConfigPreview);
+            if (loaded) success("Shared config imported");
+        }
+        closeSharedConfigModal();
+    }
+
+    function closeSharedConfigModal() {
+        showSharedConfigModal = false;
+        sharedConfigPreview = null;
+        sharedConfigParsed = null;
+        sharedConfigParseError = false;
+        clearShareHashFromAddressBar();
     }
 
     function downloadConfig() {
+        if (!hasExportableConfig) {
+            return;
+        }
+
         const file = new File([stringifyConfig()], "config", {type: "text/plain"});
         const link = document.createElement("a");
         const url = URL.createObjectURL(file);
@@ -132,6 +278,13 @@
         link.click();
         link.remove();
         URL.revokeObjectURL(url);
+        success("Config file downloaded");
+    }
+
+    function handleWindowKeydown(e: KeyboardEvent) {
+        if (e.key !== "Escape") return;
+        if (showShareComposer) closeShareComposer();
+        else if (showSharedConfigModal) closeSharedConfigModal();
     }
 
     async function saveToDisk() {
@@ -149,41 +302,63 @@
     }
 </script>
 
+<svelte:window onkeydown={handleWindowKeydown} />
+
 <Page title="Import & Export">
     <Group flex={1}>
         <div class="preview">
-            <div class="row p2"># You can preview the config here</div>
+            {#if hasExportableConfig}
+                <div class="row p2"># Config generated by Ghostty Config</div>
+            {:else}
+                <div class="row p2"># No changes to the default config yet</div>
+            {/if}
             <div class="row">&nbsp;</div>
 
-            {#each Object.entries(diff()) as [key, value], i (i)}
-                {#if Array.isArray(value)}
-                    {#each value as val, v (v)}
-                    <div class="row"><span class="p4">{key}</span> = <span class="p5">{val}</span></div>
-                    {/each}
-                {:else}
-                    <div class="row"><span class="p4">{key}</span> = <span class="p5">{value}</span></div>
-                {/if}
-            {/each}
+            {#if hasExportableConfig}
+                {#each Object.entries(currentConfigDiff) as [key, value], i (i)}
+                    {#if Array.isArray(value)}
+                        {#each value as val, v (v)}
+                        <div class="row"><span class="p4">{key}</span> = <span class="p5">{val}</span></div>
+                        {/each}
+                    {:else}
+                        <div class="row"><span class="p4">{key}</span> = <span class="p5">{value}</span></div>
+                    {/if}
+                {/each}
+            {/if}
         </div>
         <Separator />
         <Item name="Import">
             <div class="button-group">
-                <button type="button" onclick={pasteConfig} title="Paste">{pasteConfigText}</button>
+                <Button onclick={pasteConfig} title="Paste">{pasteConfigText}</Button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <button type="button" onclick={openFilePicker} title="Upload">File...</button>
+                <Button onclick={openFilePicker} title="Upload">File...</Button>
                 {#if DESKTOP}
-                    <button type="button" class="desktop-btn" onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</button>
+                    <Button onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</Button>
                 {/if}
             </div>
         </Item>
         <Separator />
         <Item name="Export">
             <div class="button-group">
-                <button type="button" onclick={copyConfig} title="Copy">{copyConfigText}</button>
-                <button type="button" onclick={downloadConfig} title="Download">File...</button>
+                <Button
+                    onclick={copyConfig}
+                    title={hasExportableConfig ? "Copy" : "No changes yet!"}
+                    disabled={!hasExportableConfig}
+                >{copyConfigText}</Button>
+                <Button
+                    onclick={downloadConfig}
+                    title={hasExportableConfig ? "Download" : "No changes yet!"}
+                    disabled={!hasExportableConfig}
+                >File...</Button>
                 {#if DESKTOP}
-                    <button type="button" class="desktop-btn" onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</button>
+                    <Button onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</Button>
                 {/if}
+                <Button
+                    primary
+                    onclick={openShareComposer}
+                    title={hasExportableConfig ? "Share your config" : "No changes yet!"}
+                    disabled={!hasExportableConfig}
+                >Share...</Button>
             </div>
         </Item>
         {#if DESKTOP && configPath}
@@ -194,6 +369,27 @@
         {/if}
     </Group>
 </Page>
+
+{#if showShareComposer}
+<ShareComposerModal
+    isTooLong={isShareTooLong}
+    {shareUrl}
+    onclose={closeShareComposer}
+    ondownload={downloadConfig}
+    oncopyconfigtext={copyConfigForFallback}
+/>
+{/if}
+
+{#if showSharedConfigModal}
+<SharedConfigModal
+    parsedConfig={sharedConfigParsed}
+    previewText={sharedConfigPreview}
+    parseError={sharedConfigParseError}
+    keyFormatter={keyToConfig}
+    onclose={closeSharedConfigModal}
+    onimport={importSharedConfig}
+/>
+{/if}
 
 <style>
 .preview {
@@ -247,29 +443,11 @@
     gap: 12px;
 }
 
-/* TODO: extract to a separate component for usage elsewhere */
-button {
-    background: var(--bg-basic-button);
-    border-radius: var(--radius-level-4);
-    border: 0;
-    color: inherit;
-    padding: 2px 10px;
-    font-size: 1.1rem;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
-}
-
-button:active {
-    filter: brightness(115%);
-}
-
-.desktop-btn {
-    background: var(--color-input-accent);
-}
-
 .config-path {
     font-family: var(--font-family-mono);
     font-size: 0.9em;
     color: var(--font-color-muted);
     user-select: text;
 }
+
 </style>

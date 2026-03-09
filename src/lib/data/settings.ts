@@ -30,6 +30,7 @@ interface Switch extends BaseSettingItem {
 interface Text extends BaseSettingItem {
     type: "text";
     value: string;
+    placeholder?: string;
 }
 
 interface Number extends BaseSettingItem {
@@ -40,6 +41,7 @@ interface Number extends BaseSettingItem {
     step?: number;
     size?: number;
     range?: boolean;
+    placeholder?: string;
 }
 
 interface DropdownOption {
@@ -51,6 +53,7 @@ interface Dropdown extends BaseSettingItem {
     type: "dropdown";
     value: "string";
     options: Array<DropdownOption | string>;
+    placeholder?: string;
 }
 
 interface Theme extends BaseSettingItem {
@@ -131,6 +134,7 @@ const getOS = () => {
 };
 
 // TODO: find a good way to properly type the settings
+// TODO: also allow clearable settings and such, this is a mess
 const settings = [
     {
         id: "application",
@@ -303,10 +307,10 @@ const settings = [
                 id: "resize",
                 name: "Sizing & Resizing",
                 settings: [
-                    {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 4, step: 1, size: 4},
-                    {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", value: 0, min: 10, step: 1, size: 4},
-                    {id: "windowPositionY", name: "Initial window Y", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4},
-                    {id: "windowPositionX", name: "Initial window X", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4},
+                    {id: "windowHeight", name: "Initial window height", note: "This size is not in pixels but in number of terminal grid cells", type: "number", min: 4, step: 1, size: 4, placeholder: "e.g. 24"},
+                    {id: "windowWidth", name: "Initial window width", note: "This size is not in pixels but in number of terminal grid cells", type: "number", min: 10, step: 1, size: 4, placeholder: "e.g. 80"},
+                    {id: "windowPositionY", name: "Initial window Y", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4, placeholder: "e.g. 0"},
+                    {id: "windowPositionX", name: "Initial window X", note: "Relative to the top left pixel of the screen", type: "number", value: 0, min: 0, step: 1, size: 4, placeholder: "e.g. 0"},
                     {id: "windowStepResize", name: "Resize in grid cell increments", type: "switch", value: false},
                     {id: "resizeOverlay", name: "Show resize overlays", type: "dropdown", value: "after-first", options: ["always", "never", "after-first"]},
                     {id: "resizeOverlayPosition", name: "Resize overlay position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right"]},
@@ -394,8 +398,9 @@ const settings = [
             {
                 id: "family",
                 name: "Font Families",
+                note: "By default Ghostty embeds and uses JetBrainsMono Nerd Font so you don't need to install it on your system or set it in your configuration.",
                 settings: [
-                    {id: "fontFamily", name: "Main font family", type: "text", value: ""},
+                    {id: "fontFamily", name: "Main font family", type: "text", value: "", placeholder: "JetBrainsMono NF"},
                     {id: "fontFamilyBold", name: "Font family for bold text", type: "text", value: ""},
                     {id: "fontFamilyItalic", name: "Font family for italic text", type: "text", value: ""},
                     {id: "fontFamilyBoldItalic", name: "Font family for bold italic text", type: "text", value: ""},

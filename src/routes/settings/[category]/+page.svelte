@@ -57,11 +57,11 @@
                         {#if setting.type === "switch"}
                             <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
                         {:else if setting.type === "text"}
-                            <Text bind:value={config[setting.id as keyof typeof config] as string} />
+                            <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} />
                         {:else if setting.type === "number"}
-                            <Number bind:value={config[setting.id as keyof typeof config] as number} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
+                            <Number bind:value={config[setting.id as keyof typeof config] as number} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}
-                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} />
+                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} placeholder={setting.placeholder} />
                         {:else if setting.type === "theme"}
                             <Theme bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} />
                         {:else if setting.type === "color"}

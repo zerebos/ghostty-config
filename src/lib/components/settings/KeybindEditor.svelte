@@ -17,6 +17,7 @@
     import Number from "./Number.svelte";
     import Text from "./Text.svelte";
     import Checkbox from "./Checkbox.svelte";
+    import Button from "../Button.svelte";
 
     interface Props {
         value?: string;
@@ -280,7 +281,13 @@
         {/if}
      </Group>
     <Group title="Result" borderless>
-        <div class="preview-box">{getPreview()}</div>
+        <div class="preview-box">
+            <div class="row">
+                    <span class="p4">{getTrigger()}</span>
+                    <span> = </span>
+                    <span class="p5">{actionName}{getComputedArg() ? `:${getComputedArg()}` : ""}</span>
+            </div>
+        </div>
         {#if getErrors().length}
             <ul class="errors">
                 {#each getErrors() as error (error)}
@@ -290,15 +297,14 @@
         {/if}
     </Group>
     <div class="actions">
-        <button type="button" onclick={close}>Cancel</button>
-        <button
-            type="button"
-            class="primary"
+        <Button onclick={close}>Cancel</Button>
+        <Button
+            primary
             onclick={handleSave}
             disabled={getErrors().length > 0}
         >
             Done
-        </button>
+        </Button>
     </div>
 </div>
 
@@ -438,7 +444,16 @@
         border-radius: var(--radius-level-3);
         border: 1px solid rgba(0, 0, 0, 0.5);
         box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
+        user-select: text;
     }
+
+    .preview-box .row {
+        display: block;
+        white-space: pre;
+    }
+
+    .p4 {color: var(--config-palette-4);}
+    .p5 {color: var(--config-palette-5);}
 
     .errors {
         margin-top: 8px;
@@ -451,40 +466,5 @@
         justify-content: flex-end;
         gap: 10px;
         margin-top: 20px;
-    }
-
-    .actions button {
-        padding: 4px 12px;
-        border-radius: var(--radius-level-4);
-        border: 0;
-        font-weight: 500;
-        box-shadow:
-            0px 0px 1px 0px #000000,
-            inset 0px 3px 1px -3px rgba(255, 255, 255, 0.65);
-
-        background: #59575C;
-        color: var(--font-color);
-        cursor: pointer;
-        position: relative;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .actions button.primary {
-        background: linear-gradient(0deg, #3C6EC9, #437AE2);
-        color: #fff;
-        border: 0;
-        padding: 0 20px;
-    }
-
-    .actions button.primary:disabled {
-        cursor: not-allowed;
-        filter: brightness(0.6);
-    }
-
-    .actions button:active {
-        filter: brightness(1.2);
     }
 </style>

@@ -27,6 +27,8 @@
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
     import {DESKTOP, windowMinimise, windowToggleMaximise, windowQuit} from "$lib/wails";
+    import ModalStack from "$lib/components/modals/ModalStack.svelte";
+    import ToastStack from "$lib/components/ToastStack.svelte";
     import type {Snippet} from "svelte";
 
     const cssConfigVars = $derived.by(() => {
@@ -46,7 +48,7 @@
 
         // TODO: consider honoring separate fonts for bold/italic and such in previews
         // Add font settings
-        add("font-family", config.fontFamily || "monospace");
+        add("font-family", config.fontFamily || "JetBrainsMono Nerd Font");
         add("font-size", `${config.fontSize}px`);
 
         return str;
@@ -158,7 +160,8 @@
     <div id="content-view">
         {@render children()}
     </div>
-
+    <ModalStack />
+    <ToastStack />
 </div>
 
 <!-- <svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} /> -->

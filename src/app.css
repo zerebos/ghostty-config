@@ -1,4 +1,5 @@
 @import "@fontsource-variable/inter";
+@import "./fonts.css";
 
 /* TODO: rework all of these vars */
 :root {
@@ -13,6 +14,7 @@
     --font-size: 14px;
     --font-color: #EBE6EE;
     --font-color-muted: #A19FA3;
+    --input-icon-color: #fff;
 
 
     /* Background levels */
@@ -24,6 +26,8 @@
     --bg-input-focus: #1F1E1F;
     --bg-modal: #231E2A;
     --bg-basic-button: #635F68;
+    --bg-stepper: #535258;
+    --bg-handle: #434049;
 
     /* Corresponding border levels */
     --border-level-1: #000000;
