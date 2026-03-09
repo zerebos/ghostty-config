@@ -47,6 +47,10 @@ interface Number extends BaseSettingItem {
 interface DropdownOption {
     name: string;
     value: string;
+    searchable?: boolean;
+    placeholder?: string;
+    allowEmpty?: boolean;
+    emptyLabel?: string;
 }
 
 interface Dropdown extends BaseSettingItem {
@@ -333,7 +337,7 @@ const settings = [
                         note: "Any colors selected after setting this will overwrite the theme's colors.",
                         type: "theme",
                         value: "",
-                        options: [{name: "Custom", value: ""}]
+                        options: []
                     },
                     {id: "boldColor", name: "Bold text color", note: "Set to `bright` to use bright palette colors for bold text, or a hex color value. Leave empty to use the default.", type: "text", value: ""},
                     {id: "faintOpacity", name: "Faint text opacity", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.01},

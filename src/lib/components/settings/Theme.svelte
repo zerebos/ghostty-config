@@ -24,4 +24,4 @@
     }
 </script>
 
-<Dropdown bind:value {options} {change} />
+<Dropdown bind:value {options} {change} placeholder="Choose a theme" searchable allowEmpty emptyLabel="Custom Theme" />
