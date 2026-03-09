@@ -449,7 +449,7 @@
                                     if (!option.disabled) highlightedValue = option.value;
                                 }}
                             >
-                                <div class="option-main">
+                                <div class="option-main" class:has-icon={Boolean(option.icon)}>
                                     <div class="option-title-row">
                                         {#if option.icon}
                                             <span class="option-icon" aria-hidden="true">{option.icon}</span>
@@ -472,7 +472,7 @@
 <style>
     .dropdown {
         position: relative;
-        min-width: 175px;
+        /* min-width: 175px; */
         max-width: 320px;
         /* width: 100%; */
     }
@@ -667,6 +667,9 @@
         font-size: 0.8rem;
         color: var(--font-color-muted);
         line-height: 1.2;
+    }
+
+    .option-main.has-icon .option-description {
         margin-left: 23px;
     }
 
