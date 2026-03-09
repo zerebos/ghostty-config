@@ -111,6 +111,12 @@ body {
 	align-items: center;
 }
 
+/* Desktop (Wails) build: no decorative background, window fills the WebView. */
+body.desktop-mode {
+    background-image: none;
+    background-color: var(--bg-level-1);
+}
+
 a {
     color: var(--font-color-accent);
     text-decoration: dotted underline;
