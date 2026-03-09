@@ -36,7 +36,7 @@
     const isDetectedAsInteger = $derived.by(() => {
         if (value === undefined || Number.isNaN(value)) return false;
         if (!Number.isInteger(value)) return false;
-        if (step < 1 && !Number.isInteger(step)) return false;
+        if (step !== undefined && !Number.isInteger(step)) return false;
         if (min !== undefined && !Number.isInteger(min)) return false;
         if (max !== undefined && !Number.isInteger(max)) return false;
         return true;
@@ -126,11 +126,20 @@
         const target = e.target as HTMLInputElement;
         target.value = displayValue;
     }
+
+    // TODO: Make this unnecesary by having the `parse()` function actually convert stuff to numbers
+    // Make sure if the value was set to string externally, we convert it to a number
+    // Use an IIFE to do this synchronously during init and make svelte stop complaining
+    (() => {
+        if (typeof value === "string") {
+            value = isActuallyInteger ? parseInt(value, 10) : parseFloat(value);
+        }
+    })();
 </script>
 
 <div class="input-wrapper">
     {#if range}
-        <div class="label">{value?.toFixed(numDecimalPlaces)}</div>
+        <div class="label">{value?.toFixed?.(numDecimalPlaces)}</div>
         <input type={inputType} bind:value {min} {max} {step} />
     {:else}
         <div class="number-input">
