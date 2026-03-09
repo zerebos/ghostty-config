@@ -9,8 +9,8 @@
         parsedConfig: Record<string, ConfigValue> | null;
         previewText: string | null;
         parseError: boolean;
-        onclose?: () => void;
-        onimport?: () => void;
+        onclose?: () => void | Promise<void>;
+        onimport?: () => void | Promise<void>;
         keyFormatter?: (key: string) => string;
     }
 

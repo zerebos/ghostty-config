@@ -16,6 +16,8 @@
 
     const inputType = $derived(range ? "range" : "text");
 
+    const wasInitiallyUndefined = value === undefined;
+
     // Check if the current value is valid (within min/max bounds)
     // undefined and NaN are considered valid (they just mean "no value")
     const isValid = $derived(() => {
@@ -93,7 +95,9 @@
 
         // Allow empty input - set to undefined
         if (inputText === "") {
-            value = undefined;
+            if (wasInitiallyUndefined) {
+                value = undefined;
+            }
             return;
         }
 

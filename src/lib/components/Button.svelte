@@ -3,7 +3,7 @@
 
     interface Props {
         primary?: boolean;
-        onclick?: () => void;
+        onclick?: (e: MouseEvent) => void | Promise<void>;
         disabled?: boolean;
         type?: "button" | "submit" | "reset";
         title?: string;
