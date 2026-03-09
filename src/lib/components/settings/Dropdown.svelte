@@ -378,7 +378,13 @@
     >
         <span class="value-wrap">
             {#if selectedOption?.icon}
-                <span class="option-icon" aria-hidden="true">{selectedOption.icon}</span>
+                <span class="option-icon" aria-hidden="true">
+                {#if selectedOption.icon.startsWith("http")}
+                    <img src={selectedOption.icon} alt={selectedOption.name} loading="lazy" />
+                {:else}
+                    {selectedOption.icon}
+                {/if}
+                </span>
             {/if}
             <span class="value">{selectedOption ? selectedOption.name : placeholder}</span>
         </span>
@@ -452,7 +458,13 @@
                                 <div class="option-main" class:has-icon={Boolean(option.icon)}>
                                     <div class="option-title-row">
                                         {#if option.icon}
-                                            <span class="option-icon" aria-hidden="true">{option.icon}</span>
+                                            <span class="option-icon" aria-hidden="true">
+                                            {#if option.icon.startsWith("http")}
+                                                <img src={option.icon} alt={option.name} loading="lazy" />
+                                            {:else}
+                                                {option.icon}
+                                            {/if}
+                                            </span>
                                         {/if}
                                         <span class="option-name">{option.name}</span>
                                     </div>
@@ -657,6 +669,12 @@
         width: 16px;
         text-align: center;
         flex-shrink: 0;
+    }
+
+    .option-icon img {
+        width: 100%;
+        height: auto;
+        display: block;
     }
 
     .option-name {

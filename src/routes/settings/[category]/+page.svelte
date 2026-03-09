@@ -61,7 +61,7 @@
                         {:else if setting.type === "number"}
                             <Number bind:value={config[setting.id as keyof typeof config] as number} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}
-                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} placeholder={setting.placeholder} />
+                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} placeholder={setting.placeholder} allowEmpty={setting.allowEmpty} emptyLabel={setting.emptyLabel} disabled={setting.disabled} />
                         {:else if setting.type === "theme"}
                             <Theme bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} />
                         {:else if setting.type === "color"}

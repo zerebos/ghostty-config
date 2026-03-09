@@ -1,4 +1,5 @@
 import type {HexColor} from "$lib/utils/colors";
+import {frameUrls, iconUrls} from "./macicon";
 
 interface BaseSettingType {
     id: string;
@@ -47,17 +48,21 @@ interface Number extends BaseSettingItem {
 interface DropdownOption {
     name: string;
     value: string;
-    searchable?: boolean;
-    placeholder?: string;
-    allowEmpty?: boolean;
-    emptyLabel?: string;
+    description?: string;
+    icon?: string;
+    group?: string;
+    disabled?: boolean;
 }
 
 interface Dropdown extends BaseSettingItem {
     type: "dropdown";
     value: "string";
     options: Array<DropdownOption | string>;
+    searchable?: boolean;
     placeholder?: string;
+    allowEmpty?: boolean;
+    emptyLabel?: string;
+    disabled?: boolean;
 }
 
 interface Theme extends BaseSettingItem {
@@ -552,7 +557,7 @@ const settings = [
                     {id: "macosNonNativeFullscreen", name: "Use non-native fullscreen", note: "Tabs currently do not work with non-native fullscreen windows", type: "dropdown", value: "false", options: ["visible-menu", "true", "false", "padded-notch"]},
                     {id: "macosTitlebarStyle", name: "Titlebar style", type: "dropdown", value: "transparent", options: ["transparent", "native", "tabs", "hidden"]},
                     {id: "macosTitlebarProxyIcon", name: "Titlebar proxy icon", type: "dropdown", value: "visible", options: ["visible", "hidden"]},
-                    {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "dropdown", value: "", options: ["", "true", "false", "left", "right"]},
+                    {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "dropdown", value: "", options: ["true", "false", "left", "right"], allowEmpty: true, emptyLabel: "Reset to default"},
                     {id: "macosWindowShadow", name: "Show the window shadow", type: "switch", value: true},
                     {id: "macosWindowButtons", name: "Window buttons (traffic lights)", type: "dropdown", value: "visible", options: ["visible", "hidden"]},
                     {id: "macosHidden", name: "Hide from dock and switcher", type: "dropdown", value: "never", options: ["never", "always"]},
@@ -562,8 +567,8 @@ const settings = [
                     {id: "macosShortcuts", name: "macOS shortcuts", note: "Controls whether macOS system shortcuts (e.g. Cmd+Space) can be captured.", type: "dropdown", value: "ask", options: ["allow", "deny", "ask"]},
 
                     // TODO: move these once it is available on non-mac
-                    {id: "autoUpdate", name: "Auto update", note: "Leaving this unset will fall back to your Sparkle preferences.", type: "dropdown", value: "", options: ["", "off", "check", "download"]},
-                    {id: "autoUpdateChannel", name: "Update channel", note: "By default this will adhere to whichever version you downloaded.", type: "dropdown", value: "", options: ["", "stable", "tip"]},
+                    {id: "autoUpdate", name: "Auto update", note: "Leaving this unset will fall back to your Sparkle preferences.", type: "dropdown", placeholder: "Follow Sparkle", value: "", options: ["off", "check", "download"], allowEmpty: true, emptyLabel: "Follow Sparkle"},
+                    {id: "autoUpdateChannel", name: "Update channel", note: "By default this will adhere to whichever version you downloaded.", type: "dropdown", placeholder: "Current Channel", value: "", options: ["stable", "tip"], allowEmpty: true, emptyLabel: "Current Sparkle"},
                 ]
             },
             {
@@ -571,9 +576,35 @@ const settings = [
                 name: "App Icon",
                 note: "If you choose the \"custom-style\" option, you can use any of the other icon settings to customize your icon with a live preview.",
                 settings: [
-                    {id: "macosIcon", name: "Icon", note: "Custom style must specify both ghost and screen colors.", type: "dropdown", value: "official", options: ["official", "blueprint", "chalkboard", "microchip", "glass", "holographic", "paper", "retro", "xray", "custom", "custom-style"]},
+                    {
+                        id: "macosIcon",
+                        name: "Icon",
+                        note: "Custom style must specify both ghost and screen colors.",
+                        type: "dropdown",
+                        value: "official",
+                        options: [
+                            ...Object.keys(iconUrls).map(key => ({
+                                value: key,
+                                name: key[0].toUpperCase() + key.slice(1),
+                                group: "Predefined icons",
+                                icon: iconUrls[key]
+                            })),
+                            {value: "custom", name: "Custom Icon", description: "Use your own icon file.", group: "Custom"},
+                            {value: "custom-style", name: "Custom Style", description: "Customize the icon with colors and frames.", group: "Custom"}
+                        ]
+                    },
                     {id: "macosCustomIcon", name: "Icon file", note: "Only used when \"custom\" is selected above.", type: "text", value: ""},
-                    {id: "macosIconFrame", name: "Icon frame", type: "dropdown", value: "aluminum", options: ["aluminum", "beige", "plastic", "chrome"]},
+                    {
+                        id: "macosIconFrame",
+                        name: "Icon frame",
+                        type: "dropdown",
+                        value: "aluminum",
+                        options: Object.keys(frameUrls).map(key => ({
+                            value: key,
+                            name: key[0].toUpperCase() + key.slice(1),
+                            icon: frameUrls[key]
+                        }))
+                    },
                     {id: "macosIconGhostColor", name: "Ghost color", type: "color", value: ""},
                     {id: "macosIconScreenColor", name: "Screen color", type: "color", value: ""},
                 ]
