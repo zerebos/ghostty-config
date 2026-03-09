@@ -1,5 +1,4 @@
 <script lang="ts">
-    import {PUBLIC_APP_ORIGIN} from "$env/static/public";
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
@@ -18,6 +17,7 @@
     } from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
+    import ActionMenu from "$lib/components/ActionMenu.svelte";
     import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
@@ -56,9 +56,31 @@
     let showShareComposer = $state(false);
     let shareUrl = $state<string | null>(null);
     let isShareTooLong = $state(false);
+    let showImportActionsMenu = $state(false);
+    let showExportActionsMenu = $state(false);
 
     const currentConfigDiff = $derived(diff());
     const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
+
+    const importMenuItems = $derived([
+        {
+            label: "Import file...",
+            onclick: openFilePicker
+        }
+    ]);
+
+    const exportMenuItems = $derived([
+        {
+            label: "Download file...",
+            onclick: downloadConfig,
+            disabled: !hasExportableConfig
+        },
+        {
+            label: "Share link...",
+            onclick: openShareComposer,
+            disabled: !hasExportableConfig
+        }
+    ]);
 
     onMount(() => {
         maybeShowSharedConfigFromHash();
@@ -228,7 +250,10 @@
 
         const config = stringifyConfig(false);
         const encoded = encodeConfig(config);
-        const nextShareUrl = buildShareUrl(PUBLIC_APP_ORIGIN ?? window.location.origin, window.location.pathname, encoded);
+        const shareOrigin = typeof import.meta.env.VITE_APP_ORIGIN === "string" && import.meta.env.VITE_APP_ORIGIN.length > 0
+            ? import.meta.env.VITE_APP_ORIGIN
+            : window.location.origin;
+        const nextShareUrl = buildShareUrl(shareOrigin, window.location.pathname, encoded);
 
         isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
         shareUrl = isShareTooLong ? null : nextShareUrl;
@@ -287,8 +312,47 @@
 
     function handleWindowKeydown(e: KeyboardEvent) {
         if (e.key !== "Escape") return;
-        if (showShareComposer) closeShareComposer();
-        else if (showSharedConfigModal) closeSharedConfigModal();
+        if (showImportActionsMenu || showExportActionsMenu) {
+            showImportActionsMenu = false;
+            showExportActionsMenu = false;
+        }
+        else if (showShareComposer) {
+            closeShareComposer();
+        }
+        else if (showSharedConfigModal) {
+            closeSharedConfigModal();
+        }
+    }
+
+    function handleWindowPointerDown(e: PointerEvent) {
+        const target = e.target;
+        if (!(target instanceof Node)) return;
+
+        // Check if click is outside any action menu wrapper
+        const actionMenuWrappers = document.querySelectorAll(".action-menu-wrapper");
+        let clickedInMenu = false;
+
+        for (const wrapper of actionMenuWrappers) {
+            if (wrapper.contains(target)) {
+                clickedInMenu = true;
+                break;
+            }
+        }
+
+        if (!clickedInMenu) {
+            showImportActionsMenu = false;
+            showExportActionsMenu = false;
+        }
+    }
+
+    function toggleImportActionsMenu() {
+        showImportActionsMenu = !showImportActionsMenu;
+        showExportActionsMenu = false;
+    }
+
+    function toggleExportActionsMenu() {
+        showExportActionsMenu = !showExportActionsMenu;
+        showImportActionsMenu = false;
     }
 
     async function saveToDisk() {
@@ -308,7 +372,7 @@
     }
 </script>
 
-<svelte:window onkeydown={handleWindowKeydown} />
+<svelte:window onkeydown={handleWindowKeydown} onpointerdown={handleWindowPointerDown} />
 
 <Page title="Import & Export">
     <Group flex={1}>
@@ -337,9 +401,18 @@
             <div class="button-group">
                 <Button onclick={pasteConfig} title="Paste">{pasteConfigText}</Button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <Button onclick={openFilePicker} title="Upload">File...</Button>
                 {#if DESKTOP}
                     <Button primary onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</Button>
+                    <ActionMenu
+                        items={importMenuItems}
+                        visible={showImportActionsMenu}
+                        onToggle={toggleImportActionsMenu}
+                        buttonLabel="More..."
+                        buttonTitle="More import options"
+                        menuAriaLabel="More import options"
+                    />
+                {:else}
+                    <Button onclick={openFilePicker} title="Import from file">Import file...</Button>
                 {/if}
             </div>
         </Item>
@@ -351,20 +424,30 @@
                     title={hasExportableConfig ? "Copy" : "No changes yet!"}
                     disabled={!hasExportableConfig}
                 >{copyConfigText}</Button>
-                <Button
-                    onclick={downloadConfig}
-                    title={hasExportableConfig ? "Download" : "No changes yet!"}
-                    disabled={!hasExportableConfig}
-                >File...</Button>
                 {#if DESKTOP}
                     <Button primary onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</Button>
+                    <ActionMenu
+                        items={exportMenuItems}
+                        visible={showExportActionsMenu}
+                        onToggle={toggleExportActionsMenu}
+                        buttonLabel="More..."
+                        buttonTitle={hasExportableConfig ? "More export options" : "No changes yet!"}
+                        buttonDisabled={!hasExportableConfig}
+                        menuAriaLabel="More export options"
+                    />
+                {:else}
+                    <Button
+                        onclick={downloadConfig}
+                        title={hasExportableConfig ? "Download" : "No changes yet!"}
+                        disabled={!hasExportableConfig}
+                    >Download</Button>
+                    <Button
+                        primary
+                        onclick={openShareComposer}
+                        title={hasExportableConfig ? "Share your config" : "No changes yet!"}
+                        disabled={!hasExportableConfig}
+                    >Share</Button>
                 {/if}
-                <Button
-                    primary
-                    onclick={openShareComposer}
-                    title={hasExportableConfig ? "Share your config" : "No changes yet!"}
-                    disabled={!hasExportableConfig}
-                >Share...</Button>
             </div>
         </Item>
         {#if DESKTOP && configPath}
@@ -447,7 +530,11 @@
 .button-group {
     display: flex;
     gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
 }
+
+
 
 .config-path {
     font-family: var(--font-family-mono);
