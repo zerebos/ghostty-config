@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Dark background -->
+  <rect width="24" height="24" rx="5.5" fill="#231E33"/>
+  <!-- 5 color swatches fanned from a bottom-center pivot -->
+  <!-- Draw outer ones first so inner ones appear on top -->
+  <rect x="9" y="4" width="6" height="16" rx="3" fill="#FF6B6B" transform="rotate(-36, 12, 20)"/>
+  <rect x="9" y="4" width="6" height="16" rx="3" fill="#4D96FF" transform="rotate(36, 12, 20)"/>
+  <rect x="9" y="4" width="6" height="16" rx="3" fill="#FF9F43" transform="rotate(-18, 12, 20)"/>
+  <rect x="9" y="4" width="6" height="16" rx="3" fill="#06D6A0" transform="rotate(18, 12, 20)"/>
+  <rect x="9" y="4" width="6" height="16" rx="3" fill="#FFE66D" transform="rotate(0, 12, 20)"/>
+  <!-- Pivot cap -->
+  <circle cx="12" cy="20" r="2.5" fill="#231E33"/>
+</svg>

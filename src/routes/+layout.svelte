@@ -8,6 +8,7 @@
     import clipboard from "$lib/images/tabs/clipboard.webp";
     import window from "$lib/images/tabs/window.webp";
 
+    import presets from "$lib/images/tabs/presets.svg";
     import colors from "$lib/images/tabs/colors.webp";
     import fonts from "$lib/images/tabs/fonts.webp";
 
@@ -98,6 +99,10 @@
                 Window
             </Tab>
             <Gap />
+            <Tab route="/app/presets">
+                {#snippet icon()}<img src={presets} alt="Presets Catalog" />{/snippet}
+                Presets
+            </Tab>
             <Tab route="/settings/colors">
                 {#snippet icon()}<img src={colors} alt="Color Settings" />{/snippet}
                 Colors

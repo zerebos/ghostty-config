@@ -5,9 +5,15 @@
     import Group from "$lib/components/settings/Group.svelte";
     import {resolve} from "$app/paths";
     import Checkbox from "$lib/components/settings/Checkbox.svelte";
+    import presetsIcon from "$lib/images/tabs/presets.svg";
 </script>
 
 <Page title="Ghostty Config">
+    {#snippet actions()}
+        <a href={resolve("/app/presets")} class="presets-btn" title="Presets">
+            <img src={presetsIcon} alt="Presets" />
+        </a>
+    {/snippet}
     <section>
         <div class="user">
             <div class="user-avatar">
@@ -126,5 +132,27 @@
         display: flex;
         align-items: center;
         gap: 8px;
+    }
+
+    .presets-btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: var(--radius-level-4);
+        opacity: 0.7;
+        cursor: pointer;
+        transition: opacity 0.15s, background 0.15s;
+    }
+
+    .presets-btn:hover {
+        opacity: 1;
+        background: var(--bg-level-4);
+    }
+
+    .presets-btn img {
+        width: 20px;
+        height: 20px;
     }
 </style>

@@ -22,6 +22,7 @@
     import AppIconPreview from "$lib/views/AppIconPreview.svelte";
     import type {HexColor} from "$lib/utils/colors";
     import {resolve} from "$app/paths";
+    import presetsIcon from "$lib/images/tabs/presets.svg";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -30,6 +31,13 @@
 
 
 <Page {title}>
+    {#snippet actions()}
+        {#if category?.id === "colors" || category?.id === "fonts"}
+            <a href={resolve("/app/presets")} class="presets-btn" title="Presets">
+                <img src={presetsIcon} alt="Presets" />
+            </a>
+        {/if}
+    {/snippet}
     {#if category}
         {#if category.id === "fonts"}
             <Admonition size="1.5rem">The font playground has moved to a <a href={resolve("/app/font-playground")}>separate page</a>.</Admonition>
@@ -78,3 +86,27 @@
         <p>You shouldn't be here! If you followed a link, please report the bug on GitHub. Otherwise, go ahead and start browsing on the left.</p>
     {/if}
 </Page>
+
+<style>
+    .presets-btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: var(--radius-level-4);
+        opacity: 0.7;
+        cursor: pointer;
+        transition: opacity 0.15s, background 0.15s;
+    }
+
+    .presets-btn:hover {
+        opacity: 1;
+        background: var(--bg-level-4);
+    }
+
+    .presets-btn img {
+        width: 20px;
+        height: 20px;
+    }
+</style>
