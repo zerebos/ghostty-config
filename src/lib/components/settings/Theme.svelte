@@ -1,5 +1,6 @@
 <script lang="ts">
     import {setColorScheme} from "$lib/stores/config.svelte";
+    import {success, error} from "$lib/stores/toasts.svelte";
     import Dropdown from "./Dropdown.svelte";
 
     type Props = {
@@ -11,7 +12,15 @@
     let {value = $bindable(), options}: Props = $props();
 
     async function change() {
-        await setColorScheme(value);
+        try {
+            const result = await setColorScheme(value);
+
+            if (result) success("Color scheme applied");
+            else error("Failed to apply color scheme");
+        }
+        catch {
+            error("Failed to apply color scheme");
+        }
     }
 </script>
 

@@ -3,6 +3,7 @@
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
     import {diff, load, keyToConfig} from "$lib/stores/config.svelte";
+    import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
     import {
         buildShareUrl,
@@ -13,14 +14,16 @@
         removeSharePayloadFromHash
     } from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
+    import Button from "$lib/components/Button.svelte";
+    import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
+    import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
-    import {fade, fly} from "svelte/transition";
+    import {error, success} from "$lib/stores/toasts.svelte";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
     let pasteConfigText = $state("Clipboard");
     let copyConfigText = $state("Clipboard");
-    let pageNotice = $state<string | null>(null);
 
     let sharedConfigPreview = $state<string | null>(null);
     let sharedConfigParsed = $state<Record<string, string | string[]> | null>(null);
@@ -29,10 +32,7 @@
 
     let showShareComposer = $state(false);
     let shareUrl = $state<string | null>(null);
-    let shareCopyText = $state("Copy Link");
-    let shareNotice = $state<string | null>(null);
     let isShareTooLong = $state(false);
-    let canUseNativeShare = $state(false);
 
     const currentConfigDiff = $derived(diff());
     const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
@@ -63,11 +63,10 @@
                 sharedConfigParseError = true;
             }
 
-            pageNotice = null;
             showSharedConfigModal = true;
         }
         catch {
-            pageNotice = "Could not read shared config link.";
+            error("Failed to read shared config from URL");
             clearShareHashFromAddressBar();
         }
     }
@@ -78,8 +77,7 @@
         window.history.replaceState(null, "", nextUrl);
     }
 
-    // TODO: move alert() to real modals
-    function loadConfig(candidate: string) {
+    async function loadConfig(candidate: string): Promise<boolean> {
         let parsed;
         try {
             // TODO: remove this assertions when the return type of parse is fixed
@@ -88,8 +86,12 @@
         catch (parseError) {
             // eslint-disable-next-line no-console
             console.error(parseError);
-            alert("Something went wrong trying to parse your config. Please open an issue on GitHub!");
-            return;
+            await showAlert({
+                title: "Could not parse config",
+                message: "Something went wrong while parsing your config. Please open an issue on GitHub.",
+                buttonText: "Dismiss"
+            });
+            return false;
         }
 
         try {
@@ -98,8 +100,15 @@
         catch (loadError) {
             // eslint-disable-next-line no-console
             console.error(loadError);
-            alert("Something went wrong trying to load your parsed config. Please open an issue on GitHub!");
+            await showAlert({
+                title: "Could not load config",
+                message: "Something went wrong while loading your parsed config. Please open an issue on GitHub.",
+                buttonText: "Dismiss"
+            });
+            return false;
         }
+
+        return true;
     }
 
     async function pasteConfig() {
@@ -109,10 +118,11 @@
             const text = await window.navigator.clipboard.readText();
             pasteConfigText = "Pasted!";
             setTimeout(() => (pasteConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
-            loadConfig(text);
+            const loaded = await loadConfig(text);
+            if (loaded) success("Config loaded from clipboard");
         }
         catch {
-            pageNotice = "Clipboard access failed. Paste manually or import from file.";
+            error("Clipboard access failed! Please paste manually or import from file.");
         }
     }
 
@@ -127,7 +137,10 @@
         reader.addEventListener("load", (event) => {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
             const loadedText = event.target?.result?.toString();
-            if (loadedText) loadConfig(loadedText);
+            if (!loadedText) return;
+            void loadConfig(loadedText).then((didLoad) => {
+                if (didLoad) success("Config loaded from file");
+            });
         });
         reader.readAsText(file);
     }
@@ -152,7 +165,6 @@
 
     async function copyConfig() {
         if (!hasExportableConfig) {
-            pageNotice = "No changes to export yet.";
             return;
         }
         if (copyConfigText === "Copied!") return;
@@ -160,16 +172,16 @@
         try {
             await window.navigator.clipboard.writeText(stringifyConfig());
             copyConfigText = "Copied!";
+            success("Config copied to clipboard");
             setTimeout(() => (copyConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
         }
         catch {
-            pageNotice = "Clipboard access failed. Use file export instead.";
+            error("Clipboard access failed! Please copy manually or export to file.");
         }
     }
 
     function openShareComposer() {
         if (!hasExportableConfig) {
-            pageNotice = "No changes to export yet.";
             return;
         }
 
@@ -177,64 +189,32 @@
         const encoded = encodeConfig(config);
         const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
 
-        shareCopyText = "Copy Link";
-        shareNotice = "This link contains your config data. Share only with people you trust.";
         isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
         shareUrl = isShareTooLong ? null : nextShareUrl;
-        canUseNativeShare = !!navigator.share;
         showShareComposer = true;
     }
 
     function closeShareComposer() {
         showShareComposer = false;
         shareUrl = null;
-        shareNotice = null;
         isShareTooLong = false;
-    }
-
-    async function copyShareLink() {
-        if (!shareUrl || shareCopyText === "Copied!") return;
-
-        try {
-            await window.navigator.clipboard.writeText(shareUrl);
-            shareCopyText = "Copied!";
-            shareNotice = "Share link copied to clipboard.";
-            setTimeout(() => (shareCopyText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
-        }
-        catch {
-            shareCopyText = "Copy Failed";
-            shareNotice = "Select the link and copy manually.";
-            setTimeout(() => (shareCopyText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
-        }
-    }
-
-    async function nativeShareLink() {
-        if (!shareUrl || !navigator.share) return;
-
-        try {
-            await navigator.share({
-                title: "Ghostty Config",
-                text: "Ghostty config share link",
-                url: shareUrl
-            });
-        }
-        catch {
-            // User cancellation should not show an error.
-        }
     }
 
     async function copyConfigForFallback() {
         try {
             await window.navigator.clipboard.writeText(stringifyConfig(false));
-            shareNotice = "Config copied. You can share it as plain text instead of a link.";
+            return true;
         }
         catch {
-            shareNotice = "Clipboard access failed. Use file export instead.";
+            return false;
         }
     }
 
-    function importSharedConfig() {
-        if (sharedConfigPreview) loadConfig(sharedConfigPreview);
+    async function importSharedConfig() {
+        if (sharedConfigPreview) {
+            const loaded = await loadConfig(sharedConfigPreview);
+            if (loaded) success("Shared config imported");
+        }
         closeSharedConfigModal();
     }
 
@@ -248,7 +228,6 @@
 
     function downloadConfig() {
         if (!hasExportableConfig) {
-            pageNotice = "No changes to export yet.";
             return;
         }
 
@@ -262,6 +241,7 @@
         link.click();
         link.remove();
         URL.revokeObjectURL(url);
+        success("Config file downloaded");
     }
 
     function handleWindowKeydown(e: KeyboardEvent) {
@@ -298,138 +278,54 @@
         <Separator />
         <Item name="Import">
             <div class="button-group">
-                <button type="button" onclick={pasteConfig} title="Paste">{pasteConfigText}</button>
+                <Button onclick={pasteConfig} title="Paste">{pasteConfigText}</Button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <button type="button" onclick={openFilePicker} title="Upload">File...</button>
+                <Button onclick={openFilePicker} title="Upload">File...</Button>
             </div>
         </Item>
         <Separator />
         <Item name="Export">
             <div class="button-group">
-                <button
-                    type="button"
+                <Button
                     onclick={copyConfig}
                     title={hasExportableConfig ? "Copy" : "No changes yet!"}
                     disabled={!hasExportableConfig}
-                >{copyConfigText}</button>
-                <button
-                    type="button"
+                >{copyConfigText}</Button>
+                <Button
                     onclick={downloadConfig}
                     title={hasExportableConfig ? "Download" : "No changes yet!"}
                     disabled={!hasExportableConfig}
-                >File...</button>
-                <button
-                    type="button"
+                >File...</Button>
+                <Button
+                    primary
                     onclick={openShareComposer}
                     title={hasExportableConfig ? "Share your config" : "No changes yet!"}
-                    class="share-btn"
                     disabled={!hasExportableConfig}
-                >Share...</button>
+                >Share...</Button>
             </div>
-            {#if pageNotice}
-                <p class="status-text" role="status">{pageNotice}</p>
-            {/if}
         </Item>
     </Group>
 </Page>
 
 {#if showShareComposer}
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="share-modal-backdrop" role="presentation" transition:fade={{duration: 200}} onclick={closeShareComposer}>
-    <div class="share-modal" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-label="Share Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
-        <div class="share-modal-header">
-            <span class="share-icon" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="18" cy="5" r="3" />
-                    <circle cx="6" cy="12" r="3" />
-                    <circle cx="18" cy="19" r="3" />
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                </svg>
-            </span>
-            <h2>Share Config</h2>
-            <button type="button" class="close-btn" onclick={closeShareComposer} aria-label="Dismiss">&times;</button>
-        </div>
-        {#if isShareTooLong}
-            <p class="share-modal-desc">This config is too large for reliable URL sharing across apps and browsers.</p>
-            <div class="share-modal-actions">
-                <button type="button" class="action-btn primary" onclick={copyConfigForFallback}>Copy Config Text</button>
-                <button type="button" class="action-btn" onclick={downloadConfig}>Download File</button>
-                <button type="button" class="action-btn" onclick={closeShareComposer}>Close</button>
-            </div>
-        {:else}
-            <p class="share-modal-desc">Review and copy the share link below.</p>
-            <input
-                type="text"
-                class="share-link-input"
-                value={shareUrl ?? ""}
-                readonly
-                onclick={(event) => event.currentTarget.select()}
-            />
-            {#if shareNotice}
-                <p class="status-text" role="status">{shareNotice}</p>
-            {/if}
-            <div class="share-modal-actions">
-                <button type="button" class="action-btn" onclick={closeShareComposer}>Close</button>
-                {#if canUseNativeShare}
-                    <button type="button" class="action-btn" onclick={nativeShareLink}>Share...</button>
-                {/if}
-                <button type="button" class="action-btn primary" onclick={copyShareLink}>{shareCopyText}</button>
-            </div>
-        {/if}
-    </div>
-</div>
+<ShareComposerModal
+    isTooLong={isShareTooLong}
+    {shareUrl}
+    onclose={closeShareComposer}
+    ondownload={downloadConfig}
+    oncopyconfigtext={copyConfigForFallback}
+/>
 {/if}
 
 {#if showSharedConfigModal}
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<div class="share-modal-backdrop" role="presentation" transition:fade={{duration: 200}} onclick={closeSharedConfigModal}>
-    <div class="share-modal" transition:fly={{y: -30, duration: 200}} role="dialog" aria-modal="true" aria-label="Shared Config" tabindex="-1" onclick={(e) => e.stopPropagation()}>
-        <div class="share-modal-header">
-            <span class="share-icon" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="18" cy="5" r="3" />
-                    <circle cx="6" cy="12" r="3" />
-                    <circle cx="18" cy="19" r="3" />
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                </svg>
-            </span>
-            <h2>Shared Config</h2>
-            <button type="button" class="close-btn" onclick={closeSharedConfigModal} aria-label="Dismiss">&times;</button>
-        </div>
-        <p class="share-modal-desc">Someone shared a Ghostty config with you. Review it before importing.</p>
-        <div class="share-preview">
-            {#if sharedConfigParsed}
-                <div class="row p2"># Config generated by Ghostty Config</div>
-                <div class="row">&nbsp;</div>
-                {#each Object.entries(sharedConfigParsed) as [key, value], i (i)}
-                    {#if Array.isArray(value)}
-                        {#each value as val, v (v)}
-                        {#if val !== ""}
-                            <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{val}</span></div>
-                        {/if}
-                        {/each}
-                    {:else}
-                        <div class="row"><span class="p4">{keyToConfig(key)}</span> = <span class="p5">{value}</span></div>
-                    {/if}
-                {/each}
-            {:else}
-                {#if sharedConfigParseError}
-                    <div class="row p2"># Could not parse config structure. Showing raw text:</div>
-                    <div class="row">&nbsp;</div>
-                {/if}
-                {#each (sharedConfigPreview ?? "").split("\n") as line, i (i)}
-                    <div class="row">{line}</div>
-                {/each}
-            {/if}
-        </div>
-        <div class="share-modal-actions">
-            <button type="button" class="action-btn" onclick={closeSharedConfigModal}>Dismiss</button>
-            <button type="button" class="action-btn primary" onclick={importSharedConfig}>Import Config</button>
-        </div>
-    </div>
-</div>
+<SharedConfigModal
+    parsedConfig={sharedConfigParsed}
+    previewText={sharedConfigPreview}
+    parseError={sharedConfigParseError}
+    keyFormatter={keyToConfig}
+    onclose={closeSharedConfigModal}
+    onimport={importSharedConfig}
+/>
 {/if}
 
 <style>
@@ -484,163 +380,4 @@
     gap: 12px;
 }
 
-/* TODO: extract to a separate component for usage elsewhere */
-button {
-    background: var(--bg-basic-button);
-    border-radius: var(--radius-level-4);
-    border: 0;
-    color: inherit;
-    padding: 2px 10px;
-    font-size: 1.1rem;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
-}
-
-button:active {
-    filter: brightness(115%);
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    filter: grayscale(0.2);
-}
-
-.share-btn {
-    background: var(--color-input-accent);
-}
-
-.status-text {
-    color: var(--font-color-muted);
-    font-size: 0.9rem;
-    line-height: 1.4;
-    margin: 8px 0 0;
-}
-
-.share-modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border-radius: var(--radius-level-1);
-}
-
-.share-modal {
-    background: var(--bg-modal);
-    border: 1px solid var(--border-level-3);
-    border-radius: var(--radius-level-2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    width: 90%;
-    max-width: 480px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 20px;
-    max-height: 80%;
-}
-
-.share-modal-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.share-modal-header h2 {
-    flex: 1;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.share-icon {
-    display: flex;
-    align-items: center;
-    color: var(--color-input-accent);
-}
-
-.close-btn {
-    background: transparent;
-    box-shadow: none;
-    font-size: 1.4rem;
-    padding: 0 4px;
-    line-height: 1;
-    color: var(--font-color-muted);
-}
-
-.close-btn:hover {
-    color: var(--font-color);
-}
-
-.share-modal-desc {
-    color: var(--font-color-muted);
-    font-size: 0.9rem;
-    margin: 0;
-    line-height: 1.5;
-}
-
-.share-preview {
-    background: var(--config-bg);
-    font-family: var(--config-font-family);
-    font-size: var(--config-font-size);
-    color: var(--config-fg);
-    overflow-y: auto;
-    padding: 8px;
-    border-radius: var(--radius-level-3);
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
-    flex: 1;
-    user-select: text;
-    min-height: 80px;
-    max-height: 280px;
-}
-
-.share-link-input {
-    width: 100%;
-    resize: vertical;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    border: 1px solid var(--border-level-3);
-    border-radius: var(--radius-level-4);
-    background: var(--bg-input);
-    color: var(--font-color);
-    padding: 8px;
-}
-
-.share-link-input:focus-visible {
-    outline: 1px solid var(--color-input-accent);
-}
-
-.share-preview .row {
-    display: block;
-    white-space: pre;
-}
-
-.share-modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    padding-top: 20px;
-    margin-top: 20px;
-    position: relative;
-}
-
-.share-modal-actions::before {
-    content: "";
-    position: absolute;
-    left: -20px;
-    right: -20px;
-    top: 0;
-    height: 1px;
-    background: var(--bg-level-3);
-}
-
-.action-btn {
-    padding: 4px 16px;
-    font-size: 1rem;
-}
-
-.action-btn.primary {
-    background: var(--color-input-accent);
-}
 </style>

@@ -74,18 +74,24 @@ export function load(conf: Partial<typeof config>) {
     }
 }
 
-export async function setColorScheme(name: string) {
-    if (name === "") return resetColorScheme();
-    const colorSchemeResponse = await fetchColorScheme(name);
+export async function setColorScheme(name: string): Promise<boolean> {
+    if (name === "") {
+        resetColorScheme();
+        return true;
+    }
+
     try {
+        const colorSchemeResponse = await fetchColorScheme(name);
         // TODO: move the assertion into the return,
         // didn't do it now because it would have lead to a circular dep
         const parsed = parse(colorSchemeResponse) as Partial<DefaultConfig>;
         load(parsed);
+        return true;
     }
-    catch (error) {
+    catch (err) {
         // TODO: give feedback to user maybe?
-        console.error(error); // eslint-disable-line no-console
+        console.error(err); // eslint-disable-line no-console
+        return false;
     }
 }
 
@@ -178,8 +184,8 @@ interface DefaultConfig {
     windowTitleFontFamily: string;
     windowTheme: string;
     windowColorspace: string;
-    windowHeight: number;
-    windowWidth: number;
+    windowHeight: number | undefined;
+    windowWidth: number | undefined;
     windowSaveState: string;
     windowStepResize: boolean;
     windowNewTabPosition: string;
