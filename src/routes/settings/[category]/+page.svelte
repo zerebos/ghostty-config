@@ -28,7 +28,7 @@
     const category = $derived(settings.find((c) => c.id === $page.params.category));
     const title = $derived(category?.name ?? $page.params.category);
 
-    let highlightTimeout: number | null = null;
+    let highlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
     function smoothScrollTo(element: HTMLElement, duration: number = 300) {
         const container = document.querySelector(".content-container") as HTMLElement;
@@ -73,7 +73,7 @@
         await new Promise((r) => setTimeout(r, 50));
 
         const element = document.querySelector(
-            `[data-setting-id="${highlightedId}"]`
+            `[data-setting-id="${CSS.escape(highlightedId)}"]`
         ) as HTMLDivElement | null;
 
         if (element) {

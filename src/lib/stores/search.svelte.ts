@@ -15,6 +15,10 @@ export function clearSearch() {
     search.selectedIndex = 0;
 }
 
+export function setSelectedIndex(index: number) {
+    search.selectedIndex = index;
+}
+
 export function setHighlightedSetting(id: string | null) {
     search.highlightedSettingId = id;
 }

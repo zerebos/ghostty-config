@@ -5,7 +5,7 @@
     import Search from "$lib/components/Search.svelte";
     import SearchSubItem from "$lib/components/SearchSubItem.svelte";
     import {searchSettings, flattenSearchResults, type ExternalTab} from "$lib/utils/search";
-    import search, {clearSearch, setHighlightedSetting} from "$lib/stores/search.svelte";
+    import search, {clearSearch, setHighlightedSetting, setSelectedIndex} from "$lib/stores/search.svelte";
     import {goto} from "$app/navigation";
     import "../app.css";
 
@@ -84,18 +84,19 @@
     $effect(() => {
         const currentQuery = search.query;
         const totalItems = flattenedResults.length;
+        const currentIndex = search.selectedIndex;
 
         // If query changed, reset to 0
         if (currentQuery !== lastQuery) {
             lastQuery = currentQuery;
-            if (search.selectedIndex !== 0) {
-                search.selectedIndex = 0;
+            if (currentIndex !== 0) {
+                setSelectedIndex(0);
             }
-        } else if (totalItems > 0 && search.selectedIndex >= totalItems) {
+        } else if (totalItems > 0 && currentIndex >= totalItems) {
             // Clamp if index is out of bounds
-            search.selectedIndex = totalItems - 1;
-        } else if (totalItems === 0 && search.selectedIndex !== 0) {
-            search.selectedIndex = 0;
+            setSelectedIndex(totalItems - 1);
+        } else if (totalItems === 0 && currentIndex !== 0) {
+            setSelectedIndex(0);
         }
     });
 
@@ -127,11 +128,11 @@
 
         if (e.key === "ArrowDown") {
             e.preventDefault();
-            search.selectedIndex = (search.selectedIndex + 1) % totalItems;
+            setSelectedIndex((search.selectedIndex + 1) % totalItems);
             scrollSelectedIntoView(search.selectedIndex);
         } else if (e.key === "ArrowUp") {
             e.preventDefault();
-            search.selectedIndex = (search.selectedIndex - 1 + totalItems) % totalItems;
+            setSelectedIndex((search.selectedIndex - 1 + totalItems) % totalItems);
             scrollSelectedIntoView(search.selectedIndex);
         } else if (e.key === "Enter") {
             e.preventDefault();
@@ -147,6 +148,10 @@
         }
     }
 
+    function openExternal(route: string) {
+        globalThis.open(route, "_blank", "noopener");
+    }
+
     async function selectItem(index: number) {
         const item = flattenedResults[index];
         if (!item) return;
@@ -156,17 +161,12 @@
 
         if (item.type === "setting" && item.setting) {
             setHighlightedSetting(item.setting.id);
-            if (isExternal) {
-                globalThis.open(route, "_blank", "noopener noreferrer");
-            } else {
-                await goto(route);
-            }
+        }
+
+        if (isExternal) {
+            openExternal(route);
         } else {
-            if (isExternal) {
-                globalThis.open(route, "_blank", "noopener noreferrer");
-            } else {
-                await goto(route);
-            }
+            await goto(route);
         }
         clearSearch();
     }
