@@ -48,8 +48,21 @@
         const shareParam = getSharePayloadFromHash(window.location.hash);
         if (!shareParam) return;
 
+        if (shareParam.length > MAX_SHARE_URL_LENGTH) {
+            error("Shared config URL is too large to import");
+            clearShareHashFromAddressBar();
+            return;
+        }
+
         try {
             const decodedConfig = decodeConfig(shareParam);
+
+            if (decodedConfig.length > 5_000) {
+                error("Shared config too large to display");
+                clearShareHashFromAddressBar();
+                return;
+            }
+
             sharedConfigPreview = decodedConfig;
 
             // Try to parse for pretty display
@@ -132,7 +145,8 @@
     }
 
     function selectFile() {
-        const file = filePicker.files![0];
+        const file = filePicker.files?.[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string

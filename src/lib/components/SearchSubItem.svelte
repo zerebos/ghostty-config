@@ -3,6 +3,7 @@
     import {setHighlightedSetting, clearSearch} from "$lib/stores/search.svelte";
     import type {MatchedSetting} from "$lib/utils/search";
     import {goto} from "$app/navigation";
+    import {resolve} from "$app/paths";
 
     const {
         setting,
@@ -14,9 +15,10 @@
         setHighlightedSetting(setting.id);
         clearSearch();
         // Restore focus to search input before navigation
-        const searchInput = document.querySelector(".search-input") as HTMLElement | null;
+        const searchInput = document.querySelector<HTMLElement>(".search-input");
         searchInput?.focus();
-        await goto(categoryRoute);
+        // eslint-disable-next-line svelte/no-goto-without-base
+        await goto(resolve(categoryRoute));
     }
 </script>
 
@@ -25,8 +27,6 @@
     class="sub-item"
     class:selected
     onclick={handleClick}
-    role="option"
-    aria-selected={selected}
 >
     <HighlightText text={setting.name} ranges={setting.matchRanges} />
 </button>

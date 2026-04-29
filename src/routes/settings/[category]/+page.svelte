@@ -2,7 +2,7 @@
     import Page from "$lib/views/Page.svelte";
 
     import {page} from "$app/stores";
-    import {tick} from "svelte";
+    import {tick, onDestroy} from "svelte";
     import Switch from "$lib/components/settings/Switch.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Group from "$lib/components/settings/Group.svelte";
@@ -30,6 +30,12 @@
 
     let highlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    onDestroy(() => {
+        if (highlightTimeout !== null) {
+            clearTimeout(highlightTimeout);
+        }
+    });
+
     function smoothScrollTo(element: HTMLElement, duration: number = 300) {
         const container = document.querySelector(".content-container") as HTMLElement;
         if (!container) return;
@@ -37,12 +43,7 @@
         const containerRect = container.getBoundingClientRect();
         const elementRect = element.getBoundingClientRect();
         const scrollTop = container.scrollTop;
-        const elementTop =
-            elementRect.top -
-            containerRect.top +
-            scrollTop -
-            containerRect.height / 2 +
-            elementRect.height / 2;
+        const elementTop = elementRect.top - containerRect.top + scrollTop - containerRect.height / 2 + elementRect.height / 2;
         const targetScroll = Math.max(0, elementTop);
         const startTime = performance.now();
         const startScroll = container.scrollTop;
@@ -74,7 +75,7 @@
 
         const element = document.querySelector(
             `[data-setting-id="${CSS.escape(highlightedId)}"]`
-        ) as HTMLDivElement | null;
+        );
 
         if (element) {
             smoothScrollTo(element, 200);
@@ -86,11 +87,14 @@
                 }
             }, 2000);
         }
+ else {
+            clearHighlightedSetting();
+        }
     }
 
     $effect(() => {
         if (search.highlightedSettingId) {
-            scrollToHighlighted();
+            void scrollToHighlighted();
         }
     });
 </script>

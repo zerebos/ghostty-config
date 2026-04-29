@@ -59,7 +59,7 @@ export function getMatchRanges(text: string, query: string): MatchRange[] {
     while (startIndex < lowerText.length) {
         const index = lowerText.indexOf(lowerQuery, startIndex);
         if (index === -1) break;
-        ranges.push({start: index, end: index + query.length});
+        ranges.push({start: index, end: index + lowerQuery.length});
         startIndex = index + query.length;
     }
 
@@ -87,11 +87,20 @@ export function searchSettings(
 
         for (const group of panel.groups) {
             for (const setting of group.settings) {
-                if (hasMatch(setting.name, q) || (setting.note && hasMatch(setting.note, q))) {
+                const nameMatchRanges = getMatchRanges(setting.name, q);
+                if (nameMatchRanges.length > 0) {
                     matchedSettings.push({
                         id: setting.id,
                         name: setting.name,
-                        matchRanges: getMatchRanges(setting.name, q)
+                        matchRanges: nameMatchRanges
+                    });
+                }
+ else if (setting.note && hasMatch(setting.note, q)) {
+                    // Note matched but name didn't — include without highlights
+                    matchedSettings.push({
+                        id: setting.id,
+                        name: setting.name,
+                        matchRanges: []
                     });
                 }
             }
@@ -132,7 +141,8 @@ export function flattenSearchResults(results: SearchResult[]): FlattenedItem[] {
     for (const result of results) {
         if (result.type === "external") {
             flattened.push({type: "external", result});
-        } else {
+        }
+ else {
             flattened.push({type: "category", result});
             for (const setting of result.matchedSettings) {
                 flattened.push({type: "setting", result, setting});

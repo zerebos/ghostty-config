@@ -10,11 +10,14 @@
         let lastIndex = 0;
 
         for (const range of [...ranges].sort((a, b) => a.start - b.start)) {
-            if (range.start > lastIndex) {
-                result.push({content: text.slice(lastIndex, range.start), highlighted: false});
+            const start = Math.max(0, Math.min(range.start, text.length));
+            const end = Math.max(start, Math.min(range.end, text.length));
+            if (end <= start) continue;
+            if (start > lastIndex) {
+                result.push({content: text.slice(lastIndex, start), highlighted: false});
             }
-            result.push({content: text.slice(range.start, range.end), highlighted: true});
-            lastIndex = range.end;
+            result.push({content: text.slice(start, end), highlighted: true});
+            lastIndex = end;
         }
 
         if (lastIndex < text.length) {

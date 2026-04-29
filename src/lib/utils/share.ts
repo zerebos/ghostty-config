@@ -15,10 +15,15 @@ export function encodeConfig(config: string): string {
  * Decode a URL-safe base64 string back to a config string.
  */
 export function decodeConfig(encoded: string): string {
+    if (encoded.length > MAX_SHARE_URL_LENGTH) {
+        throw new Error("Encoded share payload too large");
+    }
+
     const normalized = encoded.replace(/-/g, "+").replace(/_/g, "/");
     const padding = normalized.length % 4;
     const base64 = padding === 0 ? normalized : `${normalized}${"=".repeat(4 - padding)}`;
     const binary = atob(base64);
+
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
     return new TextDecoder().decode(bytes);

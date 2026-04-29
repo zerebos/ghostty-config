@@ -92,10 +92,12 @@
             if (currentIndex !== 0) {
                 setSelectedIndex(0);
             }
-        } else if (totalItems > 0 && currentIndex >= totalItems) {
+        }
+ else if (totalItems > 0 && currentIndex >= totalItems) {
             // Clamp if index is out of bounds
             setSelectedIndex(totalItems - 1);
-        } else if (totalItems === 0 && currentIndex !== 0) {
+        }
+ else if (totalItems === 0 && currentIndex !== 0) {
             setSelectedIndex(0);
         }
     });
@@ -104,7 +106,7 @@
 
     function scrollSelectedIntoView(index: number) {
         if (!searchNavContainer) return;
-        const items = searchNavContainer.querySelectorAll('[role="option"]');
+        const items = searchNavContainer.querySelectorAll("[role='option']");
         const selectedItem = items[index] as HTMLElement | undefined;
         if (selectedItem) {
             selectedItem.scrollIntoView({block: "nearest", behavior: "smooth"});
@@ -115,11 +117,7 @@
         if (!isSearching) return;
 
         const activeElement = document.activeElement;
-        const isInputActive =
-            activeElement?.tagName === "INPUT" ||
-            activeElement?.tagName === "TEXTAREA" ||
-            activeElement?.tagName === "SELECT" ||
-            activeElement?.getAttribute("contenteditable") === "true";
+        const isInputActive = activeElement?.tagName === "INPUT" || activeElement?.tagName === "TEXTAREA" || activeElement?.tagName === "SELECT" || activeElement?.getAttribute("contenteditable") === "true";
 
         if (isInputActive && !activeElement?.classList.contains("search-input")) return;
 
@@ -130,26 +128,46 @@
             e.preventDefault();
             setSelectedIndex((search.selectedIndex + 1) % totalItems);
             scrollSelectedIntoView(search.selectedIndex);
-        } else if (e.key === "ArrowUp") {
+        }
+        else if (e.key === "ArrowUp") {
             e.preventDefault();
             setSelectedIndex((search.selectedIndex - 1 + totalItems) % totalItems);
             scrollSelectedIntoView(search.selectedIndex);
-        } else if (e.key === "Enter") {
+        }
+        else if (e.key === "Enter") {
             e.preventDefault();
-            selectItem(search.selectedIndex);
-        } else if (e.key === "Tab" && !e.shiftKey) {
+            void selectItem(search.selectedIndex);
+        }
+        else if (e.key === "Tab" && !e.shiftKey) {
             // Allow tab to move focus out of search results
             clearSearch();
-        } else if (e.key === "Escape") {
+        }
+        else if (e.key === "Escape") {
             e.preventDefault();
             clearSearch();
-            const searchInput = document.querySelector(".search-input") as HTMLElement | null;
+            const searchInput = document.querySelector<HTMLElement>(".search-input");
             searchInput?.focus();
         }
     }
 
     function openExternal(route: string) {
-        globalThis.open(route, "_blank", "noopener");
+        function fallbackAnchor() {
+            const a = document.createElement("a");
+            a.href = route;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+        try {
+            const w = globalThis.open(route, "_blank", "noopener,noreferrer");
+            if (!w) fallbackAnchor();
+        }
+ catch {
+            fallbackAnchor();
+        }
     }
 
     async function selectItem(index: number) {
@@ -165,7 +183,9 @@
 
         if (isExternal) {
             openExternal(route);
-        } else {
+        }
+        else {
+            // eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/no-goto-without-base
             await goto(route);
         }
         clearSearch();
@@ -222,27 +242,22 @@
                         bind:this={searchNavContainer}
                         role="listbox"
                         aria-label="Search results"
-                        class="search-results-list"
                     >
                         {#each flattenedResults as item, index (`${item.result.categoryId}-${item.type}-${item.setting?.id || ""}`)}
                             {#if item.type === "category" || item.type === "external"}
-                                <div
-                                    class="search-result-group"
-                                    role="option"
-                                    aria-selected={index === search.selectedIndex}
-                                >
+                                <div class="search-result-group">
                                     <Tab
                                         route={item.result.categoryRoute}
                                         highlightRanges={item.result.categoryMatchRanges}
                                         label={item.result.categoryName}
                                         selected={index === search.selectedIndex}
+                                        onclick={() => selectItem(index)}
                                     >
                                         {#snippet icon()}
                                             {#if isExternalCategory(item.result.categoryId)}
                                                 <div
                                                     class="icon-wrapper"
-                                                    class:github={item.result.categoryId ===
-                                                        "github"}
+                                                    class:github={item.result.categoryId === "github"}
                                                 >
                                                     <img
                                                         src={getResultIcon(item.result.categoryId)}
@@ -278,8 +293,7 @@
                             fill="currentColor"
                             class="no-results-icon"
                         >
-                            <path
-                                d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                            <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
                             />
                         </svg>
                         <div class="no-results-title">No Results</div>

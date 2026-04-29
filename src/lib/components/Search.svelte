@@ -3,16 +3,15 @@
     import {onMount} from "svelte";
 
     let inputRef: HTMLInputElement | undefined = $state();
-    let isMac = $state(false);
+    const isMac = navigator.userAgent.toUpperCase().includes("MAC");
 
     onMount(() => {
-        isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
         window.addEventListener("keydown", handleKeydown);
         return () => window.removeEventListener("keydown", handleKeydown);
     });
 
     function handleKeydown(e: KeyboardEvent) {
-        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
             e.preventDefault();
             inputRef?.focus();
         }
@@ -20,7 +19,7 @@
 
     function handleInputKeydown(e: KeyboardEvent) {
         if (e.key === "Escape") {
-            e.preventDefault();
+            e.stopPropagation();
             clearSearch();
             inputRef?.blur();
         }
@@ -41,8 +40,7 @@
             width="16"
             fill="currentColor"
         >
-            <path
-                d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+            <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
             />
         </svg>
     </div>
@@ -63,15 +61,14 @@
                 width="14"
                 fill="currentColor"
             >
-                <path
-                    d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+                <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
                 />
             </svg>
         </button>
     {:else}
         <kbd
             class="shortcut-hint"
-            aria-label="Press {isMac ? 'Command' : 'Control'} plus K to focus search"
+            aria-label="Press {isMac ? "Command" : "Control"} plus K to focus search"
         >
             {isMac ? "⌘K" : "Ctrl+K"}
         </kbd>
