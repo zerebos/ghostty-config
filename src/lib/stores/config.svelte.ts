@@ -39,6 +39,10 @@ export function diff() {
             const toAdd = config[key].filter(c => !defaults[key].includes(c));
             if (toAdd.length) output[keyToConfig(key)] = toAdd;
         }
+        else if (Array.isArray(config[key]) && key !== "palette") {
+            const toAdd = config[key].filter(Boolean);
+            if (toAdd.length) output[keyToConfig(key)] = toAdd;
+        }
         else if (Array.isArray(config[key]) && key === "palette") {
             const toAdd = [];
             for (let p = 0; p < defaults[key].length; p++) {
@@ -58,9 +62,14 @@ export function diff() {
 export function load(conf: Partial<typeof config>) {
     for (const key in conf) {
         if (!(key in config)) continue;
-        if (key !== "keybind" && key !== "palette") {
+        const configKey = key as keyof typeof config;
+        if (Array.isArray(conf[configKey]) && key !== "keybind" && key !== "palette") {
             // @ts-expect-error doing this properly is hard
-            config[key as keyof typeof config] = conf[key as keyof typeof config]!;
+            config[configKey] = [...conf[configKey]];
+        }
+        else if (key !== "keybind" && key !== "palette") {
+            // @ts-expect-error doing this properly is hard
+            config[configKey] = conf[configKey];
         }
         else if (key === "keybind") {
             config.keybind = [...config.keybind, ...conf.keybind!];
@@ -120,10 +129,10 @@ export default config;
 interface DefaultConfig {
     palette: HexColor[];
     keybind: KeybindString[];
-    fontFamily: string;
-    fontFamilyBold: string;
-    fontFamilyItalic: string;
-    fontFamilyBoldItalic: string;
+    fontFamily: string[];
+    fontFamilyBold: string[];
+    fontFamilyItalic: string[];
+    fontFamilyBoldItalic: string[];
     fontStyle: string;
     fontStyleBold: string;
     fontStyleItalic: string;
