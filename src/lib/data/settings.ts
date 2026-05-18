@@ -29,8 +29,9 @@ interface Switch extends BaseSettingItem {
 
 interface Text extends BaseSettingItem {
     type: "text";
-    value: string;
+    value: string | string[];
     placeholder?: string;
+    repeatable?: boolean;
 }
 
 interface Number extends BaseSettingItem {
@@ -400,10 +401,10 @@ const settings = [
                 name: "Font Families",
                 note: "By default Ghostty embeds and uses JetBrainsMono Nerd Font so you don't need to install it on your system or set it in your configuration.",
                 settings: [
-                    {id: "fontFamily", name: "Main font family", type: "text", value: "", placeholder: "JetBrainsMono NF"},
-                    {id: "fontFamilyBold", name: "Font family for bold text", type: "text", value: ""},
-                    {id: "fontFamilyItalic", name: "Font family for italic text", type: "text", value: ""},
-                    {id: "fontFamilyBoldItalic", name: "Font family for bold italic text", type: "text", value: ""},
+                    {id: "fontFamily", name: "Main font family", type: "text", value: [""], placeholder: "JetBrainsMono NF", repeatable: true},
+                    {id: "fontFamilyBold", name: "Font family for bold text", type: "text", value: [""], repeatable: true},
+                    {id: "fontFamilyItalic", name: "Font family for italic text", type: "text", value: [""], repeatable: true},
+                    {id: "fontFamilyBoldItalic", name: "Font family for bold italic text", type: "text", value: [""], repeatable: true},
                     {id: "fontCodepointMap", name: "Unicode-specifc font mapping", note: "", type: "text", value: ""},
                 ]
             },

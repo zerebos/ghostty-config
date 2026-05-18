@@ -4,6 +4,7 @@ import type {HexColor} from "./colors";
 const re = /^\s*([a-z-]+)[\s]*=\s*(.*)\s*$/;
 
 const colors = ["background", "foreground", "cursor-color", "selection-background", "selection-foreground"];
+const repeatableStrings = ["font-family", "font-family-bold", "font-family-italic", "font-family-bold-italic"];
 
 export default function (configString: string) {
     const lines = configString.split("\n");
@@ -40,7 +41,11 @@ export default function (configString: string) {
                 newKey += split[s].substring(1);
             }
 
-            if (colors.includes(key) && value.length === 6 && !value.startsWith("#")) {
+            if (repeatableStrings.includes(key)) {
+                const current = results[newKey];
+                results[newKey] = Array.isArray(current) ? [...current, value] : [value];
+            }
+            else if (colors.includes(key) && value.length === 6 && !value.startsWith("#")) {
                 results[newKey] = `#${value}`;
             }
             else {
@@ -51,4 +56,3 @@ export default function (configString: string) {
 
     return results;
 };
-

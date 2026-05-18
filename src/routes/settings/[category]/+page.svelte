@@ -10,6 +10,7 @@
     import settings from "$lib/data/settings";
     import config from "$lib/stores/config.svelte";
     import Text from "$lib/components/settings/Text.svelte";
+    import RepeatableText from "$lib/components/settings/RepeatableText.svelte";
     import Number from "$lib/components/settings/Number.svelte";
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
     import Color from "$lib/components/settings/Color.svelte";
@@ -56,6 +57,8 @@
                     <Item name={setting.name} note={setting.note}>
                         {#if setting.type === "switch"}
                             <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
+                        {:else if setting.type === "text" && setting.repeatable}
+                            <RepeatableText bind:value={config[setting.id as keyof typeof config] as string[]} placeholder={setting.placeholder} />
                         {:else if setting.type === "text"}
                             <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} />
                         {:else if setting.type === "number"}
