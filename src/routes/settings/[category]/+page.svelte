@@ -8,7 +8,7 @@
     import Separator from "$lib/components/settings/Separator.svelte";
 
     import settings from "$lib/data/settings";
-    import config from "$lib/stores/config.svelte";
+    import config, {isNonDefault, resetSetting} from "$lib/stores/config.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
@@ -22,6 +22,7 @@
     import AppIconPreview from "$lib/views/AppIconPreview.svelte";
     import type {HexColor} from "$lib/utils/colors";
     import {resolve} from "$app/paths";
+    import {success} from "$lib/stores/toasts.svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -53,7 +54,15 @@
                 {/if}
                 {#each group.settings as setting, i (setting.id)}
                     {#if i !== 0}<Separator />{/if}
-                    <Item name={setting.name} note={setting.note}>
+                    <Item
+                        name={setting.name}
+                        note={setting.note}
+                        isNonDefault={isNonDefault(setting.id as keyof typeof config)}
+                        onReset={() => {
+                            resetSetting(setting.id as keyof typeof config);
+                            success("Reset to default");
+                        }}
+                    >
                         {#if setting.type === "switch"}
                             <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
                         {:else if setting.type === "text"}
