@@ -57,7 +57,8 @@
                     <Item
                         name={setting.name}
                         note={setting.note}
-                        platform={setting.platform}
+                        // filter out the current platform from the badge list since it's already obvious from the UI
+                        platform={setting.platform?.filter(p => p !== title?.toLowerCase())}
                         since={setting.since}
                         schemaDescription={setting.type !== "palette" ? setting.schemaDescription : undefined}
                         isNonDefault={isNonDefault(setting.id as keyof typeof config)}

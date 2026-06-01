@@ -157,8 +157,8 @@ const baseSettings = [
                     {id: "configDefaultFiles", name: "Load default config file", type: "switch", value: true},
                     {id: "link", name: "Link handling", note: "Regex for making clickable links, currently disabled.", type: "text", value: "", disabled: true},
                     {id: "linkUrl", name: "Automatically link URLs", note: "Matching occurs while holding the control (Linux) or command (macOS) key.", type: "switch", value: true},
-                    {id: "linkPreviews", name: "Show link previews", note: "When set to `osc8`, previews are only shown for hyperlinks created with the OSC 8 sequence.", type: "dropdown", value: "true", options: ["true", "false", "osc8"]},
-                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like `1h30m`, `5s`, `500ms`.", type: "text", value: ""}
+                    {id: "linkPreviews", name: "Show link previews", note: "When set to <code>osc8</code>, previews are only shown for hyperlinks created with the OSC 8 sequence.", type: "dropdown", value: "true", options: ["true", "false", "osc8"]},
+                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like <code>1h30m</code>, <code>5s</code>, <code>500ms</code>.", type: "text", value: ""}
                 ]
             },
             {
@@ -173,7 +173,7 @@ const baseSettings = [
                     {id: "maximize", name: "Launch as maximized window", type: "switch", value: false},
                     {id: "fullscreen", name: "Launch in fullscreen mode", type: "switch", value: false},
                     {id: "initialWindow", name: "Show a window on startup", type: "switch", value: true},
-                    {id: "workingDirectory", name: "Directory to use after startup", note: "Special values of `home` and `inherit` are also allowed here.", type: "text", value: ""},
+                    {id: "workingDirectory", name: "Directory to use after startup", note: "Special values of <code>home</code> and <code>inherit</code> are also allowed here.", type: "text", value: ""},
                 ]
             },
             {
@@ -194,7 +194,7 @@ const baseSettings = [
                 // type: "group",
                 settings: [
                     {id: "shellIntegration", name: "Shell integration style", type: "dropdown", value: "detect", options: ["none", "detect", "bash", "elvish", "fish", "nushell", "zsh"]},
-                    {id: "shellIntegrationFeatures", name: "Shell integration features", note: "Available features: cursor, sudo, title, ssh-env, ssh-terminfo, path. Including one force enables it, prefixing it with `no-` force disables it, omitting it falls back to default.", type: "text", value: "cursor,no-sudo,title,no-ssh-env,no-ssh-terminfo,path"},
+                    {id: "shellIntegrationFeatures", name: "Shell integration features", note: "Available features: cursor, sudo, title, ssh-env, ssh-terminfo, path. Including one force enables it, prefixing it with <code>no-</code> force disables it, omitting it falls back to default.", type: "text", value: "cursor,no-sudo,title,no-ssh-env,no-ssh-terminfo,path"},
                     {id: "term", name: "TERM environment variable", type: "text", value: "xterm-ghostty"},
                     {id: "titleReport", name: "CSI 21 title reporting", note: "This allows running apps to read the terminal title.", type: "switch", value: false},
                 ]
@@ -205,7 +205,7 @@ const baseSettings = [
                 settings: [
                     {id: "quickTerminalPosition", name: "Terminal position", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left", "center"]},
                     {id: "quickTerminalScreen", name: "Screen location", type: "dropdown", value: "main", options: ["main", "mouse", "macos-menu-bar"]},
-                    {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. `50%`) or in pixels (e.g. `800`). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
+                    {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. <code>50%</code>) or in pixels (e.g. <code>800</code>). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
                     {id: "quickTerminalAnimationDuration", name: "Animation duration", type: "number", value: 0.2, min: 0, max: 10, step: 0.1, range: true},
                     {id: "quickTerminalAutohide", name: "Autohide", note: "This autohides the quick terminal when focus shifts away.", type: "switch", value: true},
                     {id: "quickTerminalSpaceBehavior", name: "macOS space behavior", type: "dropdown", value: "move", options: ["move", "remain"]},
@@ -232,8 +232,8 @@ const baseSettings = [
                 id: "bell",
                 name: "Bell",
                 settings: [
-                    {id: "bellFeatures", name: "Bell features", note: "Comma-separated list of features. Available: system, audio, attention, title, border. Prefix with `no-` to disable.", type: "text", value: ""},
-                    {id: "bellAudioPath", name: "Bell audio file", note: "Path to an audio file to play when the bell rings. Requires `audio` in bell features. GTK only.", type: "text", value: ""},
+                    {id: "bellFeatures", name: "Bell features", note: "Comma-separated list of features. Available: system, audio, attention, title, border. Prefix with <code>no-</code> to disable.", type: "text", value: ""},
+                    {id: "bellAudioPath", name: "Bell audio file", note: "Path to an audio file to play when the bell rings. Requires <code>audio</code> in bell features. GTK only.", type: "text", value: ""},
                     {id: "bellAudioVolume", name: "Bell audio volume", note: "Volume for the bell audio, from 0 (silent) to 1 (full). GTK only.", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.05},
                 ]
             },
@@ -295,7 +295,7 @@ const baseSettings = [
                     {id: "windowTitlebarForeground", name: "Titlebar foreground", type: "color", value: ""},
                     {id: "backgroundOpacity", name: "Background opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
                     {id: "backgroundOpacityCells", name: "Force background opacity on cells.", type: "switch", value: false},
-                    {id: "backgroundBlur", name: "Background blur", note: "Set to `true` to enable blur, `false` to disable, a number for a specific radius (macOS), or `macos-glass-regular`/`macos-glass-clear` for macOS glass effects.", type: "text", value: "false"},
+                    {id: "backgroundBlur", name: "Background blur", note: "Set to <code>true</code> to enable blur, <code>false</code> to disable, a number for a specific radius (macOS), or <code>macos-glass-regular</code>/<code>macos-glass-clear</code> for macOS glass effects.", type: "text", value: "false"},
                     {id: "backgroundImage", name: "Background image", note: "Path to an image file to use as the terminal background.", type: "text", value: ""},
                     {id: "backgroundImageOpacity", name: "Background image opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
                     {id: "backgroundImagePosition", name: "Background image position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "center-left", "center-center", "center-right", "bottom-left", "bottom-center", "bottom-right"]},
@@ -340,7 +340,7 @@ const baseSettings = [
                         value: "",
                         options: [{name: "Custom", value: ""}]
                     },
-                    {id: "boldColor", name: "Bold text color", note: "Set to `bright` to use bright palette colors for bold text, or a hex color value. Leave empty to use the default.", type: "text", value: ""},
+                    {id: "boldColor", name: "Bold text color", note: "Set to <code>bright</code> to use bright palette colors for bold text, or a hex color value. Leave empty to use the default.", type: "text", value: ""},
                     {id: "faintOpacity", name: "Faint text opacity", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.01},
                     {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
                     {id: "paletteGenerate", name: "Auto-generate missing palette colors", note: "When enabled, Ghostty will generate missing colors (indices 16-231) based on the first 16.", type: "switch", value: true},
@@ -370,7 +370,7 @@ const baseSettings = [
                     {id: "cursorText", name: "Text color under cursor", type: "color", value: ""},
                     {id: "cursorOpacity", name: "Cursor opacity", type: "number", value: 1, range: true, min: 0, max: 1, step: 0.05},
                     {id: "cursorStyle", name: "Cursor style", type: "dropdown", value: "block", options: ["block", "bar", "underline", {value: "block_hollow", name: "hollow block"}]},
-                    {id: "cursorStyleBlink", name: "Cursor blink style", note: "The `default` option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},
+                    {id: "cursorStyleBlink", name: "Cursor blink style", note: "The <code>default</code> option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},
                 ]
             },
             {
@@ -415,7 +415,7 @@ const baseSettings = [
             {
                 id: "styles",
                 name: "Font Styles",
-                note: "Named font styles for the fields above. For example for `Ioveska Heavy` you would use a style of `Heavy`. Alternately you can set the style to `false` to completely disable the style and revert to default style.",
+                note: "Named font styles for the fields above. For example for <code>Ioveska Heavy</code> you would use a style of <code>Heavy</code>. Alternately you can set the style to <code>false</code> to completely disable the style and revert to default style.",
                 settings: [
                     {id: "fontStyle", name: "Main font style", type: "text", value: "default"},
                     {id: "fontStyleBold", name: "Font style for bold text", type: "text", value: "default"},
@@ -501,12 +501,12 @@ const baseSettings = [
                 id: "main",
                 name: "",
                 settings: [
-                    {id: "class", name: "WM_CLASS class field", note: "This defaults to `com.mitchellh.ghostty`", type: "text", value: ""},
-                    {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to `ghostty`", type: "text", value: ""},
+                    {id: "class", name: "WM_CLASS class field", note: "This defaults to <code>com.mitchellh.ghostty</code>", type: "text", value: ""},
+                    {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to <code>ghostty</code>", type: "text", value: ""},
                     {id: "gtkSingleInstance", name: "Single-instance mode", type: "dropdown", value: "detect", options: ["detect", "true", "false"]},
                     {id: "gtkCustomCss", name: "Custom css file", type: "text", value: ""},
                     {id: "gtkOpenglDebug", name: "OpenGL debug", type: "switch", value: false},
-                    {id: "appNotifications", name: "App notifications", note: "Comma-separated list of notifications to enable/disable. Available: clipboard-copy, config-reload. Prefix with `no-` to disable. `true`/`false` to enable/disable all.", type: "text", value: ""},
+                    {id: "appNotifications", name: "App notifications", note: "Comma-separated list of notifications to enable/disable. Available: clipboard-copy, config-reload. Prefix with <code>no-</code> to disable. <code>true</code>/<code>false</code> to enable/disable all.", type: "text", value: ""},
                 ]
             },
             {
@@ -514,9 +514,9 @@ const baseSettings = [
                 name: "Titlebar & Tabs",
                 settings: [
                     {id: "gtkToolbarStyle", name: "Toolbar style", type: "dropdown", value: "raised", options: ["raised", "flat", "raised-border"]},
-                    {id: "gtkTitlebarStyle", name: "Titlebar style", note: "`tabs` merges the tab bar and titlebar to save vertical space.", type: "dropdown", value: "native", options: ["native", "tabs"]},
+                    {id: "gtkTitlebarStyle", name: "Titlebar style", note: "<code>tabs</code> merges the tab bar and titlebar to save vertical space.", type: "dropdown", value: "native", options: ["native", "tabs"]},
                     {id: "gtkTabsLocation", name: "Tab location", type: "dropdown", value: "top", options: ["top", "bottom"]},
-                    {id: "gtkWideTabs", name: "Use wide tabs", note: "Setting this to false will make tabs use the least space necessary.", type: "switch", value: true},
+                    {id: "gtkWideTabs", name: "Use wide tabs", note: "Setting this to <code>false</code> will make tabs use the least space necessary.", type: "switch", value: true},
                     {id: "gtkTitlebar", name: "Show titlebar", type: "switch", value: true},
                     {id: "gtkTitlebarHideWhenMaximized", name: "Hide titlebar on maximize", type: "switch", value: false},
                     {id: "gtkQuickTerminalLayer", name: "Quick terminal layer", note: "Controls which layer the quick terminal appears on. GTK Wayland only.", type: "dropdown", value: "top", options: ["overlay", "top", "bottom", "background"]},
@@ -570,10 +570,10 @@ const baseSettings = [
             {
                 id: "icon",
                 name: "App Icon",
-                note: "If you choose the \"custom-style\" option, you can use any of the other icon settings to customize your icon with a live preview.",
+                note: "If you choose the <code>custom-style</code> option, you can use any of the other icon settings to customize your icon with a live preview.",
                 settings: [
                     {id: "macosIcon", name: "Icon", note: "Custom style must specify both ghost and screen colors.", type: "dropdown", value: "official", options: ["official", "blueprint", "chalkboard", "microchip", "glass", "holographic", "paper", "retro", "xray", "custom", "custom-style"]},
-                    {id: "macosCustomIcon", name: "Icon file", note: "Only used when \"custom\" is selected above.", type: "text", value: ""},
+                    {id: "macosCustomIcon", name: "Icon file", note: "Only used when <code>custom</code> is selected above.", type: "text", value: ""},
                     {id: "macosIconFrame", name: "Icon frame", type: "dropdown", value: "aluminum", options: ["aluminum", "beige", "plastic", "chrome"]},
                     {id: "macosIconGhostColor", name: "Ghost color", type: "color", value: ""},
                     {id: "macosIconScreenColor", name: "Screen color", type: "color", value: ""},
