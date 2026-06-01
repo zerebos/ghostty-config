@@ -2,6 +2,7 @@
     import {onMount, type Snippet} from "svelte";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import type {GhosttyPlatform} from "$lib/data/ghostty-schema";
+    import {alert} from "$lib/stores/modals.svelte";
 
     interface Props {
         name?: string;
@@ -60,11 +61,11 @@
         return `${labels[0]} +${labels.length - 1}`;
     };
 
-    const parseVersion = (version: string) =>
-        version
-            .split(".")
-            .map((part) => Number.parseInt(part, 10))
-            .map((num) => Number.isFinite(num) ? num : 0);
+    // const parseVersion = (version: string) =>
+    //     version
+    //         .split(".")
+    //         .map((part) => Number.parseInt(part, 10))
+    //         .map((num) => Number.isFinite(num) ? num : 0);
 
     const isSinceVisible = $derived.by(() => {
         // if (!since) return false;
@@ -114,15 +115,12 @@
             tooltipAttachment: createTooltipAttachment(() => getBadgeTooltip(badge))
         }))
     );
-
-    const schemaDescriptionTooltip = $derived(schemaDescription || "");
-    const schemaDescriptionAttachment = createTooltipAttachment(() => schemaDescriptionTooltip);
 </script>
 
 <div class="setting-item">
     <div class="row">
         {#if name}
-        <div class="setting-name-wrapper">
+        <div class="row-left">
             <div class="setting-name">{name}</div>
             {#if metadataBadgesWithTooltips.length > 0 || schemaDescription}
                 <div class="metadata" aria-label="Setting metadata">
@@ -136,9 +134,6 @@
                             {@attach badge.tooltipAttachment}
                         >{badge.label}</span>
                     {/each}
-                    {#if schemaDescription}
-                        <button type="button" class="metadata-info" aria-label="Full description" {@attach schemaDescriptionAttachment}>i</button>
-                    {/if}
                 </div>
             {/if}
             {#if isNonDefault && onReset}
@@ -159,7 +154,18 @@
             {/if}
         </div>
         {/if}
-        <div class="setting">{@render children()}</div>
+        <div class="row-right">
+            <div class="setting">{@render children()}</div>
+            {#if schemaDescription}
+                <button type="button" class="setting-info" aria-label="Full description" onclick={() => alert({title: name, message: schemaDescription})}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
+                    </svg>
+                </button>
+            {/if}
+        </div>
     </div>
     {#if note}
     <div class="note">
@@ -182,7 +188,7 @@
     align-items: flex-start;
 }
 
-.setting-name-wrapper {
+.row-left {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -225,24 +231,26 @@
     background: color-mix(in srgb, var(--color-input-accent) 12%, transparent);
 }
 
-.metadata-info {
+.setting-info {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 16px;
     height: 16px;
-    border-radius: 50%;
-    border: 1px solid var(--border-level-3);
-    background: color-mix(in srgb, var(--bg-level-3) 90%, transparent);
+    border: 0;
+    padding: 0;
+    background: none;
     color: var(--font-color-muted);
-    font-size: 0.65rem;
-    font-weight: 700;
-    cursor: help;
-    user-select: none;
+    cursor: pointer;
 }
 
-.metadata-info:focus-visible,
-.metadata-info:hover {
+.setting-info svg {
+    width: 16px;
+    height: 16px;
+}
+
+.setting-info:focus-visible,
+.setting-info:hover {
     border-color: var(--color-input-accent);
     color: var(--font-color);
     outline: none;
@@ -287,10 +295,17 @@
     stroke-width: 2.5;
 }
 
-.setting {
+.row-right {
     display: flex;
+    align-items: center;
     flex: 1;
     justify-content: flex-end;
+    gap: 10px;
+}
+
+.row-right,
+.setting {
+    display: flex;
 }
 
 .note {
