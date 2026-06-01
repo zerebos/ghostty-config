@@ -254,6 +254,7 @@ input[type="range"] {
    height: 5px;
    background-color: var(--bg-separator);
    border-radius: var(--radius-level-5);
+   cursor: pointer;
 }
 
 input[type="range"]::-moz-range-progress {

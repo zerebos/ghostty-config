@@ -115,8 +115,9 @@ export function resetColorScheme() {
 }
 
 export function resetSetting(key: keyof DefaultConfig) {
+    const defaultValue = defaults[key];
     // @ts-expect-error doing this properly is hard
-    config[key] = defaults[key];
+    config[key] = Array.isArray(defaultValue) ? [...defaultValue] : defaultValue;
 }
 
 export function isNonDefault(key: keyof DefaultConfig): boolean {
@@ -132,7 +133,7 @@ export function isNonDefault(key: keyof DefaultConfig): boolean {
         return false;
     }
 
-    return val != defaultVal;
+    return val !== defaultVal;
 }
 
 export {defaults};

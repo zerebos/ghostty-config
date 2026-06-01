@@ -60,7 +60,7 @@
                         isNonDefault={isNonDefault(setting.id as keyof typeof config)}
                         onReset={() => {
                             resetSetting(setting.id as keyof typeof config);
-                            success("Reset to default");
+                            success(`${setting.name} reset to default`);
                         }}
                     >
                         {#if setting.type === "switch"}
