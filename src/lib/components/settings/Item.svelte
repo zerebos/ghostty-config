@@ -11,12 +11,13 @@
         platform?: GhosttyPlatform[];
         since?: string;
         schemaDescription?: string;
+        settingId?: string; // for search reference
         children: Snippet;
         onReset?: () => void;
         isNonDefault?: boolean;
     }
 
-    const {name = "", note = "", platform, since, schemaDescription, children, onReset, isNonDefault = false}: Props = $props();
+    const {name = "", note = "", platform, since, schemaDescription, settingId, children, onReset, isNonDefault = false}: Props = $props();
     const tooltipAttachment = createTooltipAttachment("Reset to default");
 
 
@@ -53,7 +54,7 @@
     };
 </script>
 
-<div class="setting-item">
+<div class="setting-item" data-setting-id={settingId || undefined}>
     <div class="row">
         {#if name}
         <div class="row-left">
@@ -111,6 +112,30 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    /* width: 100%; */
+    /* box-sizing: border-box; */
+    /* padding: 4px 8px; */
+    /* margin: -4px -8px; */
+    position: relative;
+}
+
+.setting-item:global(.flash-highlight)::before {
+    content: "";
+    position: absolute;
+    /* group padding size */
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+    animation: flash-highlight 2s ease-in-out;
+}
+
+.setting-item:global(.flash-highlight):first-child::before {
+    border-radius: var(--radius-level-4) var(--radius-level-4) 0 0;
+}
+
+.setting-item:global(.flash-highlight):last-child::before {
+    border-radius: 0 0 var(--radius-level-4) var(--radius-level-4);
 }
 
 .setting-item .row {
@@ -225,5 +250,17 @@
     box-shadow:
         0 0 1px -1px rgba(0,0,0,0.7),
         0 0 1px white inset;
+}
+
+@keyframes flash-highlight {
+    0% {
+        background: rgba(128, 199, 255, 0.45);
+        box-shadow: 0 0 0 1px rgba(152, 217, 255, 0.6);
+    }
+
+    100% {
+        background: transparent;
+        box-shadow: 0 0 0 1px rgba(152, 217, 255, 0);
+    }
 }
 </style>

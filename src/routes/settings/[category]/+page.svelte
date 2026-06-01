@@ -23,10 +23,46 @@
     import type {HexColor} from "$lib/utils/colors";
     import {resolve} from "$app/paths";
     import {success} from "$lib/stores/toasts.svelte";
+    import {tick} from "svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
     const title = $derived(category?.name ?? $page.params.category);
+    const targetSettingId = $derived($page.url.searchParams.get("setting") ?? "");
+    const highlightToken = $derived($page.url.searchParams.get("focus") ?? "");
+
+    $effect(() => {
+        const settingId = targetSettingId;
+        const categoryId = category?.id;
+        const token = highlightToken;
+        if (!categoryId || !settingId) return;
+
+        let timeout = 0;
+        let cancelled = false;
+
+        void tick().then(() => {
+            if (cancelled) return;
+
+            const settingEl = document.querySelector<HTMLElement>(`[data-setting-id="${settingId}"]`);
+            if (!settingEl) return;
+
+            settingEl.scrollIntoView({behavior: "smooth", block: "center"});
+
+            settingEl.classList.remove("flash-highlight");
+            void settingEl.offsetWidth;
+            settingEl.classList.add("flash-highlight");
+
+            const duration = token ? 2000 : 2000;
+            timeout = window.setTimeout(() => {
+                // settingEl.classList.remove("flash-highlight");
+            }, duration);
+        });
+
+        return () => {
+            cancelled = true;
+            if (timeout) window.clearTimeout(timeout);
+        };
+    });
 </script>
 
 
@@ -55,6 +91,7 @@
                 {#each group.settings as setting, i (setting.id)}
                     {#if i !== 0}<Separator />{/if}
                     <Item
+                        settingId={setting.id}
                         name={setting.name}
                         note={setting.note}
                         // filter out the current platform from the badge list since it's already obvious from the UI
