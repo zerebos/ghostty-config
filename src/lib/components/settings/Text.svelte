@@ -4,18 +4,19 @@
         placeholder?: string;
         blank?: boolean;
         align?: "right" | "left";
+        size?: number;
         change?: (e: Event) => void;
     }
 
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), placeholder = "", blank = false, align = "right", change}: Props = $props();
+    let {value = $bindable(), placeholder = "", blank = false, align = "right", size, change}: Props = $props();
 
     function click(event: MouseEvent) {
         event.stopPropagation();
     }
 </script>
 
-<input class:blank class:empty={value === ""} class={align} type="text" {placeholder} onclick={click} onchange={change} bind:value />
+<input class:blank class:empty={value === ""} class={align} type="text" {placeholder} style:width="{size}ch" onclick={click} onchange={change} bind:value />
 
 <style>
 input {

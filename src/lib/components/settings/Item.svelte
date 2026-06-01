@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {onMount, type Snippet} from "svelte";
+    import {type Snippet} from "svelte";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import type {GhosttyPlatform} from "$lib/data/ghostty-schema";
     import {alert} from "$lib/stores/modals.svelte";
@@ -31,85 +31,28 @@
         platform?.map((value) => platformLabelMap[value]).filter(Boolean) ?? []
     );
 
-    // type RuntimePlatform = "macos" | "linux" | "other";
-
-    // let runtimePlatform = $state<RuntimePlatform>("other");
-
-    // onMount(() => {
-    //     const userAgent = navigator.userAgent.toLowerCase();
-    //     if (userAgent.includes("mac")) runtimePlatform = "macos";
-    //     else if (userAgent.includes("linux")) runtimePlatform = "linux";
-    //     else runtimePlatform = "other";
-    // });
-
-    // const supportedPlatformsByRuntime: Record<RuntimePlatform, GhosttyPlatform[]> = {
-    //     macos: ["macos"],
-    //     linux: ["linux", "gtk", "gtk-wayland", "gtk-x11"],
-    //     other: []
-    // };
-
-    // const isUnsupportedOnCurrentOS = $derived.by(() => {
-    //     if (!platform || platform.length === 0) return false;
-    //     if (runtimePlatform === "other") return true;
-    //     const supported = supportedPlatformsByRuntime[runtimePlatform];
-    //     return !platform.some((value) => supported.includes(value));
-    // });
-
     const getPlatformBadgeLabel = (labels: string[]) => {
         if (labels.length === 0) return "";
         if (labels.length === 1) return labels[0];
         return `${labels[0]} +${labels.length - 1}`;
     };
 
-    // const parseVersion = (version: string) =>
-    //     version
-    //         .split(".")
-    //         .map((part) => Number.parseInt(part, 10))
-    //         .map((num) => Number.isFinite(num) ? num : 0);
-
-    const isSinceVisible = $derived.by(() => {
-        // if (!since) return false;
-        // if (!versionBaseline) return true;
-
-        // const settingParts = parseVersion(since);
-        // const baselineParts = parseVersion(versionBaseline);
-        // const maxLen = Math.max(settingParts.length, baselineParts.length);
-
-        // for (let i = 0; i < maxLen; i++) {
-        //     const settingNum = settingParts[i] ?? 0;
-        //     const baselineNum = baselineParts[i] ?? 0;
-        //     if (settingNum > baselineNum) return true;
-        //     if (settingNum < baselineNum) return false;
-        // }
-
-        // return false;
-        return !!since;
-    });
-
-    const metadataBadges = $derived.by(() => {
-        const badges: Array<{label: string, type: "unsupported" | "platform" | "version"}> = [];
-        // if (isUnsupportedOnCurrentOS) badges.push({label: "Not available on this OS", type: "unsupported"});
+    const infoBadges = $derived.by(() => {
+        const badges: Array<{label: string, type: "platform" | "version"}> = [];
         const platformBadge = getPlatformBadgeLabel(platformLabels);
         if (platformBadge) badges.push({label: platformBadge, type: "platform"});
-        if (isSinceVisible && since) badges.push({label: since, type: "version"});
+        if (since) badges.push({label: since, type: "version"});
         return badges;
     });
 
-    const getBadgeTooltip = (badge: {label: string, type: "unsupported" | "platform" | "version"}) => {
-        switch (badge.type) {
-            case "unsupported":
-                return "Not available on your current operating system";
-            case "platform":
-                return platformLabels.length > 1 ? `Available on: ${platformLabels.join(", ")}` : `Platform: ${platformLabels[0]}`;
-            case "version":
-                return `Added in Ghostty v${since}`;
-            default:
-                return "";
-        }
+    const getBadgeTooltip = (badge: {label: string, type: "platform" | "version"}) => {
+        if (badge.type === "platform") return platformLabels.length > 1 ? `Available on: ${platformLabels.join(", ")}` : `Platform: ${platformLabels[0]}`;
+        if (badge.type === "version") return `Added in Ghostty v${since}`;
+        return "";
     };
 
-    const metadataBadgesWithTooltips = $derived.by(() =>
-        metadataBadges.map((badge) => ({
+    const infoBadgesWithTooltips = $derived.by(() =>
+        infoBadges.map((badge) => ({
             ...badge,
             key: `${badge.type}-${badge.label}`,
             tooltipAttachment: createTooltipAttachment(() => getBadgeTooltip(badge))
@@ -122,12 +65,12 @@
         {#if name}
         <div class="row-left">
             <div class="setting-name">{name}</div>
-            {#if metadataBadgesWithTooltips.length > 0}
-                <div class="metadata" aria-label="Setting metadata">
-                    {#each metadataBadgesWithTooltips as badge (badge.key)}
+            {#if infoBadgesWithTooltips.length > 0 || (isNonDefault && onReset)}
+                <div class="setting-extra">
+                    {#each infoBadgesWithTooltips as badge (badge.key)}
                         <span
-                            class="metadata-badge"
-                            class:warning={badge.type === "platform"}
+                            class="badge"
+                            class:platform={badge.type === "platform"}
                             class:version={badge.type === "version"}
                             role="img"
                             aria-label={badge.label}
@@ -154,23 +97,29 @@
                         {/if}
                     </span>
                     {/each}
+
+                    {#if isNonDefault && onReset}
+                    <!-- <div class="reset-button-wrapper"> -->
+                        <button
+                            class="reset-button"
+                            onclick={onReset}
+                            title="Reset to default"
+                            type="button"
+                            {@attach tooltipAttachment}
+                        >
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 14 4 9l5-5" />
+                                <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />
+                            </svg> -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 56 56">
+                                <path d="M0 0h56v56H0z" fill="none" />
+                                <path fill="currentColor" stroke="currentColor" stroke-width="2.5" paint-order="stroke" d="M50.148 34.914c0-8.953-6.046-15.14-16.757-15.14H17.664l-5.508.257l4.454-3.797l6.75-6.609c.374-.375.562-.82.562-1.43c0-1.218-.82-2.062-2.062-2.062c-.516 0-1.126.258-1.524.656L6.555 20.312c-.469.446-.703.985-.703 1.57c0 .563.234 1.102.703 1.548l13.781 13.523a2.2 2.2 0 0 0 1.524.656c1.242 0 2.062-.843 2.062-2.062c0-.61-.188-1.055-.562-1.43l-6.75-6.586l-4.454-3.797l5.508.235h16.078c7.992 0 12.235 4.406 12.235 10.71c0 6.329-4.243 11.016-12.235 11.016h-5.39c-1.29 0-2.133.938-2.133 2.086c0 1.149.844 2.086 2.133 2.086h5.414c10.5 0 16.382-5.976 16.382-14.953" />
+                            </svg>
+
+                        </button>
+                    <!-- </div> -->
+                    {/if}
                 </div>
-            {/if}
-            {#if isNonDefault && onReset}
-            <div class="reset-button-wrapper">
-                <button
-                    class="reset-button"
-                    onclick={onReset}
-                    title="Reset to default"
-                    type="button"
-                    {@attach tooltipAttachment}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 14 4 9l5-5" />
-                        <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11" />
-                    </svg>
-                </button>
-            </div>
             {/if}
         </div>
         {/if}
@@ -218,19 +167,20 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
 }
 
 .setting-name {
     font-weight: 500;
 }
 
-.metadata {
+.setting-extra {
     display: inline-flex;
     align-items: center;
     gap: 5px;
 }
 
-.metadata-badge {
+.badge {
     display: inline-flex;
     align-items: center;
     /* border-radius: 999px; */
@@ -247,19 +197,19 @@
     user-select: none;
 }
 
-.metadata-badge.warning {
+.badge.platform {
     /* color: #f8dca4; */
-    /* border-color: color-mix(in srgb, var(--color-warning) 65%, #000); */
-    /* background: color-mix(in srgb, var(--color-warning) 18%, transparent); */
-    color: var(--color-input-accent);
+    /* border-color: color-mix(in srgb, var(--color-platform) 65%, #000); */
+    /* background: color-mix(in srgb, var(--color-platform) 18%, transparent); */
+    /* color: var(--color-input-accent); */
     color: #6B8CFF;
 }
 
-.metadata-badge.version {
+.badge.version {
     /* color: color-mix(in srgb, var(--color-input-accent) 90%, #fff); */
     /* border-color: color-mix(in srgb, var(--color-input-accent) 45%, transparent); */
     /* background: color-mix(in srgb, var(--color-input-accent) 12%, transparent); */
-    color: #f8dca4;
+    /* color: #f8dca4; */
     color: #F0A500;
 }
 
@@ -288,16 +238,10 @@
     outline: none;
 }
 
-.reset-button-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
 .reset-button {
     background: none;
-    border: none;
-    /* padding: 4px; */
+    border: 0;
+    padding: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -324,7 +268,6 @@
 .reset-button svg {
     width: 14px;
     height: 14px;
-    stroke-width: 2.5;
 }
 
 .row-right {

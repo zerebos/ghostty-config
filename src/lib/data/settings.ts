@@ -35,6 +35,7 @@ interface Text extends BaseSettingItem {
     type: "text";
     value: string;
     placeholder?: string;
+    size?: number;
 }
 
 interface Number extends BaseSettingItem {
@@ -519,7 +520,7 @@ const baseSettings = [
                     {id: "gtkTitlebar", name: "Show titlebar", type: "switch", value: true},
                     {id: "gtkTitlebarHideWhenMaximized", name: "Hide titlebar on maximize", type: "switch", value: false},
                     {id: "gtkQuickTerminalLayer", name: "Quick terminal layer", note: "Controls which layer the quick terminal appears on. GTK Wayland only.", type: "dropdown", value: "top", options: ["overlay", "top", "bottom", "background"]},
-                    {id: "gtkQuickTerminalNamespace", name: "Quick terminal namespace", note: "Identifier for the quick terminal layer surface. GTK Wayland only.", type: "text", value: "ghostty-quick-terminal"},
+                    {id: "gtkQuickTerminalNamespace", name: "Quick terminal namespace", note: "Identifier for the quick terminal layer surface. GTK Wayland only.", type: "text", value: "ghostty-quick-terminal", size: 18},
                 ]
             }
         ]
