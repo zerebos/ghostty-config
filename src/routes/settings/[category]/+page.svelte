@@ -57,6 +57,10 @@
                     <Item
                         name={setting.name}
                         note={setting.note}
+                        // filter out the current platform from the badge list since it's already obvious from the UI
+                        platform={setting.platform?.filter(p => p !== title?.toLowerCase())}
+                        since={setting.since}
+                        schemaDescription={setting.type !== "palette" ? setting.schemaDescription : undefined}
                         isNonDefault={isNonDefault(setting.id as keyof typeof config)}
                         onReset={() => {
                             resetSetting(setting.id as keyof typeof config);
@@ -66,7 +70,7 @@
                         {#if setting.type === "switch"}
                             <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
                         {:else if setting.type === "text"}
-                            <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} />
+                            <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} size={setting.size} />
                         {:else if setting.type === "number"}
                             <Number bind:value={config[setting.id as keyof typeof config] as number} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}
