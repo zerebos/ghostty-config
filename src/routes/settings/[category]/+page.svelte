@@ -57,6 +57,8 @@
                     <Item
                         name={setting.name}
                         note={setting.note}
+                        platform={setting.platform}
+                        since={setting.since}
                         isNonDefault={isNonDefault(setting.id as keyof typeof config)}
                         onReset={() => {
                             resetSetting(setting.id as keyof typeof config);

@@ -1,17 +1,50 @@
 <script lang="ts">
     import type {Snippet} from "svelte";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
+    import type {GhosttyPlatform} from "$lib/data/ghostty-schema";
 
     interface Props {
         name?: string;
         note?: string;
+        platform?: GhosttyPlatform[];
+        since?: string;
         children: Snippet;
         onReset?: () => void;
         isNonDefault?: boolean;
     }
 
-    const {name = "", note = "", children, onReset, isNonDefault = false}: Props = $props();
+    const {name = "", note = "", platform, since, children, onReset, isNonDefault = false}: Props = $props();
     const tooltipAttachment = createTooltipAttachment("Reset to default");
+
+
+     const platformLabelMap: Record<GhosttyPlatform, string> = {
+        "macos": "macOS",
+        "linux": "Linux",
+        "gtk": "GTK",
+        "gtk-wayland": "GTK Wayland",
+        "gtk-x11": "GTK X11"
+    };
+
+    const platformLabels = $derived(
+        platform?.map((value) => platformLabelMap[value]).filter(Boolean) ?? []
+    );
+
+    const metadataBadges = $derived.by(() => {
+        const badges: string[] = [];
+        if (platformLabels.length === 1) badges.push(platformLabels[0]);
+        else if (platformLabels.length > 1) badges.push(`${platformLabels.length} platforms`);
+        if (since) badges.push(`New in ${since}`);
+        return badges;
+    });
+
+    const metadataTooltip = $derived.by(() => {
+        const lines: string[] = [];
+        if (platformLabels.length > 0) lines.push(`Available on: ${platformLabels.join(", ")}`);
+        if (since) lines.push(`Introduced in Ghostty ${since}`);
+        return lines.join("\n");
+    });
+
+    const metadataTooltipAttachment = createTooltipAttachment(() => metadataTooltip);
 </script>
 
 <div class="setting-item">
@@ -19,6 +52,14 @@
         {#if name}
         <div class="setting-name-wrapper">
             <div class="setting-name">{name}</div>
+            {#if metadataBadges.length > 0}
+                <div class="metadata" aria-label="Setting metadata">
+                    {#each metadataBadges as badge (badge)}
+                        <span class="metadata-badge">{badge}</span>
+                    {/each}
+                    <button type="button" class="metadata-info" aria-label="More metadata information" {@attach metadataTooltipAttachment}>i</button>
+                </div>
+            {/if}
             {#if isNonDefault && onReset}
             <div class="reset-button-wrapper">
                 <button
@@ -68,6 +109,49 @@
 
 .setting-name {
     font-weight: 500;
+}
+
+.metadata {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.metadata-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid var(--border-level-3);
+    background: color-mix(in srgb, var(--bg-level-3) 92%, transparent);
+    color: var(--font-color-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    padding: 3px 7px;
+}
+
+.metadata-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--border-level-3);
+    background: color-mix(in srgb, var(--bg-level-3) 90%, transparent);
+    color: var(--font-color-muted);
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: help;
+    user-select: none;
+}
+
+.metadata-info:focus-visible,
+.metadata-info:hover {
+    border-color: var(--color-input-accent);
+    color: var(--font-color);
+    outline: none;
 }
 
 .reset-button-wrapper {

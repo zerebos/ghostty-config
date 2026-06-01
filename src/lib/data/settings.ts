@@ -1,9 +1,12 @@
 import type {HexColor} from "$lib/utils/colors";
+import ghosttySchema, {type GhosttyPlatform} from "$lib/data/ghostty-schema";
 
 interface BaseSettingType {
     id: string;
     name: string;
     note?: string;
+    platform?: GhosttyPlatform[];
+    since?: string;
 }
 
 interface Panel extends BaseSettingType {
@@ -135,7 +138,7 @@ const getOS = () => {
 
 // TODO: find a good way to properly type the settings
 // TODO: also allow clearable settings and such, this is a mess
-const settings = [
+const baseSettings = [
     {
         id: "application",
         name: "Application",
@@ -577,6 +580,40 @@ const settings = [
         ]
     },
 ] as Panel[];
+
+
+const kebabToCamel = (key: string) =>
+    key.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+
+const schemaMetadataById = new Map(
+    ghosttySchema
+        .filter(setting => setting.platform || setting.since)
+        .map(setting => [
+            kebabToCamel(setting.key),
+            {
+                platform: setting.platform,
+                since: setting.since
+            }
+        ])
+);
+
+// TODO: this is gross, ideally the settings data would be generated from the
+// schema directly instead of having to be merged like this, but this will do for now
+const settings = baseSettings.map((panel) => ({
+    ...panel,
+    groups: panel.groups.map((group) => ({
+        ...group,
+        settings: group.settings.map((setting) => {
+            const metadata = schemaMetadataById.get(setting.id);
+            if (!metadata) return setting;
+            return {
+                ...setting,
+                platform: metadata.platform,
+                since: metadata.since
+            };
+        })
+    }))
+})) as Panel[];
 
 
 export default settings;
