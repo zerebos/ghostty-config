@@ -114,6 +114,29 @@ export function resetColorScheme() {
     }
 }
 
+export function resetSetting(key: keyof DefaultConfig) {
+    const defaultValue = defaults[key];
+    // @ts-expect-error doing this properly is hard
+    config[key] = Array.isArray(defaultValue) ? [...defaultValue] : defaultValue;
+}
+
+export function isNonDefault(key: keyof DefaultConfig): boolean {
+    const val = config[key];
+    const defaultVal = defaults[key];
+
+    // Handle array comparisons for keybinds and palette
+    if (Array.isArray(val) && Array.isArray(defaultVal)) {
+        if (val.length !== defaultVal.length) return true;
+        for (let i = 0; i < val.length; i++) {
+            if (val[i] !== defaultVal[i]) return true;
+        }
+        return false;
+    }
+
+    return val !== defaultVal;
+}
+
+export {defaults};
 export default config;
 
 // TODO: is this useful?
