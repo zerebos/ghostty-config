@@ -7,6 +7,7 @@ interface BaseSettingType {
     note?: string;
     platform?: GhosttyPlatform[];
     since?: string;
+    schemaDescription?: string;
 }
 
 interface Panel extends BaseSettingType {
@@ -587,12 +588,12 @@ const kebabToCamel = (key: string) =>
 
 const schemaMetadataById = new Map(
     ghosttySchema
-        .filter(setting => setting.platform || setting.since)
         .map(setting => [
             kebabToCamel(setting.key),
             {
                 platform: setting.platform,
-                since: setting.since
+                since: setting.since,
+                description: setting.description,
             }
         ])
 );
@@ -609,7 +610,8 @@ const settings = baseSettings.map((panel) => ({
             return {
                 ...setting,
                 platform: metadata.platform,
-                since: metadata.since
+                since: metadata.since,
+                schemaDescription: metadata.description,
             };
         })
     }))

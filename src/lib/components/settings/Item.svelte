@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {Snippet} from "svelte";
+    import {onMount, type Snippet} from "svelte";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import type {GhosttyPlatform} from "$lib/data/ghostty-schema";
 
@@ -8,12 +8,13 @@
         note?: string;
         platform?: GhosttyPlatform[];
         since?: string;
+        schemaDescription?: string;
         children: Snippet;
         onReset?: () => void;
         isNonDefault?: boolean;
     }
 
-    const {name = "", note = "", platform, since, children, onReset, isNonDefault = false}: Props = $props();
+    const {name = "", note = "", platform, since, schemaDescription, children, onReset, isNonDefault = false}: Props = $props();
     const tooltipAttachment = createTooltipAttachment("Reset to default");
 
 
@@ -29,22 +30,93 @@
         platform?.map((value) => platformLabelMap[value]).filter(Boolean) ?? []
     );
 
+        type RuntimePlatform = "macos" | "linux" | "other";
+
+    let runtimePlatform = $state<RuntimePlatform>("other");
+
+    onMount(() => {
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.includes("mac")) runtimePlatform = "macos";
+        else if (userAgent.includes("linux")) runtimePlatform = "linux";
+        else runtimePlatform = "other";
+    });
+
+    const supportedPlatformsByRuntime: Record<RuntimePlatform, GhosttyPlatform[]> = {
+        macos: ["macos"],
+        linux: ["linux", "gtk", "gtk-wayland", "gtk-x11"],
+        other: []
+    };
+
+    const isUnsupportedOnCurrentOS = $derived.by(() => {
+        if (!platform || platform.length === 0) return false;
+        if (runtimePlatform === "other") return true;
+        const supported = supportedPlatformsByRuntime[runtimePlatform];
+        return !platform.some((value) => supported.includes(value));
+    });
+
+    const getPlatformBadgeLabel = (labels: string[]) => {
+        if (labels.length === 0) return "";
+        if (labels.length === 1) return labels[0];
+        return `${labels[0]} +${labels.length - 1}`;
+    };
+
+    const parseVersion = (version: string) =>
+        version
+            .split(".")
+            .map((part) => Number.parseInt(part, 10))
+            .map((num) => Number.isFinite(num) ? num : 0);
+
+    const isSinceVisible = $derived.by(() => {
+        // if (!since) return false;
+        // if (!versionBaseline) return true;
+
+        // const settingParts = parseVersion(since);
+        // const baselineParts = parseVersion(versionBaseline);
+        // const maxLen = Math.max(settingParts.length, baselineParts.length);
+
+        // for (let i = 0; i < maxLen; i++) {
+        //     const settingNum = settingParts[i] ?? 0;
+        //     const baselineNum = baselineParts[i] ?? 0;
+        //     if (settingNum > baselineNum) return true;
+        //     if (settingNum < baselineNum) return false;
+        // }
+
+        // return false;
+        return !!since;
+    });
+
     const metadataBadges = $derived.by(() => {
-        const badges: string[] = [];
-        if (platformLabels.length === 1) badges.push(platformLabels[0]);
-        else if (platformLabels.length > 1) badges.push(`${platformLabels.length} platforms`);
-        if (since) badges.push(`New in ${since}`);
+        const badges: Array<{label: string, type: "unsupported" | "platform" | "version"}> = [];
+        if (isUnsupportedOnCurrentOS) badges.push({label: "Not available on this OS", type: "unsupported"});
+        const platformBadge = getPlatformBadgeLabel(platformLabels);
+        if (platformBadge) badges.push({label: platformBadge, type: "platform"});
+        if (isSinceVisible) badges.push({label: `New in ${since}`, type: "version"});
         return badges;
     });
 
-    const metadataTooltip = $derived.by(() => {
-        const lines: string[] = [];
-        if (platformLabels.length > 0) lines.push(`Available on: ${platformLabels.join(", ")}`);
-        if (since) lines.push(`Introduced in Ghostty ${since}`);
-        return lines.join("\n");
-    });
+    const getBadgeTooltip = (badge: {label: string, type: "unsupported" | "platform" | "version"}) => {
+        switch (badge.type) {
+            case "unsupported":
+                return "Not available on your current operating system";
+            case "platform":
+                return platformLabels.length > 1 ? `Available on: ${platformLabels.join(", ")}` : `Platform: ${platformLabels[0]}`;
+            case "version":
+                return `Introduced in Ghostty ${since}`;
+            default:
+                return "";
+        }
+    };
 
-    const metadataTooltipAttachment = createTooltipAttachment(() => metadataTooltip);
+    const metadataBadgesWithTooltips = $derived.by(() =>
+        metadataBadges.map((badge) => ({
+            ...badge,
+            key: `${badge.type}-${badge.label}`,
+            tooltipAttachment: createTooltipAttachment(() => getBadgeTooltip(badge))
+        }))
+    );
+
+    const schemaDescriptionTooltip = $derived(schemaDescription || "");
+    const schemaDescriptionAttachment = createTooltipAttachment(() => schemaDescriptionTooltip);
 </script>
 
 <div class="setting-item">
@@ -52,12 +124,21 @@
         {#if name}
         <div class="setting-name-wrapper">
             <div class="setting-name">{name}</div>
-            {#if metadataBadges.length > 0}
+            {#if metadataBadgesWithTooltips.length > 0 || schemaDescription}
                 <div class="metadata" aria-label="Setting metadata">
-                    {#each metadataBadges as badge (badge)}
-                        <span class="metadata-badge">{badge}</span>
+                    {#each metadataBadgesWithTooltips as badge (badge.key)}
+                        <span
+                            class="metadata-badge"
+                            class:warning={badge.type === "unsupported"}
+                            class:version={badge.type === "version"}
+                            role="img"
+                            aria-label={badge.label}
+                            {@attach badge.tooltipAttachment}
+                        >{badge.label}</span>
                     {/each}
-                    <button type="button" class="metadata-info" aria-label="More metadata information" {@attach metadataTooltipAttachment}>i</button>
+                    {#if schemaDescription}
+                        <button type="button" class="metadata-info" aria-label="Full description" {@attach schemaDescriptionAttachment}>i</button>
+                    {/if}
                 </div>
             {/if}
             {#if isNonDefault && onReset}
@@ -129,6 +210,19 @@
     letter-spacing: 0.01em;
     line-height: 1;
     padding: 3px 7px;
+    cursor: default;
+}
+
+.metadata-badge.warning {
+    color: #f8dca4;
+    border-color: color-mix(in srgb, var(--color-warning) 65%, #000);
+    background: color-mix(in srgb, var(--color-warning) 18%, transparent);
+}
+
+.metadata-badge.version {
+    color: color-mix(in srgb, var(--color-input-accent) 90%, #fff);
+    border-color: color-mix(in srgb, var(--color-input-accent) 45%, transparent);
+    background: color-mix(in srgb, var(--color-input-accent) 12%, transparent);
 }
 
 .metadata-info {

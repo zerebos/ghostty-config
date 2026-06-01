@@ -59,6 +59,7 @@
                         note={setting.note}
                         platform={setting.platform}
                         since={setting.since}
+                        schemaDescription={setting.schemaDescription}
                         isNonDefault={isNonDefault(setting.id as keyof typeof config)}
                         onReset={() => {
                             resetSetting(setting.id as keyof typeof config);
