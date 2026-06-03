@@ -18,6 +18,7 @@
     import Text from "./Text.svelte";
     import Checkbox from "./Checkbox.svelte";
     import Button from "../Button.svelte";
+    import {msg, t} from "$lib/i18n.svelte";
 
     interface Props {
         value?: string;
@@ -65,7 +66,7 @@
         const currentAction = getCurrentAction();
         if (!currentAction || currentAction.type !== "enum") return [];
         const options = [];
-        if (getAllowEmpty()) options.push({name: "default", value: ""});
+        if (getAllowEmpty()) options.push({name: t("default"), value: ""});
         if (currentAction.options) {
             options.push(...currentAction.options.map((option) => ({name: option, value: option})));
         }
@@ -167,9 +168,9 @@
     const isAddStepDisabled = $derived(hasGlobalOrAllPrefix || hasMaxSequenceSteps);
 
     function getAddStepTooltipMessage() {
-        if (hasGlobalOrAllPrefix) return "Global/all keybinds cannot be sequences";
-        if (hasMaxSequenceSteps) return "Maximum of 4 sequence steps";
-        return "Add sequence step";
+        if (hasGlobalOrAllPrefix) return msg("Global/all keybinds cannot be sequences", "global/all 快捷键不能使用序列");
+        if (hasMaxSequenceSteps) return msg("Maximum of 4 sequence steps", "序列最多 4 步");
+        return msg("Add sequence step", "添加序列步骤");
     }
 
     const addStepTooltipAttachment = createTooltipAttachment(getAddStepTooltipMessage);
@@ -178,7 +179,7 @@
 
 <div class="editor" in:fly={{y: 30, duration: 200}}>
     <Group>
-        <Item name="Prefixes">
+        <Item name={msg("Prefixes", "前缀")}>
             <div class="prefix-row">
                 {#each VALID_PREFIXES as prefix (prefix)}
                     <label>
@@ -189,7 +190,7 @@
             </div>
         </Item>
     </Group>
-    <Group title="Trigger" borderless>
+    <Group title={t("Trigger")} borderless>
         <div class="sequence">
             <datalist id="key-options">
                 {#each KEY_NAMES as keyName (keyName)}
@@ -204,11 +205,11 @@
                         </button>
                     {/if}
 
-                    <Item name={steps.length > 1 ? `Key Name ${index + 1}` : "Key Name"} note={steps.length > 1 ? `The key to use for step ${index + 1} in the sequence.` : "The key to use for this action."}>
+                    <Item name={steps.length > 1 ? `${msg("Key Name", "按键名称")} ${index + 1}` : msg("Key Name", "按键名称")} note={steps.length > 1 ? msg(`The key to use for step ${index + 1} in the sequence.`, `序列第 ${index + 1} 步使用的按键。`) : msg("The key to use for this action.", "此动作使用的按键。")}>
                         <div class="key-entry">
                             <input
                                 type="text"
-                                placeholder="key"
+                                placeholder={msg("key", "按键")}
                                 bind:value={step.key}
                                 list="key-options"
                                 oninput={(event) => updateStepKey(index, event.currentTarget.value)}
@@ -216,7 +217,7 @@
                         </div>
                     </Item>
                     <Separator />
-                    <Item name="Modifiers">
+                    <Item name={msg("Modifiers", "修饰键")}>
                         <div class="modifiers">
                             {#each VALID_MODIFIERS as modifier (modifier)}
                                 <label>
@@ -243,8 +244,8 @@
             </button>
         </div>
     </Group>
-    <Group title="Action">
-        <Item name="Name" note="The action to perform when the keybind is triggered.">
+    <Group title={t("Action")}>
+        <Item name={msg("Name", "名称")} note={msg("The action to perform when the keybind is triggered.", "快捷键触发时执行的动作。")}>
             <Dropdown
                 bind:value={actionName}
                 options={ACTION_DEFINITIONS.map((action) => ({
@@ -257,7 +258,7 @@
 
         {#if getCurrentAction()?.type !== "none"}
             <Separator />
-            <Item name="Argument" note="Optional argument for the action, format depends on the action type.">
+            <Item name={msg("Argument", "参数")} note={msg("Optional argument for the action, format depends on the action type.", "动作的可选参数，格式取决于动作类型。")}>
             {#if getCurrentAction()?.type === "enum"}
                 <Dropdown bind:value={actionArg} options={dropdownOptions} />
             {:else if getCurrentAction()?.type === "number" || getCurrentAction()?.type === "integer"}
@@ -271,16 +272,16 @@
                         value: direction
                     }))}
                 />
-                <Number bind:value={() => parseInt(resizeAmount, 10), (v: number) => resizeAmount = v?.toString()} min={0} step={1} placeholder="pixels" />
+                <Number bind:value={() => parseInt(resizeAmount, 10), (v: number) => resizeAmount = v?.toString()} min={0} step={1} placeholder={msg("pixels", "像素")} />
             {:else if getCurrentAction()?.type === "text"}
-                <Text bind:value={actionArg} placeholder="Zig string literal" />
+                <Text bind:value={actionArg} placeholder={msg("Zig string literal", "Zig 字符串字面量")} />
             {:else if getCurrentAction()?.type === "free"}
-                <Text bind:value={actionArg} placeholder="raw sequence" />
+                <Text bind:value={actionArg} placeholder={msg("raw sequence", "原始序列")} />
             {/if}
             </Item>
         {/if}
      </Group>
-    <Group title="Result" borderless>
+    <Group title={t("Result")} borderless>
         <div class="preview-box">
             <div class="row">
                     <span class="p4">{getTrigger()}</span>
@@ -297,13 +298,13 @@
         {/if}
     </Group>
     <div class="actions">
-        <Button onclick={close}>Cancel</Button>
+        <Button onclick={close}>{t("Cancel")}</Button>
         <Button
             primary
             onclick={handleSave}
             disabled={getErrors().length > 0}
         >
-            Done
+            {msg("Done", "完成")}
         </Button>
     </div>
 </div>

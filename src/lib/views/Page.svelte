@@ -3,6 +3,7 @@
     import {fly} from "svelte/transition";
     import History from "$lib/components/History.svelte";
     import app from "$lib/stores/state.svelte";
+    import {appName} from "$lib/i18n.svelte";
     import type {Snippet} from "svelte";
 
     interface Props {
@@ -10,9 +11,10 @@
         title?: string;
     }
 
-    const {children, title = "Ghostty Config"}: Props = $props();
+    const {children, title}: Props = $props();
+    const displayTitle = $derived(title ?? appName());
 
-    $effect(() => {app.title = title;});
+    $effect(() => {app.title = displayTitle;});
 
     let isScrolling = $state(false);
     let bufferHeight = $state(53);

@@ -28,7 +28,9 @@
     import app from "$lib/stores/state.svelte";
     import ModalStack from "$lib/components/modals/ModalStack.svelte";
     import ToastStack from "$lib/components/ToastStack.svelte";
+    import LanguageToggle from "$lib/components/LanguageToggle.svelte";
     import type {Snippet} from "svelte";
+    import {appName, t} from "$lib/i18n.svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -59,8 +61,8 @@
 
 
     const htmlTitle = $derived.by(() => {
-        const name = app.title === "Ghostty Config" ? "" : app.title;
-        let title = "Ghostty Config";
+        const name = app.title === appName() ? "" : app.title;
+        let title = appName();
         if (name) title = `${name} - ${title}`;
         return title;
     });
@@ -84,66 +86,67 @@
         </div>
         <nav id="categories">
             <User route="/" />
+            <LanguageToggle />
             <Gap />
             <Tab route="/settings/application">
-                {#snippet icon()}<img src={application} alt="Application Settings" />{/snippet}
-                Application
+                {#snippet icon()}<img src={application} alt={t("Application Settings")} />{/snippet}
+                {t("Application")}
             </Tab>
             <Tab route="/settings/clipboard">
-                {#snippet icon()}<img src={clipboard} alt="Clipboard Settings" />{/snippet}
-                Clipboard
+                {#snippet icon()}<img src={clipboard} alt={t("Clipboard Settings")} />{/snippet}
+                {t("Clipboard")}
             </Tab>
             <Tab route="/settings/window">
-                {#snippet icon()}<img src={window} alt="Window Settings" />{/snippet}
-                Window
+                {#snippet icon()}<img src={window} alt={t("Window Settings")} />{/snippet}
+                {t("Window")}
             </Tab>
             <Gap />
             <Tab route="/settings/colors">
-                {#snippet icon()}<img src={colors} alt="Color Settings" />{/snippet}
-                Colors
+                {#snippet icon()}<img src={colors} alt={t("Color Settings")} />{/snippet}
+                {t("Colors")}
             </Tab>
             <Tab route="/settings/fonts">
-                {#snippet icon()}<img src={fonts} alt="Font Settings" />{/snippet}
-                Fonts
+                {#snippet icon()}<img src={fonts} alt={t("Font Settings")} />{/snippet}
+                {t("Fonts")}
             </Tab>
             <Gap />
             <Tab route="/settings/keybinds">
-                {#snippet icon()}<img src={keybinds} alt="Keybind Settings" />{/snippet}
-                Keybinds
+                {#snippet icon()}<img src={keybinds} alt={t("Keybind Settings")} />{/snippet}
+                {t("Keybinds")}
             </Tab>
             <Tab route="/settings/mouse">
-                {#snippet icon()}<img src={mouse} alt="Mouse Settings" />{/snippet}
-                Mouse
+                {#snippet icon()}<img src={mouse} alt={t("Mouse Settings")} />{/snippet}
+                {t("Mouse")}
             </Tab>
             <Gap />
             <Tab route="/settings/gtk">
-                {#snippet icon()}<div class="icon-wrapper"><img src={gtk} alt="GTK Settings" /></div>{/snippet}
+                {#snippet icon()}<div class="icon-wrapper"><img src={gtk} alt={t("GTK Settings")} /></div>{/snippet}
                 GTK
             </Tab>
             <Tab route="/settings/linux">
-                {#snippet icon()}<img src={linux} alt="Linux Settings" />{/snippet}
+                {#snippet icon()}<img src={linux} alt={t("Linux Settings")} />{/snippet}
                 Linux
             </Tab>
             <Tab route="/settings/macos">
-                {#snippet icon()}<img src={macos} alt="MacOS Settings" />{/snippet}
+                {#snippet icon()}<img src={macos} alt={t("MacOS Settings")} />{/snippet}
                 macOS
             </Tab>
             <Gap expand={true} />
             <Tab route="/app/import-export">
-                {#snippet icon()}<img src={sync} alt="Settings Sync" />{/snippet}
-                Import & Export
+                {#snippet icon()}<img src={sync} alt={t("Settings Sync")} />{/snippet}
+                {t("Import & Export")}
             </Tab>
             <Tab route="/app/font-playground">
-                {#snippet icon()}<img src={calligraphy} alt="Font Playground" />{/snippet}
-                Font Playground
+                {#snippet icon()}<img src={calligraphy} alt={t("Font Playground")} />{/snippet}
+                {t("Font Playground")}
             </Tab>
             <Gap expand={true} />
             <Tab route="https://github.com/zerebos/ghostty-config">
-                {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
+                {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt={t("Ghostty Config GitHub")} /></div>{/snippet}
                 GitHub
             </Tab>
             <Tab route="https://ghostty.org/">
-                {#snippet icon()}<img src={ghostty} alt="Ghostty Website" />{/snippet}
+                {#snippet icon()}<img src={ghostty} alt={t("Ghostty Website")} />{/snippet}
                 Ghostty
             </Tab>
         </nav>

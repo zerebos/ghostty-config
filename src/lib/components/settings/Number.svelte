@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {msg} from "$lib/i18n.svelte";
     type Props = {
         value: number | undefined;
         min?: number;
@@ -157,10 +158,10 @@
                 onblur={onBlur}
             />
             <div class="steppers">
-                <button type="button" class="stepper up" onclick={increment} aria-label="Increment">
+                <button type="button" class="stepper up" onclick={increment} aria-label={msg("Increment", "增加")}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6" /></svg>
                 </button>
-                <button type="button" class="stepper down" onclick={decrement} aria-label="Decrement">
+                <button type="button" class="stepper down" onclick={decrement} aria-label={msg("Decrement", "减少")}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
                 </button>
             </div>

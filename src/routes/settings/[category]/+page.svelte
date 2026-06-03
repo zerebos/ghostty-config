@@ -23,22 +23,23 @@
     import type {HexColor} from "$lib/utils/colors";
     import {resolve} from "$app/paths";
     import {success} from "$lib/stores/toasts.svelte";
+    import {groupNote, msg, settingName, settingNote, t} from "$lib/i18n.svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
-    const title = $derived(category?.name ?? $page.params.category);
+    const title = $derived(t(category?.name ?? $page.params.category));
 </script>
 
 
 <Page {title}>
     {#if category}
         {#if category.id === "fonts"}
-            <Admonition size="1.5rem">The font playground has moved to a <a href={resolve("/app/font-playground")}>separate page</a>.</Admonition>
+            <Admonition size="1.5rem">{msg("The font playground has moved to a ", "字体预览已移到")}<a href={resolve("/app/font-playground")}>{msg("separate page", "单独页面")}</a>{msg(".", "。")}</Admonition>
         {:else if category.id === "colors"}
-            <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
+            <Admonition size="1.5rem">{msg("You can reset a color to its default value by right clicking!", "可以右键点击颜色，将其恢复为默认值！")}</Admonition>
         {/if}
         {#each category.groups as group (group.id)}
-            <Group title={group.name} note={group.note}>
+            <Group title={t(group.name)} note={groupNote(category.id, group.id, group.note)}>
                 {#if category.id === "colors" && group.id === "base"}
                     <BaseColorPreview />
                     <Separator />
@@ -55,16 +56,16 @@
                 {#each group.settings as setting, i (setting.id)}
                     {#if i !== 0}<Separator />{/if}
                     <Item
-                        name={setting.name}
-                        note={setting.note}
+                        name={settingName(setting.id, setting.name)}
+                        note={settingNote(setting.id, setting.note)}
                         // filter out the current platform from the badge list since it's already obvious from the UI
-                        platform={setting.platform?.filter(p => p !== title?.toLowerCase())}
+                        platform={setting.platform?.filter(p => p !== category.name.toLowerCase())}
                         since={setting.since}
                         schemaDescription={setting.type !== "palette" ? setting.schemaDescription : undefined}
                         isNonDefault={isNonDefault(setting.id as keyof typeof config)}
                         onReset={() => {
                             resetSetting(setting.id as keyof typeof config);
-                            success(`${setting.name} reset to default`);
+                            success(msg(`${settingName(setting.id, setting.name)} reset to default`, `${settingName(setting.id, setting.name)} 已恢复默认值`));
                         }}
                     >
                         {#if setting.type === "switch"}
@@ -87,7 +88,7 @@
             </Group>
         {/each}
     {:else}
-        <h1>What Happened?</h1>
-        <p>You shouldn't be here! If you followed a link, please report the bug on GitHub. Otherwise, go ahead and start browsing on the left.</p>
+        <h1>{msg("What Happened?", "发生了什么？")}</h1>
+        <p>{msg("You shouldn't be here! If you followed a link, please report the bug on GitHub. Otherwise, go ahead and start browsing on the left.", "这里没有可显示的内容。如果你是通过链接来到这里的，请在 GitHub 上报告这个问题；否则请从左侧开始浏览。")}</p>
     {/if}
 </Page>
