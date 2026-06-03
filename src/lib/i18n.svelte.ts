@@ -4,11 +4,22 @@ export type Locale = "en" | "zh-CN";
 
 const LOCALE_STORAGE_KEY = "ghostty-config-locale";
 
+function isLocale(value: string | null): value is Locale {
+    return value === "en" || value === "zh-CN";
+}
+
 function getInitialLocale(): Locale {
-    if (!browser) return "zh-CN";
-    const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-    if (saved === "en" || saved === "zh-CN") return saved;
-    return navigator.language.toLowerCase().startsWith("zh") ? "zh-CN" : "en";
+    if (!browser) return "en";
+
+    try {
+        const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+        if (isLocale(saved)) return saved;
+    }
+    catch {
+        // Ignore storage failures and fall back to browser language detection.
+    }
+
+    return window.navigator.language.toLowerCase().startsWith("zh") ? "zh-CN" : "en";
 }
 
 export const locale = $state<{current: Locale}>({current: getInitialLocale()});
@@ -18,7 +29,14 @@ if (browser) document.documentElement.lang = locale.current;
 export function setLocale(nextLocale: Locale) {
     locale.current = nextLocale;
     if (!browser) return;
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
+
+    try {
+        window.localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale);
+    }
+    catch {
+        // Ignore storage failures; the in-memory locale still updates.
+    }
+
     document.documentElement.lang = nextLocale;
 }
 
