@@ -128,6 +128,7 @@
     right: -12px;
     bottom: -12px;
     animation: flash-highlight 2s ease-in-out;
+    pointer-events: none;
 }
 
 .setting-item:global(.flash-highlight):first-child::before {

@@ -7,15 +7,16 @@
         children: Snippet;
         icon: Snippet;
         route?: string;
+        onClick?: (e: MouseEvent) => void;
     }
-    const {children, icon, route = ""}: Props = $props();
+    const {children, icon, route = "", onClick}: Props = $props();
     const path = $derived(page.url.pathname);
 
     const isExternal = $derived(route.startsWith("http"));
     const target = $derived(isExternal ? "_blank" : "");
     const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
-    const selected = $derived(path === route);
+    const selected = $derived(path === route && page.url.search === "");
 </script>
 
 
@@ -26,6 +27,7 @@
     class:selected
     {target}
     {rel}
+    onclick={onClick}
 >
     <div class="tab-icon">{@render icon()}</div>
     <div class="tab-label">{@render children()}</div>

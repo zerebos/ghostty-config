@@ -18,6 +18,8 @@
     import macos from "$lib/images/tabs/macos.webp";
 
     import type {Snippet} from "svelte";
+    import {scale} from "svelte/transition";
+
 
     interface SearchResult {
         categoryId: string;
@@ -37,6 +39,7 @@
 
     const {children}: {children: Snippet} = $props();
 
+    // TODO: this is pretty expensive to compute on every keystroke, consider precomputing and caching searchableText in the settings data
     const searchableSettings = $derived.by(() => {
         const results: SearchResult[] = [];
         for (const category of settings) {
@@ -68,6 +71,7 @@
 
     let searchQuery = $state("");
     let selectedSearchIndex = $state(-1);
+    let activeSearchIndex = $state(-1);
 
     const normalizedSearchQuery = $derived(searchQuery.trim().toLocaleLowerCase());
     const searchTokens = $derived(normalizedSearchQuery.split(/\s+/).filter(Boolean));
@@ -77,6 +81,8 @@
         return searchableSettings.filter(result => searchTokens.every(token => result.searchableText.includes(token)));
     });
 
+    // TODO: this grouping is also a bit expensive, consider memoizing based on the filtered results
+    // also move grouping logic to a utility function
     const groupedSearchResults = $derived.by(() => {
         const grouped: Array<{
             categoryId: string;
@@ -103,6 +109,8 @@
         return grouped;
     });
 
+    // TODO: this is a bit janky, consider a more robust solution for keeping track of active/selected search results and their corresponding DOM elements
+    // also move to search utility
     function getHighlightParts(value: string, query: string): HighlightPart[] {
         if (!value) return [];
 
@@ -220,7 +228,16 @@
         const input = event.currentTarget as HTMLInputElement;
         searchQuery = input.value;
         selectedSearchIndex = input.value.trim() ? 0 : -1;
+        activeSearchIndex = -1;
     }
+
+    // Scroll selected search result into view when it changes
+    $effect(() => {
+        if (selectedSearchIndex < 0) return;
+        const target = document.getElementById(`search-result-${selectedSearchIndex.toString()}`) as HTMLAnchorElement | null;
+        if (!target) return;
+        target.scrollIntoView({block: "nearest"});
+    });
 </script>
 
 <svelte:window onkeydown={handleWindowKeydown} />
@@ -249,9 +266,11 @@
             class="search-clear-button"
             type="button"
             title="Clear search"
+            transition:scale={{duration: 150}}
             onclick={() => {
                 searchQuery = "";
                 selectedSearchIndex = -1;
+                activeSearchIndex = -1;
             }}
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 56 56">
@@ -268,7 +287,13 @@
             {#if groupedSearchResults.length}
                 {#each groupedSearchResults as category (category.categoryId)}
                     <section class="search-category">
-                        <Tab route={category.categoryRoute}>
+                        <Tab
+                            route={category.categoryRoute}
+                            onClick={() => {
+                                activeSearchIndex = -1; // tab selection is inside component for now
+                            }}
+                        >
+                            <!-- TODO: a lot of de-duping with the main sidebar -->
                             {#snippet icon()}
                                 {#if category.categoryId === "application"}
                                     <img src={application} alt="Application Settings" />
@@ -300,13 +325,15 @@
                                 <a href={getSearchResultHref(result)}
                                     id={`search-result-${result.index.toString()}`}
                                     class="search-result"
+                                    class:active={result.index === activeSearchIndex}
                                     class:selected={result.index === selectedSearchIndex}
                                     role="option"
                                     aria-selected={result.index === selectedSearchIndex}
-                                    onmousemove={() => selectedSearchIndex = result.index}
+                                    // onmousemove={() => selectedSearchIndex = result.index}
                                     onclick={() => {
-                                        searchQuery = "";
+                                        // searchQuery = "";
                                         selectedSearchIndex = -1;
+                                        activeSearchIndex = result.index;
                                     }}
                                 >
                                     <span class="search-result-name">
@@ -348,7 +375,15 @@
                     </section>
                 {/each}
             {:else}
-                <p class="search-empty">No settings match "{searchQuery.trim()}".</p>
+                <div class="search-blankslate">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 56 56" class="search-icon">
+                        <path d="M0 0h56v56H0z" fill="none" />
+                        <path fill="currentColor" d="M23.957 41.77a18.02 18.02 0 0 0 10.477-3.376l11.109 11.11a2.66 2.66 0 0 0 1.898.773c1.524 0 2.625-1.172 2.625-2.672c0-.703-.234-1.359-.75-1.874L38.277 34.668c2.32-3.047 3.703-6.82 3.703-10.922c0-9.914-8.109-18.023-18.023-18.023c-9.937 0-18.023 8.109-18.023 18.023S14.02 41.77 23.957 41.77m0-3.891c-7.758 0-14.133-6.398-14.133-14.133S16.2 9.613 23.957 9.613c7.734 0 14.133 6.399 14.133 14.133c0 7.735-6.399 14.133-14.133 14.133" />
+                    </svg>
+                    <h2>No Results</h2>
+                    <p class="search-empty">No results for "{searchQuery.trim()}"</p>
+                </div>
+
             {/if}
         </div>
     {:else}
@@ -428,9 +463,33 @@
 #search-results {
     display: flex;
     flex-direction: column;
+    flex: 1;
     overflow-y: auto;
     min-height: 0;
     gap: 10px;
+}
+
+.search-blankslate {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--font-color-muted);
+    margin-top: calc(-50%); /* macOS has a similar offset centering */
+}
+
+.search-blankslate .search-icon {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 8px;
+}
+
+.search-blankslate h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--font-color);
 }
 
 .search-empty {
@@ -468,6 +527,10 @@
 
 .search-result.selected,
 .search-result:hover {
+    background: rgba(255, 255, 255, 0.075);
+}
+
+.search-result.active {
     background: var(--color-selected);
 }
 
