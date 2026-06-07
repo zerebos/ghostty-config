@@ -226,6 +226,11 @@
 <svelte:window onkeydown={handleWindowKeydown} />
 
 <div class="sidebar-search">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 56 56" class="search-icon">
+        <path d="M0 0h56v56H0z" fill="none" />
+        <path fill="currentColor" d="M23.957 41.77a18.02 18.02 0 0 0 10.477-3.376l11.109 11.11a2.66 2.66 0 0 0 1.898.773c1.524 0 2.625-1.172 2.625-2.672c0-.703-.234-1.359-.75-1.874L38.277 34.668c2.32-3.047 3.703-6.82 3.703-10.922c0-9.914-8.109-18.023-18.023-18.023c-9.937 0-18.023 8.109-18.023 18.023S14.02 41.77 23.957 41.77m0-3.891c-7.758 0-14.133-6.398-14.133-14.133S16.2 9.613 23.957 9.613c7.734 0 14.133 6.399 14.133 14.133c0 7.735-6.399 14.133-14.133 14.133" />
+    </svg>
+
     <input
         id="sidebar-settings-search"
         type="search"
@@ -233,11 +238,28 @@
         value={searchQuery}
         oninput={handleSearchInput}
         onkeydown={handleSearchKeydown}
-        placeholder="Search settings"
-        aria-label="Search settings"
+        placeholder="Search"
+        aria-label="Search"
         autocomplete="off"
         spellcheck={false}
     />
+
+    {#if normalizedSearchQuery}
+        <button
+            class="search-clear-button"
+            type="button"
+            title="Clear search"
+            onclick={() => {
+                searchQuery = "";
+                selectedSearchIndex = -1;
+            }}
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 56 56">
+                <path d="M0 0h56v56H0z" fill="none" />
+                <path fill="currentColor" d="M28 51.906c13.055 0 23.906-10.828 23.906-23.906c0-13.055-10.875-23.906-23.93-23.906C14.899 4.094 4.095 14.945 4.095 28c0 13.078 10.828 23.906 23.906 23.906m-8.414-13.5a1.99 1.99 0 0 1-1.992-1.992c0-.539.234-1.008.609-1.36l6.984-7.03l-6.984-7.032a1.8 1.8 0 0 1-.61-1.36c0-1.077.891-1.945 1.993-1.945c.539 0 1.008.211 1.36.586l7.03 7.008l7.079-7.031c.398-.422.82-.61 1.336-.61c1.101 0 1.992.891 1.992 1.97c0 .538-.188.984-.586 1.359l-7.031 7.054l7.007 6.985c.352.375.586.844.586 1.406a1.99 1.99 0 0 1-1.992 1.992a1.93 1.93 0 0 1-1.383-.586l-7.007-7.031l-6.985 7.031a1.93 1.93 0 0 1-1.406.586" />
+            </svg>
+        </button>
+    {/if}
 </div>
 
 <nav id="categories">
@@ -336,24 +358,62 @@
 
 <style>
 .sidebar-search {
-    padding: 0 10px 8px 10px;
+    --search-height: 16px;
+
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    margin: 0 10px 4px;
+    border-radius: var(--radius-level-4);
+    background: rgba(255, 255, 255, 0.075);
+    box-shadow:
+        inset 0px 2px 1px -3px rgba(255, 255, 255, 0.65),
+        inset 0px -3px 1px -3px rgba(255, 255, 255, 0.65);
+}
+
+.sidebar-search:has(.search-input:focus) {
+    outline: var(--border-input-focus);
+}
+
+.search-icon {
+    color: currentColor;
+    height: var(--search-height);
+    width: var(--search-height);
 }
 
 .search-input {
     width: 100%;
-    border-radius: var(--radius-level-4);
-    border: 1px solid var(--border-level-1);
-    background: rgba(33, 30, 37, 0.8);
+    flex: 1;
+    border: 0;
+    background: transparent;
     color: var(--font-color);
     font-size: 0.9rem;
     font-weight: 500;
-    padding: 8px 10px;
     outline: none;
+    height: var(--search-height);
 }
 
 .search-input:focus {
-    border-color: var(--color-focus);
-    box-shadow: 0 0 0 2px rgba(102, 153, 255, 0.25);
+    /* Focus border is handled by container */
+    outline: 0;
+}
+
+.search-clear-button {
+    border: none;
+    background: transparent;
+    color: var(--font-color);
+    padding: 0;
+    height: var(--search-height);
+    width: var(--search-height);
+    border-radius: var(--radius-level-4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-clear-button:hover {
+    background: none;
 }
 
 #categories {
