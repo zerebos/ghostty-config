@@ -111,14 +111,12 @@
 
     // TODO: this is a bit janky, consider a more robust solution for keeping track of active/selected search results and their corresponding DOM elements
     // also move to search utility
-    function getHighlightParts(value: string, query: string): HighlightPart[] {
+    function getHighlightParts(value: string, queryOrTokens: string | string[]): HighlightPart[] {
         if (!value) return [];
 
-        const tokens = query
-            .trim()
-            .toLocaleLowerCase()
-            .split(/\s+/)
-            .filter(Boolean);
+        const tokens = Array.isArray(queryOrTokens)
+            ? queryOrTokens
+            : queryOrTokens.trim().toLocaleLowerCase().split(/\\s+/).filter(Boolean);
 
         if (!tokens.length) {
             return [{matched: false, text: value}];
@@ -127,6 +125,7 @@
         const lowerValue = value.toLocaleLowerCase();
         const ranges: Array<[number, number]> = [];
         for (const token of tokens) {
+            if (!token) continue;
             let fromIndex = 0;
             while (fromIndex < lowerValue.length) {
                 const index = lowerValue.indexOf(token, fromIndex);
@@ -202,13 +201,13 @@
 
         if (event.key === "ArrowDown") {
             event.preventDefault();
-            selectedSearchIndex = (selectedSearchIndex + 1 + filteredSearchResults.length) % filteredSearchResults.length;
+            selectedSearchIndex = selectedSearchIndex < filteredSearchResults.length - 1 ? selectedSearchIndex + 1 : 0;
             return;
         }
 
         if (event.key === "ArrowUp") {
             event.preventDefault();
-            selectedSearchIndex = (selectedSearchIndex - 1 + filteredSearchResults.length) % filteredSearchResults.length;
+            selectedSearchIndex = selectedSearchIndex > 0 ? selectedSearchIndex - 1 : filteredSearchResults.length - 1;
             return;
         }
 
@@ -337,7 +336,7 @@
                                     }}
                                 >
                                     <span class="search-result-name">
-                                        {#each getHighlightParts(result.settingName, searchQuery) as part, i (`${result.routeKey}:name:${i.toString()}`)}
+                                        {#each getHighlightParts(result.settingName, searchTokens) as part, i (`${result.routeKey}:name:${i.toString()}`)}
                                             {#if part.matched}
                                                 <strong>{part.text}</strong>
                                             {:else}
@@ -348,7 +347,7 @@
                                     <span class="search-result-meta">
                                         {#if result.groupName}
                                             <span>
-                                                {#each getHighlightParts(result.groupName, searchQuery) as part, i (`${result.routeKey}:group:${i.toString()}`)}
+                                                {#each getHighlightParts(result.groupName, searchTokens) as part, i (`${result.routeKey}:group:${i.toString()}`)}
                                                     {#if part.matched}
                                                         <strong>{part.text}</strong>
                                                     {:else}
@@ -359,7 +358,7 @@
                                         {/if}
                                         {#if result.note}
                                             <span>
-                                                {#each getHighlightParts(result.note, searchQuery) as part, i (`${result.routeKey}:note:${i.toString()}`)}
+                                                {#each getHighlightParts(result.note, searchTokens) as part, i (`${result.routeKey}:note:${i.toString()}`)}
                                                     {#if part.matched}
                                                         <strong>{part.text}</strong>
                                                     {:else}

@@ -54,7 +54,7 @@
 
             const duration = token ? 2000 : 2000;
             timeout = window.setTimeout(() => {
-                // settingEl.classList.remove("flash-highlight");
+                settingEl.classList.remove("flash-highlight");
             }, duration);
         });
 
