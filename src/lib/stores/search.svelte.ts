@@ -9,13 +9,13 @@ import settings from "$lib/data/settings";
 
 export const searchState = $state({
     query: "",
-    selectedIndex: 0,
-    activeIndex: 0,
+    selectedIndex: -1,
+    activeIndex: -1,
 });
 
 export function setQuery(query: string) {
     searchState.query = query.trim().toLocaleLowerCase(); // Normalize on setting query to avoid doing it repeatedly in derived stores
-    searchState.selectedIndex = -1;
+    searchState.selectedIndex = searchState.query ? 0 : -1;
     searchState.activeIndex = -1;
 }
 

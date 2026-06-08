@@ -1,9 +1,10 @@
 <script lang="ts">
-    import {type Snippet} from "svelte";
+    import {tick, type Snippet} from "svelte";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import type {GhosttyPlatform} from "$lib/data/ghostty-schema";
     import {alert} from "$lib/stores/modals.svelte";
     import Badge from "../Badge.svelte";
+    import {page} from "$app/state";
 
     interface Props {
         name?: string;
@@ -52,9 +53,45 @@
         if (badge.type === "version") return `Added in Ghostty v${since}`;
         return "";
     };
+
+    let itemElement: HTMLElement | null = null;
+    let shouldHighlight = $state(false);
+    const targetId = $derived(page.url.searchParams.get("setting") || undefined);
+    $effect(() => {
+        if (!settingId || !itemElement) return;
+        if (settingId !== targetId) return;
+
+        const settingEl = itemElement;
+        if (!settingEl) return;
+
+        // let timeout: number | null = null;
+        let cancelled = false;
+
+        // Flash the setting item to draw attention to it
+        requestAnimationFrame(() => {
+            if (cancelled) return;
+            settingEl.scrollIntoView({behavior: "smooth", block: "center"});
+            shouldHighlight = true;
+            // onanimationend will reset shouldHighlight to false
+            // timeout = window.setTimeout(() => {
+            //     shouldHighlight = false;
+            // }, 2000);
+        });
+        return () => {
+            cancelled = true;
+            shouldHighlight = false;
+            // if (timeout) window.clearTimeout(timeout);
+        };
+    });
 </script>
 
-<div class="setting-item" data-setting-id={settingId || undefined}>
+<div
+    class="setting-item"
+    data-setting-id={settingId || undefined}
+    bind:this={itemElement}
+    class:flash-highlight={shouldHighlight}
+    onanimationend={() => shouldHighlight = false}
+>
     <div class="row">
         {#if name}
         <div class="row-left">

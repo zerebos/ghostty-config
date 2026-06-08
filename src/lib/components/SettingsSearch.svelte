@@ -33,7 +33,7 @@
 
     function getSearchResultHref(result: SearchResult): string {
         const categoryRoute = resolve("/settings/[category]", {category: result.categoryId});
-        return `${categoryRoute}?setting=${result.settingId}&focus=${Date.now().toString()}`;
+        return `${categoryRoute}?setting=${result.settingId}`;
     }
 
     function activateSearchResult(index: number): void {
@@ -71,17 +71,13 @@
         }
 
         if (event.key === "Escape") {
-            searchState.query = "";
-            searchState.selectedIndex = -1;
-            searchState.activeIndex = -1;
+            setQuery("");
         }
     }
 
     function handleSearchInput(event: Event): void {
         const input = event.currentTarget as HTMLInputElement;
-        searchState.query = input.value;
-        searchState.selectedIndex = input.value.trim() ? 0 : -1;
-        searchState.activeIndex = -1;
+        setQuery(input.value);
     }
 
     // Scroll selected search result into view when it changes
@@ -174,7 +170,7 @@
                             {#each category.results as result (result.routeKey)}
                                 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/first-attribute-linebreak -->
                                 <a href={getSearchResultHref(result)}
-                                    id={`search-result-${result.index.toString()}`}
+                                    id={`search-result-${result.index}`}
                                     class="search-result"
                                     class:active={result.index === searchState.activeIndex}
                                     class:selected={result.index === searchState.selectedIndex}
@@ -182,13 +178,12 @@
                                     aria-selected={result.index === searchState.selectedIndex}
                                     // onmousemove={() => searchState.selectedIndex = result.index}
                                     onclick={() => {
-                                        // searchState.query = "";
                                         searchState.selectedIndex = -1;
                                         searchState.activeIndex = result.index;
                                     }}
                                 >
                                     <span class="search-result-name">
-                                        {#each getHighlightParts(result.settingName) as part, i (`${result.routeKey}:name:${i.toString()}`)}
+                                        {#each getHighlightParts(result.settingName) as part, i (`${result.routeKey}:name:${i}`)}
                                             {#if part.matched}
                                                 <strong>{part.text}</strong>
                                             {:else}
@@ -199,7 +194,7 @@
                                     <span class="search-result-meta">
                                         {#if result.groupName}
                                             <span>
-                                                {#each getHighlightParts(result.groupName) as part, i (`${result.routeKey}:group:${i.toString()}`)}
+                                                {#each getHighlightParts(result.groupName) as part, i (`${result.routeKey}:group:${i}`)}
                                                     {#if part.matched}
                                                         <strong>{part.text}</strong>
                                                     {:else}
@@ -210,7 +205,7 @@
                                         {/if}
                                         {#if result.note}
                                             <span>
-                                                {#each getHighlightParts(result.note) as part, i (`${result.routeKey}:note:${i.toString()}`)}
+                                                {#each getHighlightParts(result.note) as part, i (`${result.routeKey}:note:${i}`)}
                                                     {#if part.matched}
                                                         <strong>{part.text}</strong>
                                                     {:else}
@@ -232,7 +227,7 @@
                         <path fill="currentColor" d="M23.957 41.77a18.02 18.02 0 0 0 10.477-3.376l11.109 11.11a2.66 2.66 0 0 0 1.898.773c1.524 0 2.625-1.172 2.625-2.672c0-.703-.234-1.359-.75-1.874L38.277 34.668c2.32-3.047 3.703-6.82 3.703-10.922c0-9.914-8.109-18.023-18.023-18.023c-9.937 0-18.023 8.109-18.023 18.023S14.02 41.77 23.957 41.77m0-3.891c-7.758 0-14.133-6.398-14.133-14.133S16.2 9.613 23.957 9.613c7.734 0 14.133 6.399 14.133 14.133c0 7.735-6.399 14.133-14.133 14.133" />
                     </svg>
                     <h2>No Results</h2>
-                    <p class="search-empty">No results for "{searchState.query.trim()}"</p>
+                    <p class="search-empty">No results for<span>"{searchState.query}"</span></p>
                 </div>
 
             {/if}
@@ -347,6 +342,15 @@
     margin: 0;
     color: var(--font-color-muted);
     font-size: 0.9rem;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+}
+
+.search-empty span {
+    word-break: break-all;
+    text-align: center;
 }
 
 .search-category {
