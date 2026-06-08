@@ -16,7 +16,9 @@
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "test": "vitest run . --reporter=verbose",
         "lint": "eslint .",
-        "format": "prettier --write . && eslint . --fix"
+        "format": "prettier --write . && eslint . --fix",
+        "wrangler:dev": "bun run build && wrangler dev",
+        "wrangler:types": "wrangler types"
     },
     "devDependencies": {
         "@sveltejs/adapter-auto": "^7.0.1",
@@ -36,7 +38,8 @@
         "svelte-check": "^4.4.3",
         "typescript": "^5.9.3",
         "vite": "^7.3.1",
-        "vitest": "^4.0.18"
+        "vitest": "^4.0.18",
+        "wrangler": "^4.98.0"
     },
     "type": "module",
     "dependencies": {
