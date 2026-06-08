@@ -1,7 +1,6 @@
 <script lang="ts">
     import {resolve} from "$app/paths";
     import Tab from "$lib/components/Tab.svelte";
-    import settings from "$lib/data/settings";
 
     import application from "$lib/images/tabs/application.webp";
     import clipboard from "$lib/images/tabs/clipboard.webp";
@@ -19,157 +18,11 @@
 
     import type {Snippet} from "svelte";
     import {scale} from "svelte/transition";
+    import {getGroupedResults, getHighlightParts, getResults, hasGroupedResults, hasResults, searchState, setQuery, type SearchResult} from "$lib/stores/search.svelte";
 
-
-    interface SearchResult {
-        categoryId: string;
-        categoryName: string;
-        groupName: string;
-        note: string;
-        routeKey: string;
-        settingId: string;
-        settingName: string;
-        searchableText: string;
-    }
-
-    interface HighlightPart {
-        matched: boolean;
-        text: string;
-    }
 
     const {children}: {children: Snippet} = $props();
 
-    // TODO: this is pretty expensive to compute on every keystroke, consider precomputing and caching searchableText in the settings data
-    const searchableSettings = $derived.by(() => {
-        const results: SearchResult[] = [];
-        for (const category of settings) {
-            for (const group of category.groups) {
-                for (const setting of group.settings) {
-                    const searchableText = [
-                        category.name,
-                        group.name,
-                        setting.name,
-                        setting.note ?? ""
-                    ]
-                        .join(" ")
-                        .toLocaleLowerCase();
-                    results.push({
-                        categoryId: category.id,
-                        categoryName: category.name,
-                        groupName: group.name,
-                        note: setting.note ?? "",
-                        routeKey: `${category.id}:${setting.id}`,
-                        settingId: setting.id,
-                        settingName: setting.name,
-                        searchableText,
-                    });
-                }
-            }
-        }
-        return results;
-    });
-
-    let searchQuery = $state("");
-    let selectedSearchIndex = $state(-1);
-    let activeSearchIndex = $state(-1);
-
-    const normalizedSearchQuery = $derived(searchQuery.trim().toLocaleLowerCase());
-    const searchTokens = $derived(normalizedSearchQuery.split(/\s+/).filter(Boolean));
-
-    const filteredSearchResults = $derived.by(() => {
-        if (!searchTokens.length) return [];
-        return searchableSettings.filter(result => searchTokens.every(token => result.searchableText.includes(token)));
-    });
-
-    // TODO: this grouping is also a bit expensive, consider memoizing based on the filtered results
-    // also move grouping logic to a utility function
-    const groupedSearchResults = $derived.by(() => {
-        const grouped: Array<{
-            categoryId: string;
-            categoryName: string;
-            categoryRoute: string;
-            results: Array<SearchResult & {index: number}>;
-        }> = [];
-
-        filteredSearchResults.forEach((result, index) => {
-            const existing = grouped.find(group => group.categoryId === result.categoryId);
-            if (existing) {
-                existing.results.push({...result, index});
-                return;
-            }
-
-            grouped.push({
-                categoryId: result.categoryId,
-                categoryName: result.categoryName,
-                categoryRoute: resolve("/settings/[category]", {category: result.categoryId}),
-                results: [{...result, index}],
-            });
-        });
-
-        return grouped;
-    });
-
-    // TODO: this is a bit janky, consider a more robust solution for keeping track of active/selected search results and their corresponding DOM elements
-    // also move to search utility
-    function getHighlightParts(value: string, queryOrTokens: string | string[]): HighlightPart[] {
-        if (!value) return [];
-
-        const tokens = Array.isArray(queryOrTokens)
-            ? queryOrTokens
-            : queryOrTokens.trim().toLocaleLowerCase().split(/\\s+/).filter(Boolean);
-
-        if (!tokens.length) {
-            return [{matched: false, text: value}];
-        }
-
-        const lowerValue = value.toLocaleLowerCase();
-        const ranges: Array<[number, number]> = [];
-        for (const token of tokens) {
-            if (!token) continue;
-            let fromIndex = 0;
-            while (fromIndex < lowerValue.length) {
-                const index = lowerValue.indexOf(token, fromIndex);
-                if (index < 0) break;
-
-                ranges.push([index, index + token.length]);
-                fromIndex = index + token.length;
-            }
-        }
-
-        if (!ranges.length) {
-            return [{matched: false, text: value}];
-        }
-
-        ranges.sort((a, b) => a[0] - b[0]);
-
-        const merged: Array<[number, number]> = [ranges[0]];
-        for (let i = 1; i < ranges.length; i++) {
-            const range = ranges[i];
-            const last = merged[merged.length - 1];
-            if (range[0] <= last[1]) {
-                last[1] = Math.max(last[1], range[1]);
-            }
-            else {
-                merged.push(range);
-            }
-        }
-
-        const parts: HighlightPart[] = [];
-        let cursor = 0;
-        for (const [start, end] of merged) {
-            if (start > cursor) {
-                parts.push({matched: false, text: value.slice(cursor, start)});
-            }
-            parts.push({matched: true, text: value.slice(start, end)});
-            cursor = end;
-        }
-
-        if (cursor < value.length) {
-            parts.push({matched: false, text: value.slice(cursor)});
-        }
-
-        return parts;
-    }
 
     function focusSearch(): void {
         const input = document.getElementById("sidebar-settings-search") as HTMLInputElement | null;
@@ -197,43 +50,44 @@
     }
 
     function handleSearchKeydown(event: KeyboardEvent): void {
-        if (!filteredSearchResults.length) return;
+        if (!hasResults()) return;
 
         if (event.key === "ArrowDown") {
             event.preventDefault();
-            selectedSearchIndex = selectedSearchIndex < filteredSearchResults.length - 1 ? selectedSearchIndex + 1 : 0;
+            searchState.selectedIndex = searchState.selectedIndex < getResults().length - 1 ? searchState.selectedIndex + 1 : 0;
             return;
         }
 
         if (event.key === "ArrowUp") {
             event.preventDefault();
-            selectedSearchIndex = selectedSearchIndex > 0 ? selectedSearchIndex - 1 : filteredSearchResults.length - 1;
+            searchState.selectedIndex = searchState.selectedIndex > 0 ? searchState.selectedIndex - 1 : getResults().length - 1;
             return;
         }
 
-        if (event.key === "Enter" && selectedSearchIndex >= 0) {
+        if (event.key === "Enter" && searchState.selectedIndex >= 0) {
             event.preventDefault();
-            activateSearchResult(selectedSearchIndex);
+            activateSearchResult(searchState.selectedIndex);
             return;
         }
 
         if (event.key === "Escape") {
-            searchQuery = "";
-            selectedSearchIndex = -1;
+            searchState.query = "";
+            searchState.selectedIndex = -1;
+            searchState.activeIndex = -1;
         }
     }
 
     function handleSearchInput(event: Event): void {
         const input = event.currentTarget as HTMLInputElement;
-        searchQuery = input.value;
-        selectedSearchIndex = input.value.trim() ? 0 : -1;
-        activeSearchIndex = -1;
+        searchState.query = input.value;
+        searchState.selectedIndex = input.value.trim() ? 0 : -1;
+        searchState.activeIndex = -1;
     }
 
     // Scroll selected search result into view when it changes
     $effect(() => {
-        if (selectedSearchIndex < 0) return;
-        const target = document.getElementById(`search-result-${selectedSearchIndex.toString()}`) as HTMLAnchorElement | null;
+        if (searchState.selectedIndex < 0) return;
+        const target = document.getElementById(`search-result-${searchState.selectedIndex.toString()}`) as HTMLAnchorElement | null;
         if (!target) return;
         target.scrollIntoView({block: "nearest"});
     });
@@ -251,7 +105,7 @@
         id="sidebar-settings-search"
         type="search"
         class="search-input"
-        value={searchQuery}
+        value={searchState.query}
         oninput={handleSearchInput}
         onkeydown={handleSearchKeydown}
         placeholder="Search"
@@ -260,16 +114,14 @@
         spellcheck={false}
     />
 
-    {#if normalizedSearchQuery}
+    {#if searchState.query}
         <button
             class="search-clear-button"
             type="button"
             title="Clear search"
             transition:scale={{duration: 150}}
             onclick={() => {
-                searchQuery = "";
-                selectedSearchIndex = -1;
-                activeSearchIndex = -1;
+                setQuery("");
             }}
         >
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 56 56">
@@ -281,15 +133,15 @@
 </div>
 
 <nav id="categories">
-    {#if normalizedSearchQuery}
+    {#if searchState.query}
         <div id="search-results" role="listbox" aria-label="Search results">
-            {#if groupedSearchResults.length}
-                {#each groupedSearchResults as category (category.categoryId)}
+            {#if hasGroupedResults()}
+                {#each getGroupedResults() as category (category.categoryId)}
                     <section class="search-category">
                         <Tab
                             route={category.categoryRoute}
                             onClick={() => {
-                                activeSearchIndex = -1; // tab selection is inside component for now
+                                searchState.activeIndex = -1; // tab selection is inside component for now
                             }}
                         >
                             <!-- TODO: a lot of de-duping with the main sidebar -->
@@ -324,19 +176,19 @@
                                 <a href={getSearchResultHref(result)}
                                     id={`search-result-${result.index.toString()}`}
                                     class="search-result"
-                                    class:active={result.index === activeSearchIndex}
-                                    class:selected={result.index === selectedSearchIndex}
+                                    class:active={result.index === searchState.activeIndex}
+                                    class:selected={result.index === searchState.selectedIndex}
                                     role="option"
-                                    aria-selected={result.index === selectedSearchIndex}
-                                    // onmousemove={() => selectedSearchIndex = result.index}
+                                    aria-selected={result.index === searchState.selectedIndex}
+                                    // onmousemove={() => searchState.selectedIndex = result.index}
                                     onclick={() => {
-                                        // searchQuery = "";
-                                        selectedSearchIndex = -1;
-                                        activeSearchIndex = result.index;
+                                        // searchState.query = "";
+                                        searchState.selectedIndex = -1;
+                                        searchState.activeIndex = result.index;
                                     }}
                                 >
                                     <span class="search-result-name">
-                                        {#each getHighlightParts(result.settingName, searchTokens) as part, i (`${result.routeKey}:name:${i.toString()}`)}
+                                        {#each getHighlightParts(result.settingName) as part, i (`${result.routeKey}:name:${i.toString()}`)}
                                             {#if part.matched}
                                                 <strong>{part.text}</strong>
                                             {:else}
@@ -347,7 +199,7 @@
                                     <span class="search-result-meta">
                                         {#if result.groupName}
                                             <span>
-                                                {#each getHighlightParts(result.groupName, searchTokens) as part, i (`${result.routeKey}:group:${i.toString()}`)}
+                                                {#each getHighlightParts(result.groupName) as part, i (`${result.routeKey}:group:${i.toString()}`)}
                                                     {#if part.matched}
                                                         <strong>{part.text}</strong>
                                                     {:else}
@@ -358,7 +210,7 @@
                                         {/if}
                                         {#if result.note}
                                             <span>
-                                                {#each getHighlightParts(result.note, searchTokens) as part, i (`${result.routeKey}:note:${i.toString()}`)}
+                                                {#each getHighlightParts(result.note) as part, i (`${result.routeKey}:note:${i.toString()}`)}
                                                     {#if part.matched}
                                                         <strong>{part.text}</strong>
                                                     {:else}
@@ -380,7 +232,7 @@
                         <path fill="currentColor" d="M23.957 41.77a18.02 18.02 0 0 0 10.477-3.376l11.109 11.11a2.66 2.66 0 0 0 1.898.773c1.524 0 2.625-1.172 2.625-2.672c0-.703-.234-1.359-.75-1.874L38.277 34.668c2.32-3.047 3.703-6.82 3.703-10.922c0-9.914-8.109-18.023-18.023-18.023c-9.937 0-18.023 8.109-18.023 18.023S14.02 41.77 23.957 41.77m0-3.891c-7.758 0-14.133-6.398-14.133-14.133S16.2 9.613 23.957 9.613c7.734 0 14.133 6.399 14.133 14.133c0 7.735-6.399 14.133-14.133 14.133" />
                     </svg>
                     <h2>No Results</h2>
-                    <p class="search-empty">No results for "{searchQuery.trim()}"</p>
+                    <p class="search-empty">No results for "{searchState.query.trim()}"</p>
                 </div>
 
             {/if}

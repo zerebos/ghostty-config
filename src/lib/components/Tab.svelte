@@ -1,5 +1,6 @@
 <script lang="ts">
     import {page} from "$app/state";
+    import {searchState} from "$lib/stores/search.svelte";
     import type {Snippet} from "svelte";
 
 
@@ -16,7 +17,7 @@
     const target = $derived(isExternal ? "_blank" : "");
     const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
-    const selected = $derived(path === route && page.url.search === "");
+    const selected = $derived(path === route && (page.url.search === "" || searchState.query === ""));
 </script>
 
 
