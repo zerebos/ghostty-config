@@ -11,12 +11,14 @@ export const searchState = $state({
     query: "",
     selectedIndex: -1,
     activeIndex: -1,
+    selectedId: "",
 });
 
 export function setQuery(query: string) {
     searchState.query = query.trim().toLocaleLowerCase(); // Normalize on setting query to avoid doing it repeatedly in derived stores
     searchState.selectedIndex = searchState.query ? 0 : -1;
     searchState.activeIndex = -1;
+    searchState.selectedId = "";
 }
 
 const searchTokens = $derived.by(() => searchState.query.split(/\s+/).filter(Boolean));

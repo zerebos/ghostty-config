@@ -1,10 +1,10 @@
 <script lang="ts">
-    import {tick, type Snippet} from "svelte";
+    import {type Snippet} from "svelte";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import type {GhosttyPlatform} from "$lib/data/ghostty-schema";
     import {alert} from "$lib/stores/modals.svelte";
     import Badge from "../Badge.svelte";
-    import {page} from "$app/state";
+    import {searchState} from "$lib/stores/search.svelte";
 
     interface Props {
         name?: string;
@@ -56,31 +56,25 @@
 
     let itemElement: HTMLElement | null = null;
     let shouldHighlight = $state(false);
-    const targetId = $derived(page.url.searchParams.get("setting") || undefined);
     $effect(() => {
-        if (!settingId || !itemElement) return;
-        if (settingId !== targetId) return;
+        if (!searchState.selectedId || !itemElement) return;
+        if (searchState.selectedId !== settingId) return;
 
         const settingEl = itemElement;
         if (!settingEl) return;
 
-        // let timeout: number | null = null;
         let cancelled = false;
 
         // Flash the setting item to draw attention to it
         requestAnimationFrame(() => {
             if (cancelled) return;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             settingEl.scrollIntoView({behavior: "smooth", block: "center"});
             shouldHighlight = true;
-            // onanimationend will reset shouldHighlight to false
-            // timeout = window.setTimeout(() => {
-            //     shouldHighlight = false;
-            // }, 2000);
         });
         return () => {
             cancelled = true;
             shouldHighlight = false;
-            // if (timeout) window.clearTimeout(timeout);
         };
     });
 </script>

@@ -17,7 +17,7 @@
     const target = $derived(isExternal ? "_blank" : "");
     const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
-    const selected = $derived(path === route && (page.url.search === "" || searchState.query === ""));
+    const selected = $derived(path === route && (searchState.selectedId === ""));
 </script>
 
 

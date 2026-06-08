@@ -19,27 +19,46 @@
     import type {Snippet} from "svelte";
     import {scale} from "svelte/transition";
     import {getGroupedResults, getHighlightParts, getResults, hasGroupedResults, hasResults, searchState, setQuery, type SearchResult} from "$lib/stores/search.svelte";
+    import {goto} from "$app/navigation";
+    // import {goto} from "$app/navigation";
 
 
     const {children}: {children: Snippet} = $props();
 
 
+    let inputElement: HTMLInputElement | null = null;
     function focusSearch(): void {
-        const input = document.getElementById("sidebar-settings-search") as HTMLInputElement | null;
-        if (!input) return;
-        input.focus();
-        input.select();
+        if (!inputElement) return;
+        inputElement.focus();
+        inputElement.select();
     }
 
     function getSearchResultHref(result: SearchResult): string {
-        const categoryRoute = resolve("/settings/[category]", {category: result.categoryId});
-        return `${categoryRoute}?setting=${result.settingId}`;
+        return resolve("/settings/[category]", {category: result.categoryId});
     }
 
-    function activateSearchResult(index: number): void {
-        const target = document.getElementById(`search-result-${index.toString()}`) as HTMLAnchorElement | null;
-        if (!target) return;
-        target.click();
+    function activateSearchResult(event: MouseEvent | KeyboardEvent, result: SearchResult): void {
+        const href = getSearchResultHref(result);
+        const isSamePage = location.pathname === href;
+
+        // If clicking on the already selected search result, retrigger the scroll and highlight effect by clearing and re-setting the selectedId
+        if (isSamePage && searchState.selectedId === result.settingId) searchState.selectedId = "";
+        searchState.selectedId = result.settingId;
+
+        // Don't navigate if we're already on the page, just set the selectedId so the item can scroll into view and highlight
+        if (isSamePage) return event.preventDefault();
+
+        // Let the link handle navigation for clicks to preserve things like ctrl+click to open in new tab
+        if (event.type === "click") return;
+
+        // Keyboard event needs special handling to navigate and then focus search input again for continued keyboard navigation
+        if (event.type === "keydown") {
+            // eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/no-goto-without-base
+            void goto(href).then(() => {
+                // Refocus search after navigation so user can continue navigating with keyboard
+                focusSearch();
+            });
+        }
     }
 
     function handleWindowKeydown(event: KeyboardEvent): void {
@@ -66,7 +85,7 @@
 
         if (event.key === "Enter" && searchState.selectedIndex >= 0) {
             event.preventDefault();
-            activateSearchResult(searchState.selectedIndex);
+            activateSearchResult(event, getResults()[searchState.selectedIndex]);
             return;
         }
 
@@ -108,6 +127,7 @@
         aria-label="Search"
         autocomplete="off"
         spellcheck={false}
+        bind:this={inputElement}
     />
 
     {#if searchState.query}
@@ -137,6 +157,7 @@
                         <Tab
                             route={category.categoryRoute}
                             onClick={() => {
+                                searchState.selectedId = "";
                                 searchState.activeIndex = -1; // tab selection is inside component for now
                             }}
                         >
@@ -176,8 +197,8 @@
                                     class:selected={result.index === searchState.selectedIndex}
                                     role="option"
                                     aria-selected={result.index === searchState.selectedIndex}
-                                    // onmousemove={() => searchState.selectedIndex = result.index}
-                                    onclick={() => {
+                                    onclick={(event) => {
+                                        activateSearchResult(event, result);
                                         searchState.selectedIndex = -1;
                                         searchState.activeIndex = result.index;
                                     }}
