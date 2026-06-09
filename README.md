@@ -19,6 +19,8 @@
 
 Ghostty Config is a beautiful web-based configuration generator designed to make customizing your [Ghostty](https://ghostty.org/) terminal effortless. Rather than manually editing text files and worrying about formatting and syntax, Ghostty Config allows you to visually adjust settings, preview changes in real time and export a ready-to-use config.
 
+Under the hood, every setting is driven by a typed schema derived directly from Ghostty's own config specification. The tool tracks only the values that differ from Ghostty's defaults, so the exported config stays minimal and easy to read. Settings are organized into categories that derive from Ghostty's config, and each one carries inline documentation, platform restrictions, and version metadata sourced from the schema.
+
 This project is built with [Svelte](https://svelte.dev) + [TypeScript](https://www.typescriptlang.org/) via [Bun](https://bun.sh). It is automatically deployed with Cloudflare Workers so the hosted version is always up to date.
 
 **Try it now:** [ghostty.zerebos.com](https://ghostty.zerebos.com)
@@ -26,16 +28,16 @@ This project is built with [Svelte](https://svelte.dev) + [TypeScript](https://w
 
 ## Features
 
-- **Interactive settings editor:** Easily tweak fonts, colors, cursor styles, transparency, blur, and more.
-- **Font playground:** Experiment with JetBrains Mono, Nerd Fonts, or any custom font.
-- **Live previews:** See instant demos of cursors, selections, app icons, and color palettes.
-- **Keybinding builder:** Build and validate keybindings with a custom interface.
-- **One‑click export:** Generate a clean Ghostty configuration file to drop into your setup.
-- **Config sharing:** Share and import configs with others via url.
-- **Help info:** Get detailed information on every setting.
-- **Indicators:** See which platform and Ghostty version is needed for each setting.
-- **Sidebar search:** Quickly browse and go to any setting.
-- **Automatic deployment:** Every push to main updates the hosted tool via Cloudflare Workers.
+- **Interactive settings editor:** Tweak fonts, colors, cursor styles, transparency, blur, and much more across organized, categorized setting pages.
+- **Font playground:** Experiment with JetBrains Mono, Nerd Fonts, or any custom font and see the result live.
+- **Live previews:** Instant visual demos for cursors, text selections, app icons, and color palettes as you edit.
+- **Keybinding builder:** Build and validate keybindings with an interactive trigger/action editor, including sequence, prefix, and chained-action support.
+- **Import & export:** Paste, upload, copy, or download configs; only settings that differ from defaults are included in the output.
+- **Config sharing:** Share configs with others via a shareable URL (falls back to clipboard copy for large configs).
+- **Help info:** Detailed documentation shown inline for every individual setting.
+- **Indicators:** Per-setting badges showing required platform (macOS, Linux, GTK) and minimum Ghostty version.
+- **Sidebar search:** Instantly browse and jump to any setting, mirroring macOS native preferences UI.
+- **Reset to defaults:** Restore any individual setting to its default value at any time.
 
 
 ## Tech Stack
@@ -58,6 +60,15 @@ bun run dev
 ```
 Then open `http://localhost:5173` in your browser when prompted.
 
+Other useful commands:
+```bash
+bun run build    # production build (output under build/)
+bun run preview  # serve the production build locally
+bun run check    # Svelte + TypeScript type checking
+bun run lint     # ESLint
+bun run test     # Vitest unit tests
+```
+
 
 ## Deployment
 
@@ -70,24 +81,31 @@ The only automated deployment built-in is via Cloudflare Workers which automatic
 - [x] Terminal preview
 - [x] Font playground
 - [x] Import & export
-- [x] Update for Ghostty 1.1
 - [x] Basic keybind settings
 - [x] Editable color pickers
+- [x] Update for Ghostty 1.1
 - [x] Update for Ghostty 1.2
-- [x] Update for Ghostty 1.3 (nightly)
+- [x] Update for Ghostty 1.3
+- [x] Update for Ghostty 1.4-nightly
 - [x] Icon customization
-- [x] Keybinding validation
+- [x] Keybind builder and validation
 - [x] In-app help documentation
 - [x] Resetting individual settings
 - [x] Sidebar search like native
 - [x] Platform indicators
 - [x] Version indicators
-- [ ] Detailed terminal playground
-- [ ] Command palette builder
-- [ ] Desktop version via Wails
-- [ ] Community presets for quick setup
-- [ ] "Repeating" settings types
-- [ ] Advanced custom settings types
+- [x] Shareable URLs
+
+**Near-term**
+- [ ] Command palette builder (guided UI for `command-palette-entry` settings)
+- [ ] Multi-entry setting support (settings like `font-feature` that repeat in the config)
+- [ ] Full schema-driven custom setting types matching Ghostty's type system
+- [ ] Community presets for quick theme/workflow setup
+- [ ] Unit tests for import/export flows
+
+**Long-term**
+- [ ] Rich interactive terminal playground
+- [ ] Desktop version for direct config file integration
 
 
 
@@ -96,6 +114,13 @@ The only automated deployment built-in is via Cloudflare Workers which automatic
 Feedback, ideas, and bug reports are welcome!
 - Open an issue in the [GitHub tracker](https://github.com/zerebos/ghostty-config/issues)
 - Submit a pull request with improvements
+
+When contributing code, make sure these pass before opening a PR:
+```bash
+bun run check   # type errors
+bun run lint    # style violations
+bun run test    # unit tests
+```
 
 
 ## License
