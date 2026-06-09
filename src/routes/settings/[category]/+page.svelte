@@ -55,6 +55,7 @@
                 {#each group.settings as setting, i (setting.id)}
                     {#if i !== 0}<Separator />{/if}
                     <Item
+                        settingId={setting.id}
                         name={setting.name}
                         note={setting.note}
                         // filter out the current platform from the badge list since it's already obvious from the UI

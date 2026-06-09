@@ -4,6 +4,7 @@
     import type {GhosttyPlatform} from "$lib/data/ghostty-schema";
     import {alert} from "$lib/stores/modals.svelte";
     import Badge from "../Badge.svelte";
+    import {searchState} from "$lib/stores/search.svelte";
 
     interface Props {
         name?: string;
@@ -11,12 +12,13 @@
         platform?: GhosttyPlatform[];
         since?: string;
         schemaDescription?: string;
+        settingId?: string; // for search reference
         children: Snippet;
         onReset?: () => void;
         isNonDefault?: boolean;
     }
 
-    const {name = "", note = "", platform, since, schemaDescription, children, onReset, isNonDefault = false}: Props = $props();
+    const {name = "", note = "", platform, since, schemaDescription, settingId, children, onReset, isNonDefault = false}: Props = $props();
     const tooltipAttachment = createTooltipAttachment("Reset to default");
 
 
@@ -51,9 +53,39 @@
         if (badge.type === "version") return `Added in Ghostty v${since}`;
         return "";
     };
+
+    let itemElement: HTMLElement | null = null;
+    let shouldHighlight = $state(false);
+    $effect(() => {
+        if (!searchState.selectedId || !itemElement) return;
+        if (searchState.selectedId !== settingId) return;
+
+        const settingEl = itemElement;
+        if (!settingEl) return;
+
+        let cancelled = false;
+
+        // Flash the setting item to draw attention to it
+        requestAnimationFrame(() => {
+            if (cancelled) return;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            settingEl.scrollIntoView({behavior: "smooth", block: "center"});
+            shouldHighlight = true;
+        });
+        return () => {
+            cancelled = true;
+            shouldHighlight = false;
+        };
+    });
 </script>
 
-<div class="setting-item">
+<div
+    class="setting-item"
+    data-setting-id={settingId || undefined}
+    bind:this={itemElement}
+    class:flash-highlight={shouldHighlight}
+    onanimationend={() => shouldHighlight = false}
+>
     <div class="row">
         {#if name}
         <div class="row-left">
@@ -111,6 +143,31 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    /* width: 100%; */
+    /* box-sizing: border-box; */
+    /* padding: 4px 8px; */
+    /* margin: -4px -8px; */
+    position: relative;
+}
+
+.setting-item:global(.flash-highlight)::before {
+    content: "";
+    position: absolute;
+    /* group padding size */
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+    animation: flash-highlight 2s ease-in-out;
+    pointer-events: none;
+}
+
+.setting-item:global(.flash-highlight):first-child::before {
+    border-radius: var(--radius-level-4) var(--radius-level-4) 0 0;
+}
+
+.setting-item:global(.flash-highlight):last-child::before {
+    border-radius: 0 0 var(--radius-level-4) var(--radius-level-4);
 }
 
 .setting-item .row {
@@ -225,5 +282,17 @@
     box-shadow:
         0 0 1px -1px rgba(0,0,0,0.7),
         0 0 1px white inset;
+}
+
+@keyframes flash-highlight {
+    0% {
+        background: rgba(128, 199, 255, 0.45);
+        box-shadow: 0 0 0 1px rgba(152, 217, 255, 0.6);
+    }
+
+    100% {
+        background: transparent;
+        box-shadow: 0 0 0 1px rgba(152, 217, 255, 0);
+    }
 }
 </style>

@@ -29,6 +29,7 @@
     import ModalStack from "$lib/components/modals/ModalStack.svelte";
     import ToastStack from "$lib/components/ToastStack.svelte";
     import type {Snippet} from "svelte";
+    import SettingsSearch from "$lib/components/SettingsSearch.svelte";
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -82,7 +83,7 @@
                 </div>
             </div>
         </div>
-        <nav id="categories">
+        <SettingsSearch>
             <User route="/" />
             <Gap />
             <Tab route="/settings/application">
@@ -146,7 +147,7 @@
                 {#snippet icon()}<img src={ghostty} alt="Ghostty Website" />{/snippet}
                 Ghostty
             </Tab>
-        </nav>
+        </SettingsSearch>
     </div>
     <div id="content-view">
         {@render children()}
@@ -276,18 +277,18 @@
 
 
 
-#categories {
+/* #categories {
     display: flex;
     flex-direction: column;
     flex: 1;
     padding: 10px;
-}
+} */
 
-#categories img {
+:global(#categories img) {
     width: 100%;
 }
 
-#categories .icon-wrapper {
+:global(#categories .icon-wrapper) {
     background: linear-gradient(#D3E3E9, #908F8C);
     width: 20px;
     height: 20px;
@@ -297,16 +298,16 @@
     align-items: center;
 }
 
-#categories .icon-wrapper img {
+:global(#categories .icon-wrapper img) {
     height: 14px;
     width: 14px;
 }
 
-#categories .icon-wrapper.github {
+:global(#categories .icon-wrapper.github) {
     background: linear-gradient(#9C45A9, #3B1E68);
 }
 
-#categories .icon-wrapper.github img {
+:global(#categories .icon-wrapper.github img) {
     filter: invert(100%);
     height: 18px;
     width: 18px;
