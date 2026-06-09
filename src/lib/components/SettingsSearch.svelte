@@ -48,8 +48,9 @@
         if (isSamePage && searchState.selectedId === result.settingId) searchState.selectedId = "";
         searchState.selectedId = result.settingId;
 
+        // Set both selectedIndex and activeIndex to keep keyboard and click selection in sync
         if (result.index !== undefined) {
-            searchState.selectedIndex = -1;
+            searchState.selectedIndex = result.index;
             searchState.activeIndex = result.index;
         }
 
