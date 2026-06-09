@@ -1,6 +1,5 @@
 <script lang="ts">
     import {page} from "$app/state";
-    import {searchState} from "$lib/stores/search.svelte";
     import type {Snippet} from "svelte";
 
 
@@ -9,15 +8,16 @@
         icon: Snippet;
         route?: string;
         onClick?: (e: MouseEvent) => void;
+        selected?: boolean; // for external control (e.g. search)
     }
-    const {children, icon, route = "", onClick}: Props = $props();
+    const {children, icon, route = "", onClick, selected}: Props = $props();
     const path = $derived(page.url.pathname);
 
     const isExternal = $derived(route.startsWith("http"));
     const target = $derived(isExternal ? "_blank" : "");
     const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
-    const selected = $derived(path === route && (searchState.selectedId === ""));
+    const isSelected = $derived(selected ?? (path === route));
 </script>
 
 
@@ -25,7 +25,7 @@
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/first-attribute-linebreak -->
 <a href={route}
     class="nav-tab"
-    class:selected
+    class:selected={isSelected}
     {target}
     {rel}
     onclick={onClick}

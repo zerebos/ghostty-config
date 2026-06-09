@@ -20,7 +20,7 @@
     import {scale} from "svelte/transition";
     import {getGroupedResults, getHighlightParts, getResults, hasGroupedResults, hasResults, searchState, setQuery, type SearchResult} from "$lib/stores/search.svelte";
     import {goto} from "$app/navigation";
-    // import {goto} from "$app/navigation";
+    import {page} from "$app/state";
 
 
     const {children}: {children: Snippet} = $props();
@@ -42,7 +42,7 @@
         if (isModifiedClick) return;
 
         const href = getSearchResultHref(result);
-        const isSamePage = location.pathname === href;
+        const isSamePage = page.url.pathname === href;
 
         // If clicking on the already selected search result, retrigger the scroll and highlight effect by clearing and re-setting the selectedId
         if (isSamePage && searchState.selectedId === result.settingId) searchState.selectedId = "";
@@ -165,6 +165,7 @@
                     <section class="search-category">
                         <Tab
                             route={category.categoryRoute}
+                            selected={page.url.pathname === category.categoryRoute && searchState.selectedId === ""}
                             onClick={() => {
                                 searchState.selectedId = "";
                                 searchState.activeIndex = -1; // tab selection is inside component for now
