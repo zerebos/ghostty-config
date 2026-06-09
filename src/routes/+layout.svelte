@@ -137,6 +137,12 @@
                 {#snippet icon()}<img src={calligraphy} alt="Font Playground" />{/snippet}
                 Font Playground
             </Tab>
+            {#if import.meta.env.DEV}
+            <Tab route="/app/dropdown-debug">
+                {#snippet icon()}<img src={application} alt="Dropdown Debug" />{/snippet}
+                Dropdown Debug
+            </Tab>
+            {/if}
             <Gap expand={true} />
             <Tab route="https://github.com/zerebos/ghostty-config">
                 {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
