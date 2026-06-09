@@ -1,10 +1,14 @@
 import type {HexColor} from "$lib/utils/colors";
 import {frameUrls, iconUrls} from "./macicon";
+import ghosttySchema, {type GhosttyPlatform} from "$lib/data/ghostty-schema";
 
 interface BaseSettingType {
     id: string;
     name: string;
     note?: string;
+    platform?: GhosttyPlatform[];
+    since?: string;
+    schemaDescription?: string;
 }
 
 interface Panel extends BaseSettingType {
@@ -32,6 +36,7 @@ interface Text extends BaseSettingItem {
     type: "text";
     value: string;
     placeholder?: string;
+    size?: number;
 }
 
 interface Number extends BaseSettingItem {
@@ -144,7 +149,7 @@ const getOS = () => {
 
 // TODO: find a good way to properly type the settings
 // TODO: also allow clearable settings and such, this is a mess
-const settings = [
+const baseSettings = [
     {
         id: "application",
         name: "Application",
@@ -161,8 +166,8 @@ const settings = [
                     {id: "configDefaultFiles", name: "Load default config file", type: "switch", value: true},
                     {id: "link", name: "Link handling", note: "Regex for making clickable links, currently disabled.", type: "text", value: "", disabled: true},
                     {id: "linkUrl", name: "Automatically link URLs", note: "Matching occurs while holding the control (Linux) or command (macOS) key.", type: "switch", value: true},
-                    {id: "linkPreviews", name: "Show link previews", note: "When set to `osc8`, previews are only shown for hyperlinks created with the OSC 8 sequence.", type: "dropdown", value: "true", options: ["true", "false", "osc8"]},
-                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like `1h30m`, `5s`, `500ms`.", type: "text", value: ""}
+                    {id: "linkPreviews", name: "Show link previews", note: "When set to <code>osc8</code>, previews are only shown for hyperlinks created with the OSC 8 sequence.", type: "dropdown", value: "true", options: ["true", "false", "osc8"]},
+                    {id: "undoTimeout", name: "Undo timeout", note: "Timeout for undo operations. Format like <code>1h30m</code>, <code>5s</code>, <code>500ms</code>.", type: "text", value: ""}
                 ]
             },
             {
@@ -177,7 +182,7 @@ const settings = [
                     {id: "maximize", name: "Launch as maximized window", type: "switch", value: false},
                     {id: "fullscreen", name: "Launch in fullscreen mode", type: "switch", value: false},
                     {id: "initialWindow", name: "Show a window on startup", type: "switch", value: true},
-                    {id: "workingDirectory", name: "Directory to use after startup", note: "Special values of `home` and `inherit` are also allowed here.", type: "text", value: ""},
+                    {id: "workingDirectory", name: "Directory to use after startup", note: "Special values of <code>home</code> and <code>inherit</code> are also allowed here.", type: "text", value: ""},
                 ]
             },
             {
@@ -198,9 +203,18 @@ const settings = [
                 // type: "group",
                 settings: [
                     {id: "shellIntegration", name: "Shell integration style", type: "dropdown", value: "detect", options: ["none", "detect", "bash", "elvish", "fish", "nushell", "zsh"]},
-                    {id: "shellIntegrationFeatures", name: "Shell integration features", note: "Available features: cursor, sudo, title, ssh-env, ssh-terminfo, path. Including one force enables it, prefixing it with `no-` force disables it, omitting it falls back to default.", type: "text", value: "cursor,no-sudo,title,no-ssh-env,no-ssh-terminfo,path"},
+                    {id: "shellIntegrationFeatures", name: "Shell integration features", note: "Available features: cursor, sudo, title, ssh-env, ssh-terminfo, path. Including one force enables it, prefixing it with <code>no-</code> force disables it, omitting it falls back to default.", type: "text", value: "cursor,no-sudo,title,no-ssh-env,no-ssh-terminfo,path"},
                     {id: "term", name: "TERM environment variable", type: "text", value: "xterm-ghostty"},
                     {id: "titleReport", name: "CSI 21 title reporting", note: "This allows running apps to read the terminal title.", type: "switch", value: false},
+                ]
+            },
+            {
+                id: "notifications",
+                name: "Command Notifications",
+                settings: [
+                    {id: "notifyOnCommandFinish", name: "Notify on command finish", note: "Requires shell integration or OSC 133 escape sequences.", type: "dropdown", value: "never", options: ["never", "unfocused", "always"]},
+                    {id: "notifyOnCommandFinishAction", name: "Notification action", note: "How the user is notified. Comma-separated list. Available: bell, notify. Prefix with <code>no-</code> to disable.", type: "text", value: "bell"},
+                    {id: "notifyOnCommandFinishAfter", name: "Minimum runtime before notifying", note: "How long a command must run before a notification is sent. Format like <code>5s</code>, <code>500ms</code>.", type: "text", value: "5s"},
                 ]
             },
             {
@@ -209,7 +223,7 @@ const settings = [
                 settings: [
                     {id: "quickTerminalPosition", name: "Terminal position", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left", "center"]},
                     {id: "quickTerminalScreen", name: "Screen location", type: "dropdown", value: "main", options: ["main", "mouse", "macos-menu-bar"]},
-                    {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. `50%`) or in pixels (e.g. `800`). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
+                    {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. <code>50%</code>) or in pixels (e.g. <code>800</code>). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
                     {id: "quickTerminalAnimationDuration", name: "Animation duration", type: "number", value: 0.2, min: 0, max: 10, step: 0.1, range: true},
                     {id: "quickTerminalAutohide", name: "Autohide", note: "This autohides the quick terminal when focus shifts away.", type: "switch", value: true},
                     {id: "quickTerminalSpaceBehavior", name: "macOS space behavior", type: "dropdown", value: "move", options: ["move", "remain"]},
@@ -230,14 +244,15 @@ const settings = [
                     {id: "oscColorReportFormat", name: "OSC color report format", type: "dropdown", value: "16-bit", options: ["none", "8-bit", "16-bit"]},
                     {id: "vtKamAllowed", name: "VT kam mode allowed", note: "If you don't know what this is, don't touch it!", type: "switch", value: false},
                     {id: "imageStorageLimit", name: "Image buffer limit (bytes)", type: "number", value: 320000000, min: 0, max: 4294967295, size: 12},
+                    {id: "progressStyle", name: "Show progress bars (OSC 9;4)", note: "Allows applications to show graphical progress bars via the ConEmu OSC 9;4 escape sequence.", type: "switch", value: true},
                 ]
             },
             {
                 id: "bell",
                 name: "Bell",
                 settings: [
-                    {id: "bellFeatures", name: "Bell features", note: "Comma-separated list of features. Available: system, audio, attention, title, border. Prefix with `no-` to disable.", type: "text", value: ""},
-                    {id: "bellAudioPath", name: "Bell audio file", note: "Path to an audio file to play when the bell rings. Requires `audio` in bell features. GTK only.", type: "text", value: ""},
+                    {id: "bellFeatures", name: "Bell features", note: "Comma-separated list of features. Available: system, audio, attention, title, border. Prefix with <code>no-</code> to disable.", type: "text", value: ""},
+                    {id: "bellAudioPath", name: "Bell audio file", note: "Path to an audio file to play when the bell rings. Requires <code>audio</code> in bell features. GTK only.", type: "text", value: ""},
                     {id: "bellAudioVolume", name: "Bell audio volume", note: "Volume for the bell audio, from 0 (silent) to 1 (full). GTK only.", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.05},
                 ]
             },
@@ -299,7 +314,7 @@ const settings = [
                     {id: "windowTitlebarForeground", name: "Titlebar foreground", type: "color", value: ""},
                     {id: "backgroundOpacity", name: "Background opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
                     {id: "backgroundOpacityCells", name: "Force background opacity on cells.", type: "switch", value: false},
-                    {id: "backgroundBlur", name: "Background blur", note: "Set to `true` to enable blur, `false` to disable, a number for a specific radius (macOS), or `macos-glass-regular`/`macos-glass-clear` for macOS glass effects.", type: "text", value: "false"},
+                    {id: "backgroundBlur", name: "Background blur", note: "Set to <code>true</code> to enable blur, <code>false</code> to disable, a number for a specific radius (macOS), or <code>macos-glass-regular</code>/<code>macos-glass-clear</code> for macOS glass effects.", type: "text", value: "false"},
                     {id: "backgroundImage", name: "Background image", note: "Path to an image file to use as the terminal background.", type: "text", value: ""},
                     {id: "backgroundImageOpacity", name: "Background image opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
                     {id: "backgroundImagePosition", name: "Background image position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "center-left", "center-center", "center-right", "bottom-left", "bottom-center", "bottom-right"]},
@@ -344,7 +359,7 @@ const settings = [
                         value: "",
                         options: []
                     },
-                    {id: "boldColor", name: "Bold text color", note: "Set to `bright` to use bright palette colors for bold text, or a hex color value. Leave empty to use the default.", type: "text", value: ""},
+                    {id: "boldColor", name: "Bold text color", note: "Set to <code>bright</code> to use bright palette colors for bold text, or a hex color value. Leave empty to use the default.", type: "text", value: ""},
                     {id: "faintOpacity", name: "Faint text opacity", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.01},
                     {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
                     {id: "paletteGenerate", name: "Auto-generate missing palette colors", note: "When enabled, Ghostty will generate missing colors (indices 16-231) based on the first 16.", type: "switch", value: true},
@@ -366,6 +381,16 @@ const settings = [
                 ]
             },
             {
+                id: "search",
+                name: "Search Colors",
+                settings: [
+                    {id: "searchForeground", name: "Search match foreground", note: "Foreground color for non-focused (candidate) search matches. Also accepts `cell-foreground` or `cell-background`.", type: "color", value: ""},
+                    {id: "searchBackground", name: "Search match background", note: "Background color for non-focused (candidate) search matches. Defaults to golden yellow (#ffe082). Also accepts `cell-foreground` or `cell-background`.", type: "color", value: ""},
+                    {id: "searchSelectedForeground", name: "Selected match foreground", note: "Foreground color for the active/focused search match.", type: "color", value: ""},
+                    {id: "searchSelectedBackground", name: "Selected match background", note: "Background color for the active/focused search match. Defaults to soft peach (#f2a57e).", type: "color", value: ""},
+                ]
+            },
+            {
                 id: "cursor",
                 name: "Cursor",
                 note: "The cursor in this preview blinks on and off at 1 second intervals for emphasis, it may not match what you see in Ghostty!",
@@ -374,7 +399,7 @@ const settings = [
                     {id: "cursorText", name: "Text color under cursor", type: "color", value: ""},
                     {id: "cursorOpacity", name: "Cursor opacity", type: "number", value: 1, range: true, min: 0, max: 1, step: 0.05},
                     {id: "cursorStyle", name: "Cursor style", type: "dropdown", value: "block", options: ["block", "bar", "underline", {value: "block_hollow", name: "hollow block"}]},
-                    {id: "cursorStyleBlink", name: "Cursor blink style", note: "The `default` option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},
+                    {id: "cursorStyleBlink", name: "Cursor blink style", note: "The <code>default</code> option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},
                 ]
             },
             {
@@ -419,7 +444,7 @@ const settings = [
             {
                 id: "styles",
                 name: "Font Styles",
-                note: "Named font styles for the fields above. For example for `Ioveska Heavy` you would use a style of `Heavy`. Alternately you can set the style to `false` to completely disable the style and revert to default style.",
+                note: "Named font styles for the fields above. For example for <code>Ioveska Heavy</code> you would use a style of <code>Heavy</code>. Alternately you can set the style to <code>false</code> to completely disable the style and revert to default style.",
                 settings: [
                     {id: "fontStyle", name: "Main font style", type: "text", value: "default"},
                     {id: "fontStyleBold", name: "Font style for bold text", type: "text", value: "default"},
@@ -491,6 +516,7 @@ const settings = [
                     // Technically the values should be min: 0.01, max: 10000, step: 0.01 but those are insane so instead I'll use sane defaults
                     {id: "mouseScrollMultiplier", name: "Mouse scroll multiplier", type: "number", range: true, value: 3, min: 0.1, max: 10, step: 0.1},
                     {id: "rightClickAction", name: "Right-click action", type: "dropdown", value: "context-menu", options: ["context-menu", "copy-or-paste", "copy", "paste", "ignore"]},
+                    {id: "middleClickAction", name: "Middle-click action", type: "dropdown", value: "primary-paste", options: ["primary-paste", "ignore"]},
                     {id: "focusFollowsMouse", name: "Focus splits on mouse move", type: "switch", value: false},
                     {id: "clickRepeatInterval", name: "Milliseconds between multi-click", note: "A value of 0 means to use the operating system's default timing.", type: "number", value: 0, min: 0, size: 4},
                 ]
@@ -505,12 +531,13 @@ const settings = [
                 id: "main",
                 name: "",
                 settings: [
-                    {id: "class", name: "WM_CLASS class field", note: "This defaults to `com.mitchellh.ghostty`", type: "text", value: ""},
-                    {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to `ghostty`", type: "text", value: ""},
+                    {id: "language", name: "UI language", note: "Set Ghostty's GTK GUI language (e.g. <code>de</code>, <code>fr</code>). Requires a full restart. GTK only.", type: "text", value: ""},
+                    {id: "class", name: "WM_CLASS class field", note: "This defaults to <code>com.mitchellh.ghostty</code>", type: "text", value: ""},
+                    {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to <code>ghostty</code>", type: "text", value: ""},
                     {id: "gtkSingleInstance", name: "Single-instance mode", type: "dropdown", value: "detect", options: ["detect", "true", "false"]},
                     {id: "gtkCustomCss", name: "Custom css file", type: "text", value: ""},
                     {id: "gtkOpenglDebug", name: "OpenGL debug", type: "switch", value: false},
-                    {id: "appNotifications", name: "App notifications", note: "Comma-separated list of notifications to enable/disable. Available: clipboard-copy, config-reload. Prefix with `no-` to disable. `true`/`false` to enable/disable all.", type: "text", value: ""},
+                    {id: "appNotifications", name: "App notifications", note: "Comma-separated list of notifications to enable/disable. Available: clipboard-copy, config-reload. Prefix with <code>no-</code> to disable. <code>true</code>/<code>false</code> to enable/disable all.", type: "text", value: ""},
                 ]
             },
             {
@@ -518,13 +545,13 @@ const settings = [
                 name: "Titlebar & Tabs",
                 settings: [
                     {id: "gtkToolbarStyle", name: "Toolbar style", type: "dropdown", value: "raised", options: ["raised", "flat", "raised-border"]},
-                    {id: "gtkTitlebarStyle", name: "Titlebar style", note: "`tabs` merges the tab bar and titlebar to save vertical space.", type: "dropdown", value: "native", options: ["native", "tabs"]},
+                    {id: "gtkTitlebarStyle", name: "Titlebar style", note: "<code>tabs</code> merges the tab bar and titlebar to save vertical space.", type: "dropdown", value: "native", options: ["native", "tabs"]},
                     {id: "gtkTabsLocation", name: "Tab location", type: "dropdown", value: "top", options: ["top", "bottom"]},
-                    {id: "gtkWideTabs", name: "Use wide tabs", note: "Setting this to false will make tabs use the least space necessary.", type: "switch", value: true},
+                    {id: "gtkWideTabs", name: "Use wide tabs", note: "Setting this to <code>false</code> will make tabs use the least space necessary.", type: "switch", value: true},
                     {id: "gtkTitlebar", name: "Show titlebar", type: "switch", value: true},
                     {id: "gtkTitlebarHideWhenMaximized", name: "Hide titlebar on maximize", type: "switch", value: false},
                     {id: "gtkQuickTerminalLayer", name: "Quick terminal layer", note: "Controls which layer the quick terminal appears on. GTK Wayland only.", type: "dropdown", value: "top", options: ["overlay", "top", "bottom", "background"]},
-                    {id: "gtkQuickTerminalNamespace", name: "Quick terminal namespace", note: "Identifier for the quick terminal layer surface. GTK Wayland only.", type: "text", value: "ghostty-quick-terminal"},
+                    {id: "gtkQuickTerminalNamespace", name: "Quick terminal namespace", note: "Identifier for the quick terminal layer surface. GTK Wayland only.", type: "text", value: "ghostty-quick-terminal", size: 18},
                 ]
             }
         ]
@@ -563,6 +590,7 @@ const settings = [
                     {id: "macosHidden", name: "Hide from dock and switcher", type: "dropdown", value: "never", options: ["never", "always"]},
                     {id: "macosAutoSecureInput", name: "Auto secure input", type: "switch", value: true},
                     {id: "macosSecureInputIndication", name: "Indicate secure input", type: "switch", value: true},
+                    {id: "macosApplescript", name: "Enable AppleScript support", note: "If disabled, all AppleScript interactions with Ghostty are turned off.", type: "switch", value: true},
                     {id: "macosDockDropBehavior", name: "Dock drop behavior", note: "What happens when a file is dropped onto Ghostty's dock icon.", type: "dropdown", value: "new-tab", options: ["new-tab", "new-window"]},
                     {id: "macosShortcuts", name: "macOS shortcuts", note: "Controls whether macOS system shortcuts (e.g. Cmd+Space) can be captured.", type: "dropdown", value: "ask", options: ["allow", "deny", "ask"]},
 
@@ -574,7 +602,7 @@ const settings = [
             {
                 id: "icon",
                 name: "App Icon",
-                note: "If you choose the \"custom-style\" option, you can use any of the other icon settings to customize your icon with a live preview.",
+                note: "If you choose the <code>custom-style</code> option, you can use any of the other icon settings to customize your icon with a live preview.",
                 settings: [
                     {
                         id: "macosIcon",
@@ -593,7 +621,7 @@ const settings = [
                             {value: "custom-style", name: "Custom Style", description: "Customize the icon with colors and frames.", group: "Custom"}
                         ]
                     },
-                    {id: "macosCustomIcon", name: "Icon file", note: "Only used when \"custom\" is selected above.", type: "text", value: ""},
+                    {id: "macosCustomIcon", name: "Icon file", note: "Only used when <code>custom</code> is selected above.", type: "text", value: ""},
                     {
                         id: "macosIconFrame",
                         name: "Icon frame",
@@ -612,6 +640,41 @@ const settings = [
         ]
     },
 ] as Panel[];
+
+
+const kebabToCamel = (key: string) =>
+    key.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+
+const schemaMetadataById = new Map(
+    ghosttySchema
+        .map(setting => [
+            kebabToCamel(setting.key),
+            {
+                platform: setting.platform,
+                since: setting.since,
+                description: setting.description,
+            }
+        ])
+);
+
+// TODO: this is gross, ideally the settings data would be generated from the
+// schema directly instead of having to be merged like this, but this will do for now
+const settings = baseSettings.map((panel) => ({
+    ...panel,
+    groups: panel.groups.map((group) => ({
+        ...group,
+        settings: group.settings.map((setting) => {
+            const metadata = schemaMetadataById.get(setting.id);
+            if (!metadata) return setting;
+            return {
+                ...setting,
+                platform: metadata.platform,
+                since: metadata.since,
+                schemaDescription: metadata.description,
+            };
+        })
+    }))
+})) as Panel[];
 
 
 export default settings;

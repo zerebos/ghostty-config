@@ -653,7 +653,7 @@ const ghosttySchema: GhosttySettingDef[] = [
         default: "never",
         description: "Controls when command finished notifications are sent. Requires shell integration or OSC 133 escape sequences.\n\n- `never` - Never send notifications (default)\n- `unfocused` - Only when the surface is not focused\n- `always` - Always send notifications",
         enum: ["never", "unfocused", "always"],
-        platform: ["gtk"],
+        // platform: ["gtk"],
         since: "1.3.0",
     },
     {
@@ -661,7 +661,7 @@ const ghosttySchema: GhosttySettingDef[] = [
         type: "notify-on-command-finish-action",
         default: "bell",
         description: "How the user is notified when command finished notifications are enabled. Comma-separated list. Prefix with `no-` to disable.\n\nOptions:\n- `bell` - enabled by default\n- `notify` - disabled by default",
-        platform: ["gtk"],
+        // platform: ["gtk"],
         since: "1.3.0",
     },
     {
@@ -669,7 +669,7 @@ const ghosttySchema: GhosttySettingDef[] = [
         type: "duration",
         default: "5s",
         description: "How long a command must have been running before a notification will be sent. Default is 5 seconds. Duration format: numbers followed by time units (y, d, h, m, s, ms, us, ns).",
-        platform: ["gtk"],
+        // platform: ["gtk"],
         since: "1.3.0",
     },
     {
@@ -1077,6 +1077,13 @@ const ghosttySchema: GhosttySettingDef[] = [
         enum: ["context-menu", "paste", "copy", "copy-or-paste", "ignore"],
     },
     {
+        key: "middle-click-action",
+        type: "enum",
+        default: "primary-paste",
+        description: "The action to take when the user middle-clicks on the terminal surface.\n\n- `primary-paste` - Paste from the selection (or system) clipboard per `copy-on-select` (default)\n- `ignore` - Do nothing, ignore the middle click",
+        enum: ["primary-paste", "ignore"],
+    },
+    {
         key: "click-repeat-interval",
         type: "uint",
         default: 0,
@@ -1327,6 +1334,12 @@ const ghosttySchema: GhosttySettingDef[] = [
         default: true,
         description: "If true (default), applications running in the terminal can show desktop notifications using certain escape sequences such as OSC 9 or OSC 777.",
     },
+    {
+        key: "progress-style",
+        type: "bool",
+        default: true,
+        description: "If true (default), applications running in the terminal can show graphical progress bars using the ConEmu OSC 9;4 escape sequence. If false, progress bar sequences are silently ignored.",
+    },
 
     // =========================================================================
     // BOLD COLOR
@@ -1461,6 +1474,13 @@ const ghosttySchema: GhosttySettingDef[] = [
         type: "bool",
         default: true,
         description: "If true, Ghostty will show a graphical indication when secure input is enabled.",
+        platform: ["macos"],
+    },
+    {
+        key: "macos-applescript",
+        type: "bool",
+        default: true,
+        description: "If true (default), Ghostty exposes and handles the built-in AppleScript dictionary on macOS. If false, all AppleScript interactions are disabled, including AppleScript commands and object lookup for windows, tabs, and terminals.",
         platform: ["macos"],
     },
     {

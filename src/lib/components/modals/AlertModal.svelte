@@ -105,6 +105,7 @@
 
 .alert-header h3 {
     margin: 0 0 8px;
+    text-align: center;
 }
 
 .alert-body {

@@ -8,7 +8,7 @@
     import Separator from "$lib/components/settings/Separator.svelte";
 
     import settings from "$lib/data/settings";
-    import config from "$lib/stores/config.svelte";
+    import config, {isNonDefault, resetSetting} from "$lib/stores/config.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
@@ -22,6 +22,7 @@
     import AppIconPreview from "$lib/views/AppIconPreview.svelte";
     import type {HexColor} from "$lib/utils/colors";
     import {resolve} from "$app/paths";
+    import {success} from "$lib/stores/toasts.svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -53,11 +54,24 @@
                 {/if}
                 {#each group.settings as setting, i (setting.id)}
                     {#if i !== 0}<Separator />{/if}
-                    <Item name={setting.name} note={setting.note}>
+                    <Item
+                        settingId={setting.id}
+                        name={setting.name}
+                        note={setting.note}
+                        // filter out the current platform from the badge list since it's already obvious from the UI
+                        platform={setting.platform?.filter(p => p !== title?.toLowerCase())}
+                        since={setting.since}
+                        schemaDescription={setting.type !== "palette" ? setting.schemaDescription : undefined}
+                        isNonDefault={isNonDefault(setting.id as keyof typeof config)}
+                        onReset={() => {
+                            resetSetting(setting.id as keyof typeof config);
+                            success(`${setting.name} reset to default`);
+                        }}
+                    >
                         {#if setting.type === "switch"}
                             <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
                         {:else if setting.type === "text"}
-                            <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} />
+                            <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} size={setting.size} />
                         {:else if setting.type === "number"}
                             <Number bind:value={config[setting.id as keyof typeof config] as number} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}

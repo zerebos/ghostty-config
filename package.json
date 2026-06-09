@@ -1,6 +1,6 @@
 {
     "name": "ghostty-config",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "A beautiful config generator for Ghostty terminal.",
     "author": "Zerebos",
     "repository": {
@@ -16,7 +16,9 @@
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "test": "vitest run . --reporter=verbose",
         "lint": "eslint .",
-        "format": "prettier --write . && eslint . --fix"
+        "format": "prettier --write . && eslint . --fix",
+        "wrangler:dev": "bun run build && wrangler dev",
+        "wrangler:types": "wrangler types"
     },
     "devDependencies": {
         "@sveltejs/adapter-auto": "^7.0.1",
@@ -36,10 +38,12 @@
         "svelte-check": "^4.4.3",
         "typescript": "^5.9.3",
         "vite": "^7.3.1",
-        "vitest": "^4.0.18"
+        "vitest": "^4.0.18",
+        "wrangler": "^4.98.0"
     },
     "type": "module",
     "dependencies": {
-        "@fontsource-variable/inter": "^5.2.8"
+        "@fontsource-variable/inter": "^5.2.8",
+        "marked": "^18.0.4"
     }
 }

@@ -23,7 +23,7 @@
         border: 1px solid var(--border-level-1);
         box-shadow:
             0 0 20px -1px rgba(0,0,0,0.7),
-            -0.5px 0 1px white inset;
+            0px 0 1px white inset;
         position: relative;
         z-index: 1;
         transform-origin: center bottom;
