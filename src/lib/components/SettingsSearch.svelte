@@ -37,13 +37,21 @@
         return resolve("/settings/[category]", {category: result.categoryId});
     }
 
-    function activateSearchResult(event: MouseEvent | KeyboardEvent, result: SearchResult): void {
+    function activateSearchResult(event: MouseEvent | KeyboardEvent, result: SearchResult & {index?: number}): void {
+        const isModifiedClick = event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1);
+        if (isModifiedClick) return;
+
         const href = getSearchResultHref(result);
         const isSamePage = location.pathname === href;
 
         // If clicking on the already selected search result, retrigger the scroll and highlight effect by clearing and re-setting the selectedId
         if (isSamePage && searchState.selectedId === result.settingId) searchState.selectedId = "";
         searchState.selectedId = result.settingId;
+
+        if (result.index !== undefined) {
+            searchState.selectedIndex = -1;
+            searchState.activeIndex = result.index;
+        }
 
         // Don't navigate if we're already on the page, just set the selectedId so the item can scroll into view and highlight
         if (isSamePage) return event.preventDefault();
@@ -85,7 +93,7 @@
 
         if (event.key === "Enter" && searchState.selectedIndex >= 0) {
             event.preventDefault();
-            activateSearchResult(event, getResults()[searchState.selectedIndex]);
+            activateSearchResult(event, {...getResults()[searchState.selectedIndex], index: searchState.selectedIndex});
             return;
         }
 
@@ -199,8 +207,6 @@
                                     aria-selected={result.index === searchState.selectedIndex}
                                     onclick={(event) => {
                                         activateSearchResult(event, result);
-                                        searchState.selectedIndex = -1;
-                                        searchState.activeIndex = result.index;
                                     }}
                                 >
                                     <span class="search-result-name">

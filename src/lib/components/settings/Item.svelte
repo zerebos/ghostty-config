@@ -84,7 +84,10 @@
     data-setting-id={settingId || undefined}
     bind:this={itemElement}
     class:flash-highlight={shouldHighlight}
-    onanimationend={() => shouldHighlight = false}
+    onanimationend={() => {
+        shouldHighlight = false;
+        if (searchState.selectedId === settingId) searchState.selectedId = "";
+    }}
 >
     <div class="row">
         {#if name}

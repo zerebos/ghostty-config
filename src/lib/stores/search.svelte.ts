@@ -91,7 +91,7 @@ const stripHtmlRegex = (html: string) => html.replace(/<[^>]*>/g, "");
 // TODO: this is pretty inefficient, we should probably build an index for this instead
 // of doing a linear search through all settings every time. However, it is unlikely that
 // there will be enough settings to cause performance issues, so this is good enough for now.
-const searchableSettings = $derived.by(() => {
+const searchableSettings = (() => {
     const results: SearchResult[] = [];
     for (const category of settings) {
         for (const group of category.groups) {
@@ -113,7 +113,7 @@ const searchableSettings = $derived.by(() => {
         }
     }
     return results;
-});
+})();
 
 
 export interface HighlightPart {
