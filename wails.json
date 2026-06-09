@@ -1,0 +1,24 @@
+{
+    "$schema": "https://wails.io/schemas/config.v2.json",
+    "name": "Ghostty Config",
+    "outputfilename": "ghostty-config",
+    "frontend:dir": ".",
+    "frontend:install": "bun install",
+    "frontend:build": "bun run build:desktop",
+    "frontend:dev:watcher": "bun run dev:desktop",
+    "frontend:dev:serverUrl": "auto",
+    "wailsjsdir": "./bindings",
+    "bindings": {
+        "ts_generation": {
+            "outputType": "interfaces"
+        }
+    },
+    "info": {
+        "companyName": "Zerebos",
+        "productName": "Ghostty Config",
+        "productVersion": "0.2.0",
+        "copyright": "Copyright © 2024 Zerebos",
+        "comments": "A beautiful config generator for Ghostty terminal."
+    },
+    "version": "2"
+}

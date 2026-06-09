@@ -5,6 +5,8 @@
     import {diff, load, keyToConfig} from "$lib/stores/config.svelte";
     import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
+    import {DESKTOP, readGhosttyConfig, writeGhosttyConfig, getGhosttyConfigPath} from "$lib/wails";
+
     import {
         buildShareUrl,
         decodeConfig,
@@ -15,6 +17,7 @@
     } from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
+    import ActionMenu from "$lib/components/ActionMenu.svelte";
     import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
@@ -25,17 +28,59 @@
     let pasteConfigText = $state("Clipboard");
     let copyConfigText = $state("Clipboard");
 
+    let configPath = $state("");
+    let readConfigText = $state("Load from disk");
+    let writeConfigText = $state("Save to disk");
+
     let sharedConfigPreview = $state<string | null>(null);
     let sharedConfigParsed = $state<Record<string, string | string[]> | null>(null);
     let sharedConfigParseError = $state(false);
     let showSharedConfigModal = $state(false);
 
+    // DESKTOP is a build-time constant; the `if` body is tree-shaken out of
+    // the web bundle entirely when building with the default Vite mode.
+    onMount(async () => {
+        if (DESKTOP) {
+            try {
+                configPath = await getGhosttyConfigPath();
+            }
+            catch (err) {
+                // eslint-disable-next-line no-console
+                console.error("Could not resolve Ghostty config path:", err);
+                configPath = "~/.config/ghostty/config";
+            }
+        }
+    });
+
+
     let showShareComposer = $state(false);
     let shareUrl = $state<string | null>(null);
     let isShareTooLong = $state(false);
+    let showImportActionsMenu = $state(false);
+    let showExportActionsMenu = $state(false);
 
     const currentConfigDiff = $derived(diff());
     const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
+
+    const importMenuItems = $derived([
+        {
+            label: "Import file...",
+            onclick: openFilePicker
+        }
+    ]);
+
+    const exportMenuItems = $derived([
+        {
+            label: "Download file...",
+            onclick: downloadConfig,
+            disabled: !hasExportableConfig
+        },
+        {
+            label: "Share link...",
+            onclick: openShareComposer,
+            disabled: !hasExportableConfig
+        }
+    ]);
 
     onMount(() => {
         maybeShowSharedConfigFromHash();
@@ -145,6 +190,24 @@
         reader.readAsText(file);
     }
 
+    async function loadFromDisk() {
+        if (readConfigText === "Loaded!") return;
+
+        try {
+            const text = await readGhosttyConfig();
+            readConfigText = "Loaded!";
+            setTimeout(() => (readConfigText = "Load from disk"), 3000);
+            if (!text) return;
+            const loaded = await loadConfig(text);
+            if (loaded) success("Config loaded from disk");
+        }
+        catch (err) {
+            // eslint-disable-next-line no-console
+            console.error(err);
+            error("Could not read Ghostty config from disk. Please open an issue on GitHub!");
+        }
+    }
+
     // Move to module
     function stringifyConfig(includeHeader = true) {
         const config = currentConfigDiff;
@@ -187,7 +250,10 @@
 
         const config = stringifyConfig(false);
         const encoded = encodeConfig(config);
-        const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
+        const shareOrigin = typeof import.meta.env.VITE_APP_ORIGIN === "string" && import.meta.env.VITE_APP_ORIGIN.length > 0
+            ? import.meta.env.VITE_APP_ORIGIN
+            : window.location.origin;
+        const nextShareUrl = buildShareUrl(shareOrigin, window.location.pathname, encoded);
 
         isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
         shareUrl = isShareTooLong ? null : nextShareUrl;
@@ -246,12 +312,67 @@
 
     function handleWindowKeydown(e: KeyboardEvent) {
         if (e.key !== "Escape") return;
-        if (showShareComposer) closeShareComposer();
-        else if (showSharedConfigModal) closeSharedConfigModal();
+        if (showImportActionsMenu || showExportActionsMenu) {
+            showImportActionsMenu = false;
+            showExportActionsMenu = false;
+        }
+        else if (showShareComposer) {
+            closeShareComposer();
+        }
+        else if (showSharedConfigModal) {
+            closeSharedConfigModal();
+        }
+    }
+
+    function handleWindowPointerDown(e: PointerEvent) {
+        const target = e.target;
+        if (!(target instanceof Node)) return;
+
+        // Check if click is outside any action menu wrapper
+        const actionMenuWrappers = document.querySelectorAll(".action-menu-wrapper");
+        let clickedInMenu = false;
+
+        for (const wrapper of actionMenuWrappers) {
+            if (wrapper.contains(target)) {
+                clickedInMenu = true;
+                break;
+            }
+        }
+
+        if (!clickedInMenu) {
+            showImportActionsMenu = false;
+            showExportActionsMenu = false;
+        }
+    }
+
+    function toggleImportActionsMenu() {
+        showImportActionsMenu = !showImportActionsMenu;
+        showExportActionsMenu = false;
+    }
+
+    function toggleExportActionsMenu() {
+        showExportActionsMenu = !showExportActionsMenu;
+        showImportActionsMenu = false;
+    }
+
+    async function saveToDisk() {
+        if (writeConfigText === "Saved!") return;
+
+        try {
+            await writeGhosttyConfig(stringifyConfig());
+            writeConfigText = "Saved!";
+            success("Config saved to disk");
+            setTimeout(() => (writeConfigText = "Save to disk"), 3000);
+        }
+        catch (err) {
+            // eslint-disable-next-line no-console
+            console.error(err);
+            error("Could not save Ghostty config to disk. Please open an issue on GitHub!");
+        }
     }
 </script>
 
-<svelte:window onkeydown={handleWindowKeydown} />
+<svelte:window onkeydown={handleWindowKeydown} onpointerdown={handleWindowPointerDown} />
 
 <Page title="Import & Export">
     <Group flex={1}>
@@ -280,7 +401,19 @@
             <div class="button-group">
                 <Button onclick={pasteConfig} title="Paste">{pasteConfigText}</Button>
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <Button onclick={openFilePicker} title="Upload">File...</Button>
+                {#if DESKTOP}
+                    <Button primary onclick={loadFromDisk} title="Load from Ghostty config on disk">{readConfigText}</Button>
+                    <ActionMenu
+                        items={importMenuItems}
+                        visible={showImportActionsMenu}
+                        onToggle={toggleImportActionsMenu}
+                        buttonLabel="More..."
+                        buttonTitle="More import options"
+                        menuAriaLabel="More import options"
+                    />
+                {:else}
+                    <Button onclick={openFilePicker} title="Import from file">Import file...</Button>
+                {/if}
             </div>
         </Item>
         <Separator />
@@ -291,19 +424,38 @@
                     title={hasExportableConfig ? "Copy" : "No changes yet!"}
                     disabled={!hasExportableConfig}
                 >{copyConfigText}</Button>
-                <Button
-                    onclick={downloadConfig}
-                    title={hasExportableConfig ? "Download" : "No changes yet!"}
-                    disabled={!hasExportableConfig}
-                >File...</Button>
-                <Button
-                    primary
-                    onclick={openShareComposer}
-                    title={hasExportableConfig ? "Share your config" : "No changes yet!"}
-                    disabled={!hasExportableConfig}
-                >Share...</Button>
+                {#if DESKTOP}
+                    <Button primary onclick={saveToDisk} title="Save directly to Ghostty config on disk">{writeConfigText}</Button>
+                    <ActionMenu
+                        items={exportMenuItems}
+                        visible={showExportActionsMenu}
+                        onToggle={toggleExportActionsMenu}
+                        buttonLabel="More..."
+                        buttonTitle={hasExportableConfig ? "More export options" : "No changes yet!"}
+                        buttonDisabled={!hasExportableConfig}
+                        menuAriaLabel="More export options"
+                    />
+                {:else}
+                    <Button
+                        onclick={downloadConfig}
+                        title={hasExportableConfig ? "Download" : "No changes yet!"}
+                        disabled={!hasExportableConfig}
+                    >Download</Button>
+                    <Button
+                        primary
+                        onclick={openShareComposer}
+                        title={hasExportableConfig ? "Share your config" : "No changes yet!"}
+                        disabled={!hasExportableConfig}
+                    >Share</Button>
+                {/if}
             </div>
         </Item>
+        {#if DESKTOP && configPath}
+            <Separator />
+            <Item name="Config path">
+                <span class="config-path">{configPath}</span>
+            </Item>
+        {/if}
     </Group>
 </Page>
 
@@ -378,6 +530,17 @@
 .button-group {
     display: flex;
     gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+
+
+.config-path {
+    font-family: var(--font-family-mono);
+    font-size: 0.9em;
+    color: var(--font-color-muted);
+    user-select: text;
 }
 
 </style>
