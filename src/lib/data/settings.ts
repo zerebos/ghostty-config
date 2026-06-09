@@ -200,6 +200,15 @@ const baseSettings = [
                 ]
             },
             {
+                id: "notifications",
+                name: "Command Notifications",
+                settings: [
+                    {id: "notifyOnCommandFinish", name: "Notify on command finish", note: "Requires shell integration or OSC 133 escape sequences.", type: "dropdown", value: "never", options: ["never", "unfocused", "always"]},
+                    {id: "notifyOnCommandFinishAction", name: "Notification action", note: "How the user is notified. Comma-separated list. Available: bell, notify. Prefix with <code>no-</code> to disable.", type: "text", value: "bell"},
+                    {id: "notifyOnCommandFinishAfter", name: "Minimum runtime before notifying", note: "How long a command must run before a notification is sent. Format like <code>5s</code>, <code>500ms</code>.", type: "text", value: "5s"},
+                ]
+            },
+            {
                 id: "quick",
                 name: "Quick Terminal",
                 settings: [
@@ -226,6 +235,7 @@ const baseSettings = [
                     {id: "oscColorReportFormat", name: "OSC color report format", type: "dropdown", value: "16-bit", options: ["none", "8-bit", "16-bit"]},
                     {id: "vtKamAllowed", name: "VT kam mode allowed", note: "If you don't know what this is, don't touch it!", type: "switch", value: false},
                     {id: "imageStorageLimit", name: "Image buffer limit (bytes)", type: "number", value: 320000000, min: 0, max: 4294967295, size: 12},
+                    {id: "progressStyle", name: "Show progress bars (OSC 9;4)", note: "Allows applications to show graphical progress bars via the ConEmu OSC 9;4 escape sequence.", type: "switch", value: true},
                 ]
             },
             {
@@ -362,6 +372,16 @@ const baseSettings = [
                 ]
             },
             {
+                id: "search",
+                name: "Search Colors",
+                settings: [
+                    {id: "searchForeground", name: "Search match foreground", note: "Foreground color for non-focused (candidate) search matches. Also accepts `cell-foreground` or `cell-background`.", type: "color", value: ""},
+                    {id: "searchBackground", name: "Search match background", note: "Background color for non-focused (candidate) search matches. Defaults to golden yellow (#ffe082). Also accepts `cell-foreground` or `cell-background`.", type: "color", value: ""},
+                    {id: "searchSelectedForeground", name: "Selected match foreground", note: "Foreground color for the active/focused search match.", type: "color", value: ""},
+                    {id: "searchSelectedBackground", name: "Selected match background", note: "Background color for the active/focused search match. Defaults to soft peach (#f2a57e).", type: "color", value: ""},
+                ]
+            },
+            {
                 id: "cursor",
                 name: "Cursor",
                 note: "The cursor in this preview blinks on and off at 1 second intervals for emphasis, it may not match what you see in Ghostty!",
@@ -487,6 +507,7 @@ const baseSettings = [
                     // Technically the values should be min: 0.01, max: 10000, step: 0.01 but those are insane so instead I'll use sane defaults
                     {id: "mouseScrollMultiplier", name: "Mouse scroll multiplier", type: "number", range: true, value: 3, min: 0.1, max: 10, step: 0.1},
                     {id: "rightClickAction", name: "Right-click action", type: "dropdown", value: "context-menu", options: ["context-menu", "copy-or-paste", "copy", "paste", "ignore"]},
+                    {id: "middleClickAction", name: "Middle-click action", type: "dropdown", value: "primary-paste", options: ["primary-paste", "ignore"]},
                     {id: "focusFollowsMouse", name: "Focus splits on mouse move", type: "switch", value: false},
                     {id: "clickRepeatInterval", name: "Milliseconds between multi-click", note: "A value of 0 means to use the operating system's default timing.", type: "number", value: 0, min: 0, size: 4},
                 ]
@@ -501,6 +522,7 @@ const baseSettings = [
                 id: "main",
                 name: "",
                 settings: [
+                    {id: "language", name: "UI language", note: "Set Ghostty's GTK GUI language (e.g. <code>de</code>, <code>fr</code>). Requires a full restart. GTK only.", type: "text", value: ""},
                     {id: "class", name: "WM_CLASS class field", note: "This defaults to <code>com.mitchellh.ghostty</code>", type: "text", value: ""},
                     {id: "x11InstanceName", name: "WM_CLASS instance name", note: "This defaults to <code>ghostty</code>", type: "text", value: ""},
                     {id: "gtkSingleInstance", name: "Single-instance mode", type: "dropdown", value: "detect", options: ["detect", "true", "false"]},
@@ -559,6 +581,7 @@ const baseSettings = [
                     {id: "macosHidden", name: "Hide from dock and switcher", type: "dropdown", value: "never", options: ["never", "always"]},
                     {id: "macosAutoSecureInput", name: "Auto secure input", type: "switch", value: true},
                     {id: "macosSecureInputIndication", name: "Indicate secure input", type: "switch", value: true},
+                    {id: "macosApplescript", name: "Enable AppleScript support", note: "If disabled, all AppleScript interactions with Ghostty are turned off.", type: "switch", value: true},
                     {id: "macosDockDropBehavior", name: "Dock drop behavior", note: "What happens when a file is dropped onto Ghostty's dock icon.", type: "dropdown", value: "new-tab", options: ["new-tab", "new-window"]},
                     {id: "macosShortcuts", name: "macOS shortcuts", note: "Controls whether macOS system shortcuts (e.g. Cmd+Space) can be captured.", type: "dropdown", value: "ask", options: ["allow", "deny", "ask"]},
 
