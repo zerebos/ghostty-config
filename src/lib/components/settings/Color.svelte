@@ -3,6 +3,7 @@
     import {luminosity, isDark, type HexColor} from "$lib/utils/colors";
     import ColorPicker from "$lib/components/ColorPicker.svelte";
     import {success} from "$lib/stores/toasts.svelte";
+    import {msg, t} from "$lib/i18n.svelte";
 
     // eslint-disable-next-line prefer-const
     let {value = $bindable(), size = 20, label = "", defaultValue}: {value: HexColor, size?: number, label?: string, defaultValue?: HexColor} = $props();
@@ -21,7 +22,7 @@
         event.stopPropagation();
         if (defaultValue !== undefined) {
             value = defaultValue;
-            success("Color reset to default");
+            success(msg("Color reset to default", "颜色已恢复默认值"));
         }
     }
 
@@ -43,7 +44,7 @@
 <div class="shadow" onclick={click} transition:fade={{duration: 200}} role="none"></div>
 <div class="picker-container" transition:fly={{y: 32, duration: 200}}>
     <ColorPicker bind:value />
-    <button class="close" onclick={click} type="button" title="Close"><span>×</span></button>
+    <button class="close" onclick={click} type="button" title={t("Close")}><span>×</span></button>
 </div>
 {/if}
 

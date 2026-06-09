@@ -1,21 +1,23 @@
 <script lang="ts">
     import {page} from "$app/state";
     import logo from "$lib/images/avatar.webp";
+    import {appName, t} from "$lib/i18n.svelte";
 
-    const {route = "/", name = "Ghostty Config"} = $props();
+    const {route = "/", name}: {route?: string, name?: string} = $props();
     const path = $derived(page.url.pathname);
 
     const selected = $derived(path === route);
+    const displayName = $derived(name ?? appName());
 </script>
 
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 <a href={route} class="user-tab" class:selected>
     <div class="user-avatar">
-        <img src={logo} alt="Ghostty Config Logo" />
+        <img src={logo} alt={t("Ghostty Config Logo")} />
     </div>
     <div class="user-label">
-        <div class="user-name">{name}</div>
-        <div class="user-subtext">by @zerebos</div>
+        <div class="user-name">{displayName}</div>
+        <div class="user-subtext">{t("by")} @zerebos</div>
     </div>
 </a>
 
