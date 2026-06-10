@@ -467,34 +467,34 @@ function validateAction(action: string, args: string | undefined) {
         return [`'${action}' does not take arguments`];
     }
     if (definition.type === "free") {
-        if (args === undefined) {
+        if (args === undefined || args.trim() === "") {
             if (definition.allowEmpty) return [];
             return [`'${action}' requires arguments`];
         }
         return [];
     }
     if (definition.type === "text") {
-        if (args === undefined) return [`'${action}' requires text argument (Zig string literal)`];
+        if (args === undefined || args.trim() === "") return [`'${action}' requires text argument (Zig string literal)`];
         return [];
     }
     if (definition.type === "number") {
-        if (args === undefined) return [`'${action}' requires a numeric argument`];
+        if (args === undefined || args.trim() === "") return [`'${action}' requires a numeric argument`];
         if (!Number.isNaN(Number(args))) return [];
         return [`'${action}' expects a number, got '${args}'`];
     }
     if (definition.type === "integer") {
-        if (args === undefined) return [`'${action}' requires an integer argument`];
+        if (args === undefined || args.trim() === "") return [`'${action}' requires an integer argument`];
         if (!Number.isNaN(Number(args)) && Number(args) % 1 === 0) return [];
         return [`'${action}' expects an integer, got '${args}'`];
     }
     if (definition.type === "unsignedInteger") {
-        if (args === undefined) return [`'${action}' requires a non-negative integer argument`];
+        if (args === undefined || args.trim() === "") return [`'${action}' requires a non-negative integer argument`];
         const value = Number(args);
         if (!Number.isNaN(value) && value % 1 === 0 && value >= 0) return [];
         return [`'${action}' expects a non-negative integer, got '${args}'`];
     }
     if (definition.type === "enum") {
-        if (args === undefined) {
+        if (args === undefined || args.trim() === "") {
             if (definition.allowEmpty) return [];
             return [`'${action}' requires one of [${definition.options?.join(", ")}].`];
         }
@@ -504,7 +504,7 @@ function validateAction(action: string, args: string | undefined) {
         return [];
     }
     if (definition.type === "resize") {
-        if (args === undefined) return [`'${action}' expects 'direction,offset'`];
+        if (args === undefined || args.trim() === "") return [`'${action}' expects 'direction,offset'`];
         const parts = args.split(",").map((segment) => segment.trim());
         if (parts.length !== 2) return [`'${action}' expects 'direction,offset'`];
         const [dir, amount] = parts;
@@ -512,7 +512,7 @@ function validateAction(action: string, args: string | undefined) {
             return [`'${action}' direction must be ${resizeDirectionOptions.join(", ")}`];
         }
         const offset = Number(amount);
-        if (Number.isNaN(offset) || offset % 1 !== 0 || offset < 0) {
+        if (amount.trim() === "" || Number.isNaN(offset) || offset % 1 !== 0 || offset < 0) {
             return [`'${action}' requires a non-negative integer offset`];
         }
         return [];

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {toRoot} from "$lib/attachments/portal";
     import {fly, scale} from "svelte/transition";
 
     type DropdownOptionInput =
@@ -224,17 +225,17 @@
     });
 
     // Teleport menu to body to avoid overflow issues
-    $effect(() => {
-        if (!isOpen || !menuEl) return;
+    // $effect(() => {
+    //     if (!isOpen || !menuEl) return;
 
-        document.body.appendChild(menuEl);
+    //     document.body.appendChild(menuEl);
 
-        return () => {
-            if (menuEl && document.body.contains(menuEl)) {
-                document.body.removeChild(menuEl);
-            }
-        };
-    });
+    //     return () => {
+    //         if (menuEl && document.body.contains(menuEl)) {
+    //             document.body.removeChild(menuEl);
+    //         }
+    //     };
+    // });
 
     // Positioning logic
     $effect(() => {
@@ -404,6 +405,7 @@
             style:min-width="{menuPosition.minWidth}px"
             onkeydown={handleMenuKeydown}
             transition:fly={{y: -6, duration: 120}}
+            {@attach toRoot}
         >
             {#if searchable}
                 <div class="search-row" transition:scale={{duration: 80}}>
