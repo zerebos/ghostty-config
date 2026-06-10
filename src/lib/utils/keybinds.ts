@@ -467,14 +467,14 @@ function validateAction(action: string, args: string | undefined) {
         return [`'${action}' does not take arguments`];
     }
     if (definition.type === "free") {
-        if (args === undefined || args.trim() === "") {
+        if (args === undefined) {
             if (definition.allowEmpty) return [];
             return [`'${action}' requires arguments`];
         }
         return [];
     }
     if (definition.type === "text") {
-        if (args === undefined || args.trim() === "") return [`'${action}' requires text argument (Zig string literal)`];
+        if (args === undefined) return [`'${action}' requires text argument (Zig string literal)`];
         return [];
     }
     if (definition.type === "number") {
@@ -494,7 +494,7 @@ function validateAction(action: string, args: string | undefined) {
         return [`'${action}' expects a non-negative integer, got '${args}'`];
     }
     if (definition.type === "enum") {
-        if (args === undefined || args.trim() === "") {
+        if (args === undefined) {
             if (definition.allowEmpty) return [];
             return [`'${action}' requires one of [${definition.options?.join(", ")}].`];
         }
@@ -504,7 +504,7 @@ function validateAction(action: string, args: string | undefined) {
         return [];
     }
     if (definition.type === "resize") {
-        if (args === undefined || args.trim() === "") return [`'${action}' expects 'direction,offset'`];
+        if (args === undefined) return [`'${action}' expects 'direction,offset'`];
         const parts = args.split(",").map((segment) => segment.trim());
         if (parts.length !== 2) return [`'${action}' expects 'direction,offset'`];
         const [dir, amount] = parts;
