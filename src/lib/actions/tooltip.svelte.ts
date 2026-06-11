@@ -136,13 +136,16 @@ export const tooltip: Action<HTMLElement, TooltipOptions> = (element, options) =
 interface RelativeTooltipOptions {
     text: string;
     relativeTarget?: HTMLElement;
+    numeric?: boolean;
+    offsetX?: number;
+    offsetY?: number;
 }
 
 export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (element, options) => {
     const tooltipProps = $state({text: options.text});
 
     const container = document.createElement("div");
-    container.style.cssText = `
+    let cssText = `
         position: fixed;
         transform: translate(-50%, -100%);
         z-index: 1000;
@@ -151,6 +154,10 @@ export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (ele
         padding-bottom: 8px;
     `;
 
+    if (options.numeric) cssText += `font-variant-numeric: tabular-nums;`;
+
+    container.style.cssText = cssText;
+
     let component: Tooltip | null = null;
 
     // let showTimer: ReturnType<typeof setTimeout>;
@@ -158,8 +165,8 @@ export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (ele
 
     const updatePosition = () => {
         const rect = (options.relativeTarget || element).getBoundingClientRect();
-        container.style.left = `${rect.left + rect.width / 2}px`;
-        container.style.top = `${rect.top}px`;
+        container.style.left = `${rect.left + rect.width / 2 + (options.offsetX || 0)}px`;
+        container.style.top = `${rect.top + (options.offsetY || 0)}px`;
     };
 
     const show = () => {

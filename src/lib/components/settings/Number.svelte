@@ -1,6 +1,5 @@
 <script lang="ts">
     import Range from "./Range.svelte";
-    import Slider from "./Slider.svelte";
 
     type Props = {
         value: number | undefined;
@@ -17,7 +16,6 @@
     // eslint-disable-next-line prefer-const
     let {value = $bindable(), min, max, step = 1, size, range, placeholder, integer = true}: Props = $props();
 
-    const inputType = $derived(range ? "range" : "text");
 
     const wasInitiallyUndefined = value === undefined;
 
@@ -49,15 +47,6 @@
 
     // Determine if we should enforce integer values based on props
     const isActuallyInteger = $derived.by(() => integer && isDetectedAsInteger);
-
-    // Calculate the number of decimal places to show based on step, min, and max
-    const numDecimalPlaces = $derived.by(() => {
-        if (isDetectedAsInteger) return 0;
-        const stepDecimalPlaces = step.toString().split(".")[1]?.length ?? 0;
-        const minDecimalPlaces = min?.toString().split(".")[1]?.length ?? 0;
-        const maxDecimalPlaces = max?.toString().split(".")[1]?.length ?? 0;
-        return Math.max(stepDecimalPlaces, minDecimalPlaces, maxDecimalPlaces);
-    });
 
     $effect(() => {
         if (!size && !range) {
@@ -146,10 +135,7 @@
 
 <div class="input-wrapper">
     {#if range}
-        <!-- <div class="label">{value?.toFixed?.(numDecimalPlaces)}</div> -->
-        <!-- <input type={inputType} bind:value {min} {max} {step} /> -->
-         <Range bind:value {min} {max} {step} />
-          <!-- <Slider bind:value {min} {max} {step} /> -->
+        <Range bind:value min={min ?? 0} max={max ?? 1} step={step ?? 0.1} />
     {:else}
         <div class="number-input">
             <input
@@ -178,11 +164,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 150px;
-}
-
-.label {
-    font-variant-numeric: tabular-nums;
 }
 
 .number-input {
@@ -250,35 +231,5 @@
 
 .stepper:hover svg {
     opacity: 1;
-}
-
-
-
-/* Range slider styles */
-input[type="range"] {
-   border: 0;
-   height: 5px;
-   background-color: var(--bg-separator);
-   border-radius: var(--radius-level-5);
-   cursor: pointer;
-}
-
-input[type="range"]::-moz-range-progress {
-   background-color: var(--color-input-accent);
-   border-radius: 5px;
-   height: 5px;
-   width: 100%;
-}
-
-input[type="range"]::-moz-range-thumb {
-   margin-top: -10px;
-   background-color: #98949B;
-   border-radius: 12px;
-   height: 20px;
-   width: 8px;
-}
-
-input[type="range"]:focus::-moz-range-thumb {
-    background-color: hsl(from #98949B h s calc(l + 10));
 }
 </style>

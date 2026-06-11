@@ -1,40 +1,35 @@
 <script lang="ts">
     import {relativeTooltip} from "$lib/actions/tooltip.svelte";
-    import {createFooltipAttachment} from "$lib/attachments/fooltip.svelte";
+    import {countDecimalPlaces} from "$lib/utils/numbers";
 
-    let {
-        min = 0,
-        max = 100,
-        step = 1,
-        value = $bindable(50)
-    }: {
-        min?: number;
-        max?: number;
+    interface RangeProps {
+        min: number;
+        max: number;
         step?: number;
-        value?: number;
-    } = $props();
+        value: number;
+    }
 
-    let track: HTMLDivElement = $state();
-    let tracktrack: HTMLDivElement = $state();
-    let fill: HTMLDivElement = $state();
-    let thumb: HTMLDivElement = $state();
+    // why is eslint like this smh
+    // eslint-disable-next-line prefer-const
+    let {value = $bindable(), min, max, step = 1}: RangeProps = $props();
 
-    const percentage = $derived(
-        ((value - min) / (max - min)) * 100
-    );
+    // html refs
+    let track: HTMLDivElement | undefined = $state();
+    let thumb: HTMLDivElement | undefined = $state();
 
+    // Calculate the percentage position of the thumb based on the current value
+    const percentage = $derived(((value - min) / (max - min)) * 100);
+
+    // Calculate the number of decimal places to show based on step, min, and max
+    const maxDecimalPlaces = $derived(Math.max(countDecimalPlaces(min), countDecimalPlaces(max), countDecimalPlaces(step)));
+
+    // Set the value based on a pointer event's clientX position relative to the track
     function setValue(clientX: number) {
         if (!track) return;
 
         const rect = track.getBoundingClientRect();
-
-        const raw =
-            ((clientX - rect.left) / rect.width) *
-                (max - min) +
-            min;
-
-        const stepped =
-            Math.round(raw / step) * step;
+        const raw = ((clientX - rect.left) / rect.width) * (max - min) + min;
+        const stepped = Math.round(raw / step) * step;
 
         value = Math.min(
             max,
@@ -42,38 +37,7 @@
         );
     }
 
-    function startDrag(e: PointerEvent) {
-        setValue(e.clientX);
-        e.target.setPointerCapture(e.pointerId);
-        console.log(e.target);
-
-        const move = (e: PointerEvent) =>
-            setValue(e.clientX);
-
-        const up = (ee: PointerEvent) => {
-            ee.target.releasePointerCapture(ee.pointerId);
-            window.removeEventListener(
-                "pointermove",
-                move
-            );
-
-            window.removeEventListener(
-                "pointerup",
-                up
-            );
-        };
-
-        window.addEventListener(
-            "pointermove",
-            move
-        );
-
-        window.addEventListener(
-            "pointerup",
-            up
-        );
-    }
-
+    // Pointer event handlers for dragging the thumb
     let dragging = $state(false);
     function onPointerDown(e: PointerEvent) {
         if (e.button !== 0) return;
@@ -92,14 +56,9 @@
         dragging = false;
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     }
-
-    // const fooltip = createFooltipAttachment(() => value.toString());
-    let forceShow = $state(false);
-    const sliderId = `slider-${Math.random().toString(36).slice(2)}`;
 </script>
 
 <div
-    id={sliderId}
     class="slider"
     role="slider"
     tabindex="0"
@@ -111,25 +70,20 @@
     onpointermove={onPointerMove}
     onpointerup={onPointerUp}
     onpointercancel={onPointerUp}
-    use:relativeTooltip={{ text: Number.isInteger(step) ? value.toString() : value.toFixed(2), relativeTarget: thumb }}
-    // onmouseenter={() => forceShow = true}
-    // onmouseleave={() => forceShow = false}
+    use:relativeTooltip={{
+        text: Number.isInteger(step) ? value.toString() : value.toFixed(maxDecimalPlaces),
+        relativeTarget: thumb,
+        numeric: true,
+        offsetY: -4
+    }}
 >
-    <div class="track" bind:this={tracktrack}></div>
-
-    <div
-        class="fill"
-        style:width={`${percentage}%`}
-        bind:this={fill}
-    ></div>
+    <div class="track"></div>
 
     <div
         class="thumb"
         class:dragging
         style:left={`${percentage}%`}
         bind:this={thumb}
-        // use:createFooltipAttachment={value.toString()}
-        // {@attach fooltip}
     ></div>
 </div>
 
@@ -142,56 +96,57 @@
     align-items: center;
     cursor: pointer;
     touch-action: none;
-    width: 200px;
+    width: 169px;
+    margin: 0 3px;
 }
 
 .track {
     position: absolute;
     width: 100%;
-    height: 6px;
-    border-radius: 999px;
-    background: #333;
+    height: 4px;
+    /* border-radius: 999px; */
+    /* background: #19181B; */
+    /* background: rgba(0,0,0,0.475); */
+    background: var(--border-level-4);
 }
 
-.fill {
+.track::before,
+.track::after {
+    content: "";
     position: absolute;
-    height: 6px;
-    border-radius: 999px;
-    background: #4f8cff;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 10px;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--bg-basic-button);
+    z-index: 1;
+}
+
+.track::before {
+    left: -3px;
+}
+
+.track::after {
+    right: -3px;
 }
 
 .thumb {
     position: absolute;
-    width: 18px;
-    height: 18px;
+    width: 8px;
+    height: 21px;
 
-    border-radius: 50%;
-    background: white;
+    border-radius: 4px;
+    background: hsl(270, 7%, 62%);
 
     transform: translateX(-50%);
     pointer-events: none;
 
-    box-shadow:
-        0 0 0 2px #4f8cff,
-        0 2px 6px rgb(0 0 0 / 25%);
-}
-
-/* .thumb {
-    position: absolute;
-    top: 50%;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: #fff;
-    border: 2px solid var(--accent-end, #c084fc);
-    box-shadow: 0 0 6px rgba(0,0,0,0.5);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    transition: transform 100ms ease, box-shadow 100ms ease;
+    box-shadow: 0 0 5px rgba(0,0,0,0.6);
+    z-index: 2;
 }
 
 .thumb.dragging {
-    transform: translate(-50%, -50%) scale(1.25);
-    box-shadow: 0 0 10px rgba(0,0,0,0.6);
-} */
+    background: hsl(270, 7%, 75%);
+}
 </style>
