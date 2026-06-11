@@ -599,4 +599,4 @@ export function formatTrigger(trigger: ParsedTrigger) {
     return `${prefixPart}${stepStrings.join(">")}`;
 }
 
-export {KEY_NAMES, ACTION_DEFINITIONS, VALID_MODIFIERS, VALID_PREFIXES, directionOptions};
+export {KEY_NAMES, ACTION_DEFINITIONS, VALID_MODIFIERS, VALID_PREFIXES, directionOptions, resizeDirectionOptions};

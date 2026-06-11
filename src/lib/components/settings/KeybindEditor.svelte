@@ -6,7 +6,10 @@
         parseKeybind,
         VALID_PREFIXES,
         VALID_MODIFIERS,
-        KEY_NAMES
+        KEY_NAMES,
+
+        resizeDirectionOptions
+
     } from "$lib/utils/keybinds";
     import {createTooltipAttachment} from "$lib/attachments/tooltip";
     import {fly, scale} from "svelte/transition";
@@ -263,7 +266,7 @@
             {#if getCurrentAction()?.type === "enum"}
                 <Dropdown bind:value={actionArg} options={dropdownOptions} />
             {:else if getCurrentAction()?.type === "number"}
-                <Number bind:value={() => parseInt(actionArg, 10), (v: number) => actionArg = v?.toString()} />
+                <Number bind:value={() => parseFloat(actionArg), (v: number) => actionArg = v?.toString()} />
             {:else if getCurrentAction()?.type === "integer"}
                 <Number bind:value={() => parseInt(actionArg, 10), (v: number) => actionArg = v?.toString()} step={1} />
             {:else if getCurrentAction()?.type === "unsignedInteger"}
@@ -272,7 +275,7 @@
                 <!-- TODO: should these be split to separate rows? -->
                 <Dropdown
                     bind:value={resizeDirection}
-                    options={directionOptions.map((direction) => ({
+                    options={resizeDirectionOptions.map((direction) => ({
                         name: direction,
                         value: direction
                     }))}

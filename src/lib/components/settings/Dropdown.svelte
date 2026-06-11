@@ -165,6 +165,18 @@
         return output;
     });
 
+    // Keep highlighted value valid when visible options change
+    $effect(() => {
+        if (!isOpen) return;
+        const available = visibleOptions.filter((option) => !option.disabled);
+        if (!available.length) {
+            highlightedValue = null;
+        }
+        else if (!available.some((option) => option.value === highlightedValue)) {
+            highlightedValue = available[0].value;
+        }
+    });
+
     const selectedOption = $derived.by(() => {
         if (!value) return null;
         for (const group of allGroups) {
@@ -223,19 +235,6 @@
             }
         });
     });
-
-    // Teleport menu to body to avoid overflow issues
-    // $effect(() => {
-    //     if (!isOpen || !menuEl) return;
-
-    //     document.body.appendChild(menuEl);
-
-    //     return () => {
-    //         if (menuEl && document.body.contains(menuEl)) {
-    //             document.body.removeChild(menuEl);
-    //         }
-    //     };
-    // });
 
     // Positioning logic
     $effect(() => {
@@ -380,7 +379,7 @@
         <span class="value-wrap">
             {#if selectedOption?.icon}
                 <span class="option-icon" aria-hidden="true">
-                {#if selectedOption.icon.startsWith("http")}
+                {#if selectedOption.icon.startsWith("http") || selectedOption.icon.startsWith("/") || selectedOption.icon.startsWith("data:") || selectedOption.icon.includes(".")}
                     <img src={selectedOption.icon} alt={selectedOption.name} loading="lazy" />
                 {:else}
                     {selectedOption.icon}
@@ -461,7 +460,7 @@
                                     <div class="option-title-row">
                                         {#if option.icon}
                                             <span class="option-icon" aria-hidden="true">
-                                            {#if option.icon.startsWith("http")}
+                                            {#if option.icon.startsWith("http") || option.icon.startsWith("/") || option.icon.startsWith("data:") || option.icon.includes(".")}
                                                 <img src={option.icon} alt={option.name} loading="lazy" />
                                             {:else}
                                                 {option.icon}
