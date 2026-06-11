@@ -1,20 +1,17 @@
 <script lang="ts">
-    import Range from "./Range.svelte";
-
     type Props = {
         value: number | undefined;
         min?: number;
         max?: number;
         step?: number;
         size?: number;
-        range?: boolean;
         placeholder?: string;
         integer?: boolean;
     };
 
     // why is eslint like this smh
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), min, max, step = 1, size, range, placeholder, integer = true}: Props = $props();
+    let {value = $bindable(), min, max, step = 1, size, placeholder, integer = true}: Props = $props();
 
 
     const wasInitiallyUndefined = value === undefined;
@@ -49,7 +46,7 @@
     const isActuallyInteger = $derived.by(() => integer && isDetectedAsInteger);
 
     $effect(() => {
-        if (!size && !range) {
+        if (!size) {
             const referenceValue = (value !== undefined && !Number.isNaN(value) && isValid()) ? value : (max ?? 100);
             size = referenceValue.toString().length + 2;
         }
@@ -133,39 +130,29 @@
     })();
 </script>
 
-<div class="input-wrapper">
-    {#if range}
-        <Range bind:value min={min ?? 0} max={max ?? 1} step={step ?? 0.1} />
-    {:else}
-        <div class="number-input">
-            <input
-                type="text"
-                value={displayValue}
-                {size}
-                {placeholder}
-                oninput={handleInput}
-                onkeydown={handleKeyDown}
-                onblur={onBlur}
-            />
-            <div class="steppers">
-                <button type="button" class="stepper up" onclick={increment} aria-label="Increment">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6" /></svg>
-                </button>
-                <button type="button" class="stepper down" onclick={decrement} aria-label="Decrement">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                </button>
-            </div>
-        </div>
-    {/if}
+
+<div class="number-input">
+    <input
+        type="text"
+        value={displayValue}
+        {size}
+        {placeholder}
+        oninput={handleInput}
+        onkeydown={handleKeyDown}
+        onblur={onBlur}
+    />
+    <div class="steppers">
+        <button type="button" class="stepper up" onclick={increment} aria-label="Increment">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+        </button>
+        <button type="button" class="stepper down" onclick={decrement} aria-label="Decrement">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+    </div>
 </div>
 
-<style>
-.input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
 
+<style>
 .number-input {
     position: relative;
     display: inline-flex;
