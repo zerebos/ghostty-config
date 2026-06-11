@@ -57,8 +57,8 @@ interface Range extends BaseNumberSetting {
     max: number;
     min: number;
     value: number;
-    size: undefined;
-    placeholder: undefined;
+    size?: never;
+    placeholder?: never;
     showLabels?: boolean;
 }
 

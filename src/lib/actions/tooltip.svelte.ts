@@ -160,9 +160,6 @@ export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (ele
 
     let component: Tooltip | null = null;
 
-    // let showTimer: ReturnType<typeof setTimeout>;
-    // let visible = $state(false);
-
     const updatePosition = () => {
         const rect = (options.relativeTarget || element).getBoundingClientRect();
         container.style.left = `${rect.left + rect.width / 2 + (options.offsetX || 0)}px`;
@@ -171,27 +168,21 @@ export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (ele
 
     const show = () => {
         if (component) return;
-        // showTimer = setTimeout(() => {
+
         document.body.appendChild(container);
         component = mount(Tooltip, {
             target: container,
             props: tooltipProps,
         });
         updatePosition();
-        // visible = true;
         window.addEventListener("scroll", updatePosition, true);
         window.addEventListener("resize", updatePosition);
-
-
-        // }, 0);
     };
 
     const hide = () => {
-        // clearTimeout(showTimer);
         if (component) void unmount(component);
         component = null;
         container.remove();
-        // visible = false;
         window.removeEventListener("scroll", updatePosition, true);
         window.removeEventListener("resize", updatePosition);
     };
@@ -224,42 +215,23 @@ export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (ele
         });
     };
 
-    setupListeners([element, options.relativeTarget]);
-
-    // element.addEventListener("mouseenter", show);
-    // element.addEventListener("mouseleave", hide);
-    // element.addEventListener("focus", show);
-    // element.addEventListener("blur", hide);
+    let currentRelativeTarget = options.relativeTarget;
+    setupListeners([element, currentRelativeTarget]);
 
     return {
         update(newOptions: RelativeTooltipOptions) {
-            // console.log("UPDATING", newOptions);
             const newText = newOptions.text.trim();
             if (tooltipProps.text !== newText) tooltipProps.text = newText;
 
-            // if (newOptions.forceShow !== undefined) {
-            //     if (newOptions.forceShow && !visible) {
-            //         show();
-            //     }
-            //     else if (!newOptions.forceShow && visible) {
-            //         hide();
-            //     }
-            // }
-            // if (newOptions.targets) {
-            //     const removed = listenerTargets.filter(target => !newOptions.targets?.includes(target));
-            //     destroyListeners(removed);
-
-            //     const added = newOptions.targets.filter(target => !listenerTargets.includes(target));
-            //     setupListeners(added);
-
-            //     listenerTargets.splice(0, listenerTargets.length, ...newOptions.targets);
-            // }
+            if (newOptions.relativeTarget !== currentRelativeTarget) {
+                destroyListeners([currentRelativeTarget]);
+                setupListeners([newOptions.relativeTarget]);
+                currentRelativeTarget = newOptions.relativeTarget;
+            }
             updatePosition();
         },
         destroy() {
-            // console.log("DESTROYING", listenerTargets);
-            // clearTimeout(showTimer);
-            destroyListeners([element, options.relativeTarget]);
+            destroyListeners([element, currentRelativeTarget]);
             window.removeEventListener("scroll", updatePosition, true);
             window.removeEventListener("resize", updatePosition);
             if (component) void unmount(component);

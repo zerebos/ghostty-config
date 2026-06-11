@@ -100,6 +100,12 @@ describe("parseKeybind", () => {
         expect(parsed.error).toContain("'scroll_to_row' expects a non-negative integer, got '-1'");
     });
 
+    it("validates minimum value goto_tab", () => {
+        const parsed = parseKeybind("ctrl+home=goto_tab:0");
+
+        expect(parsed.error).toContain("'goto_tab' expects an integer >= 1, got '0'");
+    });
+
     it("validates non-negative resize_split offset", () => {
         const parsed = parseKeybind("ctrl+arrow_left=resize_split:left,-10");
 

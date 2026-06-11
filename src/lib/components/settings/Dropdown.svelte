@@ -178,7 +178,7 @@
     });
 
     const selectedOption = $derived.by(() => {
-        if (!value) return null;
+        if (value === undefined || value === null) return null;
         for (const group of allGroups) {
             const match = group.options.find((option) => option.value === value);
             if (match) return match;
@@ -372,7 +372,7 @@
         type="button"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        aria-label={placeholder}
+        aria-label={selectedOption ? selectedOption.name : placeholder}
         onclick={toggle}
         onkeydown={handleTriggerKeydown}
     >

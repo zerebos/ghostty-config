@@ -489,9 +489,9 @@ function validateAction(action: string, args: string | undefined) {
     }
     if (definition.type === "unsignedInteger") {
         if (args === undefined || args.trim() === "") return [`'${action}' requires a non-negative integer argument`];
-        const value = Number(args);
-        if (!Number.isNaN(value) && value % 1 === 0 && value >= 0) return [];
-        return [`'${action}' expects a non-negative integer, got '${args}'`];
+        const min = definition.min ?? 0; const value = Number(args);
+        if (!Number.isNaN(value) && value % 1 === 0 && value >= min) return [];
+        return [min === 0 ? `'${action}' expects a non-negative integer, got '${args}'` : `'${action}' expects an integer >= ${min}, got '${args}'`];
     }
     if (definition.type === "enum") {
         if (args === undefined) {

@@ -28,7 +28,7 @@
     function valueFromPointer(e: PointerEvent): number {
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         const raw = ((e.clientX - rect.left) / rect.width) * (max - min) + min;
-        const stepped = Math.round(raw / step) * step;
+        const stepped = Math.round((raw - min) / step) * step + min;
         return parseFloat(Math.min(max, Math.max(min, stepped)).toFixed(maxDecimalPlaces));
     }
 
@@ -56,19 +56,21 @@
         const inc = e.shiftKey ? step * 10 : step;
         if (e.key === "ArrowRight" || e.key === "ArrowUp") {
             e.preventDefault();
-            value = Math.min(max, value + inc);
+            const nextValue = Math.min(max, value + inc);
+            value = parseFloat(nextValue.toFixed(maxDecimalPlaces));
         }
         else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
             e.preventDefault();
-            value = Math.max(min, value - inc);
+            const nextValue = Math.max(min, value - inc);
+            value = parseFloat(nextValue.toFixed(maxDecimalPlaces));
         }
         else if (e.key === "Home") {
             e.preventDefault();
-            value = min;
+            value = parseFloat(min.toFixed(maxDecimalPlaces));
         }
         else if (e.key === "End") {
             e.preventDefault();
-            value = max;
+            value = parseFloat(max.toFixed(maxDecimalPlaces));
         }
     }
 </script>
@@ -87,7 +89,7 @@
         onpointermove={onPointerMove}
         onpointerup={onPointerUp}
         onpointercancel={onPointerUp}
-    onkeydown={onKeyDown}
+        onkeydown={onKeyDown}
         use:relativeTooltip={{
             text: Number.isInteger(step) ? value.toString() : value.toFixed(maxDecimalPlaces),
             relativeTarget: thumb,
