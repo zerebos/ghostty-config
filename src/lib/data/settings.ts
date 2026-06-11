@@ -59,6 +59,7 @@ interface Range extends BaseNumberSetting {
     value: number;
     size: undefined;
     placeholder: undefined;
+    showLabels?: boolean;
 }
 
 interface DropdownOption {
@@ -235,7 +236,7 @@ const baseSettings = [
                     {id: "quickTerminalPosition", name: "Terminal position", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left", "center"]},
                     {id: "quickTerminalScreen", name: "Screen location", type: "dropdown", value: "main", options: ["main", "mouse", "macos-menu-bar"]},
                     {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. <code>50%</code>) or in pixels (e.g. <code>800</code>). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
-                    {id: "quickTerminalAnimationDuration", name: "Animation duration", type: "range", value: 0.2, min: 0, max: 10, step: 0.1},
+                    {id: "quickTerminalAnimationDuration", name: "Animation duration", note: "Duration of the quick terminal animation in seconds from 1 to 10.", type: "range", value: 0.2, min: 0, max: 10, step: 0.1, showLabels: false},
                     {id: "quickTerminalAutohide", name: "Autohide", note: "This autohides the quick terminal when focus shifts away.", type: "switch", value: true},
                     {id: "quickTerminalSpaceBehavior", name: "macOS space behavior", type: "dropdown", value: "move", options: ["move", "remain"]},
                     {id: "quickTerminalKeyboardInteractivity", name: "Keyboard interactivity", note: "Controls when the quick terminal receives keyboard input. GTK Wayland only.", type: "dropdown", value: "on-demand", options: ["none", "on-demand", "exclusive"]},
@@ -264,7 +265,7 @@ const baseSettings = [
                 settings: [
                     {id: "bellFeatures", name: "Bell features", note: "Comma-separated list of features. Available: system, audio, attention, title, border. Prefix with <code>no-</code> to disable.", type: "text", value: ""},
                     {id: "bellAudioPath", name: "Bell audio file", note: "Path to an audio file to play when the bell rings. Requires <code>audio</code> in bell features. GTK only.", type: "text", value: ""},
-                    {id: "bellAudioVolume", name: "Bell audio volume", note: "Volume for the bell audio, from 0 (silent) to 1 (full). GTK only.", type: "range", value: 0.5, min: 0, max: 1, step: 0.05},
+                    {id: "bellAudioVolume", name: "Bell audio volume", note: "Volume for the bell audio, from 0 (silent) to 1 (full). GTK only.", type: "range", value: 0.5, min: 0, max: 1, step: 0.05, showLabels: false},
                 ]
             },
         ]

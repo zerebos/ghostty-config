@@ -7,11 +7,12 @@
         max: number;
         step?: number;
         value: number;
+        showLabels?: boolean;
     }
 
     // why is eslint like this smh
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), min, max, step = 1}: RangeProps = $props();
+    let {value = $bindable(), min, max, step = 1, showLabels = true}: RangeProps = $props();
 
     // html refs
     let track: HTMLDivElement | undefined = $state();
@@ -23,18 +24,12 @@
     // Calculate the number of decimal places to show based on step, min, and max
     const maxDecimalPlaces = $derived(Math.max(countDecimalPlaces(min), countDecimalPlaces(max), countDecimalPlaces(step)));
 
-    // Set the value based on a pointer event's clientX position relative to the track
-    function setValue(clientX: number) {
-        if (!track) return;
-
-        const rect = track.getBoundingClientRect();
-        const raw = ((clientX - rect.left) / rect.width) * (max - min) + min;
+    // Get the value based on a pointer event's clientX position relative to the track
+    function valueFromPointer(e: PointerEvent): number {
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        const raw = ((e.clientX - rect.left) / rect.width) * (max - min) + min;
         const stepped = Math.round(raw / step) * step;
-
-        value = Math.min(
-            max,
-            Math.max(min, stepped)
-        );
+        return parseFloat(Math.min(max, Math.max(min, stepped)).toFixed(maxDecimalPlaces));
     }
 
     // Pointer event handlers for dragging the thumb
@@ -44,12 +39,12 @@
         dragging = true;
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         // value = valueFromPointer(e);
-        setValue(e.clientX);
+        value = valueFromPointer(e);
     }
 
     function onPointerMove(e: PointerEvent) {
         if (!dragging) return;
-        setValue(e.clientX);
+        value = valueFromPointer(e);
     }
 
     function onPointerUp(e: PointerEvent) {
@@ -58,37 +53,79 @@
     }
 </script>
 
-<div
-    class="slider"
-    role="slider"
-    tabindex="0"
-    bind:this={track}
-    aria-valuemin={min}
-    aria-valuemax={max}
-    aria-valuenow={value}
-    onpointerdown={onPointerDown}
-    onpointermove={onPointerMove}
-    onpointerup={onPointerUp}
-    onpointercancel={onPointerUp}
-    use:relativeTooltip={{
-        text: Number.isInteger(step) ? value.toString() : value.toFixed(maxDecimalPlaces),
-        relativeTarget: thumb,
-        numeric: true,
-        offsetY: -4
-    }}
->
-    <div class="track"></div>
 
+<div class="slider-setting">
     <div
-        class="thumb"
-        class:dragging
-        style:left={`${percentage}%`}
-        bind:this={thumb}
-    ></div>
+        class="slider"
+        role="slider"
+        tabindex="0"
+        bind:this={track}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        onpointerdown={onPointerDown}
+        onpointermove={onPointerMove}
+        onpointerup={onPointerUp}
+        onpointercancel={onPointerUp}
+        use:relativeTooltip={{
+            text: Number.isInteger(step) ? value.toString() : value.toFixed(maxDecimalPlaces),
+            relativeTarget: thumb,
+            numeric: true,
+            offsetY: -4
+        }}
+    >
+        <div class="track"></div>
+
+        <div
+            class="thumb"
+            class:dragging
+            style:left={`${percentage}%`}
+            bind:this={thumb}
+        ></div>
+    </div>
+    {#if showLabels}
+        <div class="labels">
+            <span>{min}</span>
+            <span>{max}</span>
+        </div>
+    {/if}
 </div>
 
 
 <style>
+.slider-setting {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin: 0 6px;
+    width: 163px;
+}
+
+.labels {
+    display: flex;
+    justify-content: space-between;
+    /* width: calc(100% + 12px); */
+    width: 100%;
+    height: 13px;
+    font-size: 0.75rem;
+    color: var(--font-color, #ccc);
+    font-variant-numeric: tabular-nums;
+}
+
+.labels span:first-child {
+    position: absolute;
+    left: 0;
+    transform: translateX(calc(-50% - 1.5px));
+}
+
+.labels span:last-child {
+    position: absolute;
+    right: 0;
+    transform: translateX(calc(50% + 1.5px));
+}
+
 .slider {
     position: relative;
     height: 24px;
@@ -96,8 +133,9 @@
     align-items: center;
     cursor: pointer;
     touch-action: none;
-    width: 169px;
-    margin: 0 3px;
+    /* width: 169px; */
+    /* margin: 0 3px; */
+    width: 100%;
 }
 
 .track {

@@ -74,7 +74,7 @@
                         {:else if setting.type === "text"}
                             <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} size={setting.size} />
                         {:else if setting.type === "range"}
-                            <Range bind:value={config[setting.id as keyof typeof config] as number} min={setting.min} max={setting.max} step={setting.step} />
+                            <Range bind:value={config[setting.id as keyof typeof config] as number} min={setting.min} max={setting.max} step={setting.step} showLabels={setting.showLabels} />
                         {:else if setting.type === "number"}
                             <Number bind:value={config[setting.id as keyof typeof config] as number} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}
