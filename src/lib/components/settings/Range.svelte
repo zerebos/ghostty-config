@@ -51,6 +51,26 @@
         dragging = false;
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     }
+
+    function onKeyDown(e: KeyboardEvent) {
+        const inc = e.shiftKey ? step * 10 : step;
+        if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+            e.preventDefault();
+            value = Math.min(max, value + inc);
+        }
+        else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+            e.preventDefault();
+            value = Math.max(min, value - inc);
+        }
+        else if (e.key === "Home") {
+            e.preventDefault();
+            value = min;
+        }
+        else if (e.key === "End") {
+            e.preventDefault();
+            value = max;
+        }
+    }
 </script>
 
 
@@ -67,6 +87,7 @@
         onpointermove={onPointerMove}
         onpointerup={onPointerUp}
         onpointercancel={onPointerUp}
+    onkeydown={onKeyDown}
         use:relativeTooltip={{
             text: Number.isInteger(step) ? value.toString() : value.toFixed(maxDecimalPlaces),
             relativeTarget: thumb,
