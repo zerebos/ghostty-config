@@ -1,4 +1,7 @@
 <script lang="ts">
+    import Range from "./Range.svelte";
+    import Slider from "./Slider.svelte";
+
     type Props = {
         value: number | undefined;
         min?: number;
@@ -143,8 +146,10 @@
 
 <div class="input-wrapper">
     {#if range}
-        <div class="label">{value?.toFixed?.(numDecimalPlaces)}</div>
-        <input type={inputType} bind:value {min} {max} {step} />
+        <!-- <div class="label">{value?.toFixed?.(numDecimalPlaces)}</div> -->
+        <!-- <input type={inputType} bind:value {min} {max} {step} /> -->
+         <Range bind:value {min} {max} {step} />
+          <!-- <Slider bind:value {min} {max} {step} /> -->
     {:else}
         <div class="number-input">
             <input
@@ -173,6 +178,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 150px;
 }
 
 .label {
