@@ -26,7 +26,8 @@
 
     // Get the value based on a pointer event's clientX position relative to the track
     function valueFromPointer(e: PointerEvent): number {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+        if (!track) return value;
+        const rect = track.getBoundingClientRect();
         const raw = ((e.clientX - rect.left) / rect.width) * (max - min) + min;
         const stepped = Math.round((raw - min) / step) * step + min;
         return parseFloat(Math.min(max, Math.max(min, stepped)).toFixed(maxDecimalPlaces));
@@ -35,10 +36,9 @@
     // Pointer event handlers for dragging the thumb
     let dragging = $state(false);
     function onPointerDown(e: PointerEvent) {
-        if (e.button !== 0) return;
+        if (!track || e.button !== 0) return;
         dragging = true;
-        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-        // value = valueFromPointer(e);
+        track.setPointerCapture(e.pointerId);
         value = valueFromPointer(e);
     }
 
@@ -49,7 +49,7 @@
 
     function onPointerUp(e: PointerEvent) {
         dragging = false;
-        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+        if (track) track.releasePointerCapture(e.pointerId);
     }
 
     function onKeyDown(e: KeyboardEvent) {
@@ -129,7 +129,6 @@
 .labels {
     display: flex;
     justify-content: space-between;
-    /* width: calc(100% + 12px); */
     width: 100%;
     height: 13px;
     font-size: 0.75rem;
@@ -156,8 +155,6 @@
     align-items: center;
     cursor: pointer;
     touch-action: none;
-    /* width: 169px; */
-    /* margin: 0 3px; */
     width: 100%;
 }
 
@@ -165,9 +162,6 @@
     position: absolute;
     width: 100%;
     height: 4px;
-    /* border-radius: 999px; */
-    /* background: #19181B; */
-    /* background: rgba(0,0,0,0.475); */
     background: var(--border-level-4);
 }
 
@@ -196,13 +190,10 @@
     position: absolute;
     width: 8px;
     height: 21px;
-
     border-radius: 4px;
     background: hsl(270, 7%, 62%);
-
     transform: translateX(-50%);
     pointer-events: none;
-
     box-shadow: 0 0 5px rgba(0,0,0,0.6);
     z-index: 2;
 }

@@ -22,9 +22,6 @@ export const tooltip: Action<HTMLElement, TooltipOptions> = (element, options) =
 
     let component: Tooltip | null = null;
 
-    // let showTimer: ReturnType<typeof setTimeout>;
-    // let visible = $state(false);
-
     const updatePosition = () => {
         const rect = element.getBoundingClientRect();
         container.style.left = `${rect.left + rect.width / 2}px`;
@@ -33,14 +30,12 @@ export const tooltip: Action<HTMLElement, TooltipOptions> = (element, options) =
 
     const show = () => {
         if (component) return;
-        // showTimer = setTimeout(() => {
         document.body.appendChild(container);
         component = mount(Tooltip, {
             target: container,
             props: tooltipProps,
         });
         updatePosition();
-        // visible = true;
         window.addEventListener("scroll", updatePosition, true);
         window.addEventListener("resize", updatePosition);
 
@@ -90,25 +85,10 @@ export const tooltip: Action<HTMLElement, TooltipOptions> = (element, options) =
 
     setupListeners([element, ...listenerTargets]);
 
-    // element.addEventListener("mouseenter", show);
-    // element.addEventListener("mouseleave", hide);
-    // element.addEventListener("focus", show);
-    // element.addEventListener("blur", hide);
-
     return {
         update(newOptions: TooltipOptions) {
-            // console.log("UPDATING", newOptions);
             const newText = newOptions.text.trim();
             if (tooltipProps.text !== newText) tooltipProps.text = newText;
-
-            // if (newOptions.forceShow !== undefined) {
-            //     if (newOptions.forceShow && !visible) {
-            //         show();
-            //     }
-            //     else if (!newOptions.forceShow && visible) {
-            //         hide();
-            //     }
-            // }
             if (newOptions.targets) {
                 const removed = listenerTargets.filter(target => !newOptions.targets?.includes(target));
                 destroyListeners(removed);
@@ -121,8 +101,6 @@ export const tooltip: Action<HTMLElement, TooltipOptions> = (element, options) =
             updatePosition();
         },
         destroy() {
-            // console.log("DESTROYING", listenerTargets);
-            // clearTimeout(showTimer);
             destroyListeners([element, ...listenerTargets]);
             window.removeEventListener("scroll", updatePosition, true);
             window.removeEventListener("resize", updatePosition);
@@ -141,7 +119,9 @@ interface RelativeTooltipOptions {
     offsetY?: number;
 }
 
-export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (element, options) => {
+
+export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (element, initialOptions) => {
+    let options = initialOptions;
     const tooltipProps = $state({text: options.text});
 
     const container = document.createElement("div");
@@ -220,6 +200,7 @@ export const relativeTooltip: Action<HTMLElement, RelativeTooltipOptions> = (ele
 
     return {
         update(newOptions: RelativeTooltipOptions) {
+            options = newOptions;
             const newText = newOptions.text.trim();
             if (tooltipProps.text !== newText) tooltipProps.text = newText;
 

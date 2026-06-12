@@ -236,7 +236,7 @@ const baseSettings = [
                     {id: "quickTerminalPosition", name: "Terminal position", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left", "center"]},
                     {id: "quickTerminalScreen", name: "Screen location", type: "dropdown", value: "main", options: ["main", "mouse", "macos-menu-bar"]},
                     {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. <code>50%</code>) or in pixels (e.g. <code>800</code>). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
-                    {id: "quickTerminalAnimationDuration", name: "Animation duration", note: "Duration of the quick terminal animation in seconds from 1 to 10.", type: "range", value: 0.2, min: 0, max: 10, step: 0.1, showLabels: false},
+                    {id: "quickTerminalAnimationDuration", name: "Animation duration", note: "Duration of the quick terminal animation in seconds from 0 to 10.", type: "range", value: 0.2, min: 0, max: 10, step: 0.1, showLabels: false},
                     {id: "quickTerminalAutohide", name: "Autohide", note: "This autohides the quick terminal when focus shifts away.", type: "switch", value: true},
                     {id: "quickTerminalSpaceBehavior", name: "macOS space behavior", type: "dropdown", value: "move", options: ["move", "remain"]},
                     {id: "quickTerminalKeyboardInteractivity", name: "Keyboard interactivity", note: "Controls when the quick terminal receives keyboard input. GTK Wayland only.", type: "dropdown", value: "on-demand", options: ["none", "on-demand", "exclusive"]},
