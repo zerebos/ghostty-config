@@ -4,7 +4,7 @@
     import Separator from "$lib/components/settings/Separator.svelte";
     import Switch from "$lib/components/settings/Switch.svelte";
     import Text from "$lib/components/settings/Text.svelte";
-    import Number from "$lib/components/settings/Number.svelte";
+    import Range from "$lib/components/settings/Range.svelte";
 
     let fontFamily = $state("JetBrainsMono Nerd Font");
     let fontSize = $state(13);
@@ -38,7 +38,7 @@
     <Separator />
     <Item name="Font family" note="Due to cross-browser limitations, you'll need to manually type in a font-face currently on your system that you want to try out."><Text bind:value={fontFamily} /></Item>
     <Separator />
-    <Item name="Font size"><Number bind:value={fontSize} range={true} min={4} max={60} step={0.5} /></Item>
+    <Item name="Font size"><Range bind:value={fontSize} min={4} max={60} step={0.5} /></Item>
     <Separator />
     <Item name="Bold"><Switch bind:checked={bold} /></Item>
     <Separator />

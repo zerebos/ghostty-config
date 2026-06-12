@@ -1,4 +1,5 @@
 <script lang="ts">
+    import {toAppWindow} from "$lib/attachments/portal";
     import {sequoiaFlyFast} from "$lib/utils/animations";
     import type {Snippet} from "svelte";
     import {fade, fly} from "svelte/transition";
@@ -35,6 +36,7 @@
     role="presentation"
     onclick={handleBackdropClick}
     transition:fade={{duration: 250}}
+    {@attach toAppWindow}
 >
     <div
         class="dialog"

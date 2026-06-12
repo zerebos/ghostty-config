@@ -23,6 +23,7 @@
     import type {HexColor} from "$lib/utils/colors";
     import {resolve} from "$app/paths";
     import {success} from "$lib/stores/toasts.svelte";
+    import Range from "$lib/components/settings/Range.svelte";
 
 
     const category = $derived(settings.find(c => c.id === $page.params.category));
@@ -72,10 +73,12 @@
                             <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
                         {:else if setting.type === "text"}
                             <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} size={setting.size} />
+                        {:else if setting.type === "range"}
+                            <Range bind:value={config[setting.id as keyof typeof config] as number} min={setting.min} max={setting.max} step={setting.step} showLabels={setting.showLabels} />
                         {:else if setting.type === "number"}
-                            <Number bind:value={config[setting.id as keyof typeof config] as number} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
+                            <Number bind:value={config[setting.id as keyof typeof config] as number} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}
-                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} placeholder={setting.placeholder} />
+                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} placeholder={setting.placeholder} allowEmpty={setting.allowEmpty} emptyLabel={setting.emptyLabel} disabled={setting.disabled} />
                         {:else if setting.type === "theme"}
                             <Theme bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} />
                         {:else if setting.type === "color"}

@@ -1,4 +1,5 @@
 import type {HexColor} from "$lib/utils/colors";
+import {frameUrls, iconUrls} from "./macicon";
 import ghosttySchema, {type GhosttyPlatform} from "$lib/data/ghostty-schema";
 
 interface BaseSettingType {
@@ -15,11 +16,11 @@ interface Panel extends BaseSettingType {
 }
 
 interface Group extends BaseSettingType {
-    settings: Array<Switch | Text | Number | Dropdown | Color | Palette | Keybinds | Theme>;
+    settings: Array<Switch | Text | Number | Range | Dropdown | Color | Palette | Keybinds | Theme>;
     // type: "group";
 }
 
-type SettingType = "switch" | "number" | "dropdown" | "text" | "color" | "palette" | "keybinds" | "theme";
+type SettingType = "switch" | "number" | "range" | "dropdown" | "text" | "color" | "palette" | "keybinds" | "theme";
 
 interface BaseSettingItem extends BaseSettingType {
     type: SettingType;
@@ -38,32 +39,52 @@ interface Text extends BaseSettingItem {
     size?: number;
 }
 
-interface Number extends BaseSettingItem {
-    type: "number";
+interface BaseNumberSetting extends BaseSettingItem {
     value: number;
     min?: number;
     max?: number;
     step?: number;
     size?: number;
-    range?: boolean;
     placeholder?: string;
+}
+
+interface Number extends BaseNumberSetting {
+    type: "number";
+}
+
+interface Range extends BaseNumberSetting {
+    type: "range";
+    max: number;
+    min: number;
+    value: number;
+    size?: never;
+    placeholder?: never;
+    showLabels?: boolean;
 }
 
 interface DropdownOption {
     name: string;
     value: string;
+    description?: string;
+    icon?: string;
+    group?: string;
+    disabled?: boolean;
 }
 
 interface Dropdown extends BaseSettingItem {
     type: "dropdown";
-    value: "string";
+    value: string;
     options: Array<DropdownOption | string>;
+    searchable?: boolean;
     placeholder?: string;
+    allowEmpty?: boolean;
+    emptyLabel?: string;
+    disabled?: boolean;
 }
 
 interface Theme extends BaseSettingItem {
     type: "theme";
-    value: "string";
+    value: string;
     options: Array<DropdownOption | string>;
 }
 
@@ -215,7 +236,7 @@ const baseSettings = [
                     {id: "quickTerminalPosition", name: "Terminal position", type: "dropdown", value: "top", options: ["top", "right", "bottom", "left", "center"]},
                     {id: "quickTerminalScreen", name: "Screen location", type: "dropdown", value: "main", options: ["main", "mouse", "macos-menu-bar"]},
                     {id: "quickTerminalSize", name: "Quick terminal size", note: "Specify the size as a percentage (e.g. <code>50%</code>) or in pixels (e.g. <code>800</code>). You can specify two values separated by a comma for width and height.", type: "text", value: ""},
-                    {id: "quickTerminalAnimationDuration", name: "Animation duration", type: "number", value: 0.2, min: 0, max: 10, step: 0.1, range: true},
+                    {id: "quickTerminalAnimationDuration", name: "Animation duration", note: "Duration of the quick terminal animation in seconds from 0 to 10.", type: "range", value: 0.2, min: 0, max: 10, step: 0.1, showLabels: false},
                     {id: "quickTerminalAutohide", name: "Autohide", note: "This autohides the quick terminal when focus shifts away.", type: "switch", value: true},
                     {id: "quickTerminalSpaceBehavior", name: "macOS space behavior", type: "dropdown", value: "move", options: ["move", "remain"]},
                     {id: "quickTerminalKeyboardInteractivity", name: "Keyboard interactivity", note: "Controls when the quick terminal receives keyboard input. GTK Wayland only.", type: "dropdown", value: "on-demand", options: ["none", "on-demand", "exclusive"]},
@@ -244,7 +265,7 @@ const baseSettings = [
                 settings: [
                     {id: "bellFeatures", name: "Bell features", note: "Comma-separated list of features. Available: system, audio, attention, title, border. Prefix with <code>no-</code> to disable.", type: "text", value: ""},
                     {id: "bellAudioPath", name: "Bell audio file", note: "Path to an audio file to play when the bell rings. Requires <code>audio</code> in bell features. GTK only.", type: "text", value: ""},
-                    {id: "bellAudioVolume", name: "Bell audio volume", note: "Volume for the bell audio, from 0 (silent) to 1 (full). GTK only.", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.05},
+                    {id: "bellAudioVolume", name: "Bell audio volume", note: "Volume for the bell audio, from 0 (silent) to 1 (full). GTK only.", type: "range", value: 0.5, min: 0, max: 1, step: 0.05, showLabels: false},
                 ]
             },
         ]
@@ -303,16 +324,16 @@ const baseSettings = [
                     // maybe move to colors
                     {id: "windowTitlebarBackground", name: "Titlebar background", type: "color", value: ""},
                     {id: "windowTitlebarForeground", name: "Titlebar foreground", type: "color", value: ""},
-                    {id: "backgroundOpacity", name: "Background opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
+                    {id: "backgroundOpacity", name: "Background opacity", type: "range", value: 1, min: 0, max: 1, step: 0.01},
                     {id: "backgroundOpacityCells", name: "Force background opacity on cells.", type: "switch", value: false},
                     {id: "backgroundBlur", name: "Background blur", note: "Set to <code>true</code> to enable blur, <code>false</code> to disable, a number for a specific radius (macOS), or <code>macos-glass-regular</code>/<code>macos-glass-clear</code> for macOS glass effects.", type: "text", value: "false"},
                     {id: "backgroundImage", name: "Background image", note: "Path to an image file to use as the terminal background.", type: "text", value: ""},
-                    {id: "backgroundImageOpacity", name: "Background image opacity", type: "number", range: true, value: 1, min: 0, max: 1, step: 0.01},
+                    {id: "backgroundImageOpacity", name: "Background image opacity", type: "range", value: 1, min: 0, max: 1, step: 0.01},
                     {id: "backgroundImagePosition", name: "Background image position", type: "dropdown", value: "center", options: ["center", "top-left", "top-center", "top-right", "center-left", "center-center", "center-right", "bottom-left", "bottom-center", "bottom-right"]},
                     {id: "backgroundImageFit", name: "Background image fit", type: "dropdown", value: "contain", options: ["contain", "cover", "stretch", "none"]},
                     {id: "backgroundImageRepeat", name: "Repeat background image", type: "switch", value: false},
                     {id: "scrollbar", name: "Scrollbar visibility", note: "Currently only supported on macOS.", type: "dropdown", value: "system", options: ["system", "never"]},
-                    {id: "unfocusedSplitOpacity", name: "Unfocused split opacity", type: "number", range: true, value: 0.7, min: 0.15, max: 1, step: 0.01},
+                    {id: "unfocusedSplitOpacity", name: "Unfocused split opacity", type: "range", value: 0.7, min: 0.15, max: 1, step: 0.01},
                     {id: "unfocusedSplitFill", name: "Unfocused split fill color", type: "color", value: ""},
                     {id: "splitDividerColor", name: "Split divider color", type: "color", value: ""},
                     {id: "splitPreserveZoom", name: "Split preserve zoom on navigation", note: "When navigating between splits, keep the zoomed state.", type: "switch", value: false},
@@ -348,11 +369,11 @@ const baseSettings = [
                         note: "Any colors selected after setting this will overwrite the theme's colors.",
                         type: "theme",
                         value: "",
-                        options: [{name: "Custom", value: ""}]
+                        options: []
                     },
                     {id: "boldColor", name: "Bold text color", note: "Set to <code>bright</code> to use bright palette colors for bold text, or a hex color value. Leave empty to use the default.", type: "text", value: ""},
-                    {id: "faintOpacity", name: "Faint text opacity", type: "number", range: true, value: 0.5, min: 0, max: 1, step: 0.01},
-                    {id: "minimumContrast", name: "Minimum contrast", type: "number", value: 1, range: true, min: 1, max: 21, step: 0.1},
+                    {id: "faintOpacity", name: "Faint text opacity", type: "range", value: 0.5, min: 0, max: 1, step: 0.01},
+                    {id: "minimumContrast", name: "Minimum contrast", type: "range", value: 1, min: 1, max: 21, step: 0.1},
                     {id: "paletteGenerate", name: "Auto-generate missing palette colors", note: "When enabled, Ghostty will generate missing colors (indices 16-231) based on the first 16.", type: "switch", value: true},
                     {id: "paletteHarmonious", name: "Harmonious palette generation", note: "Inverts generated palette colors. Has no effect if auto-generation is disabled.", type: "switch", value: false},
                 ]
@@ -388,7 +409,7 @@ const baseSettings = [
                 settings: [
                     {id: "cursorColor", name: "Cursor color", type: "color", value: ""},
                     {id: "cursorText", name: "Text color under cursor", type: "color", value: ""},
-                    {id: "cursorOpacity", name: "Cursor opacity", type: "number", value: 1, range: true, min: 0, max: 1, step: 0.05},
+                    {id: "cursorOpacity", name: "Cursor opacity", type: "range", value: 1, min: 0, max: 1, step: 0.05},
                     {id: "cursorStyle", name: "Cursor style", type: "dropdown", value: "block", options: ["block", "bar", "underline", {value: "block_hollow", name: "hollow block"}]},
                     {id: "cursorStyleBlink", name: "Cursor blink style", note: "The <code>default</code> option defers to DEC mode 12 to determine blinking state.", type: "dropdown", value: "", options: ["true", "false", {value: "", name: "default"}]},
                 ]
@@ -411,9 +432,9 @@ const baseSettings = [
                 id: "general",
                 name: "General Font Settings",
                 settings: [
-                    {id: "fontSize", name: "Base font size", type: "number", value: 13, min: 4, max: 60, step: 0.5, range: true},
+                    {id: "fontSize", name: "Base font size", type: "range", value: 13, min: 4, max: 60, step: 0.5},
                     {id: "fontThicken", name: "Thicken fonts", type: "switch", note: "This currently only affects macOS.", value: false},
-                    {id: "fontThickenStrength", name: "Thicken strength", type: "number", value: 255, min: 0, max: 255, step: 1, range: true},
+                    {id: "fontThickenStrength", name: "Thicken strength", type: "range", value: 255, min: 0, max: 255, step: 1},
                     {id: "fontShapingBreak", name: "How to break runs (cursor, no-cursor).", type: "text", value: ""},
                     {id: "fontFeature", name: "Font ligature settings", type: "text", value: ""},
                     {id: "fontSyntheticStyle", name: "Synthetic styles", note: "See the docs for more info.", type: "text", value: "bold,italic,bold-italic"},
@@ -505,7 +526,7 @@ const baseSettings = [
                     {id: "mouseReporting", name: "Allow mouse reporting", note: "Allows terminal applications to receive mouse events.", type: "switch", value: true},
                     {id: "mouseShiftCapture", name: "Allow shift with mouse click", type: "dropdown", value: "false", options: ["true", "false", "always", "never"]},
                     // Technically the values should be min: 0.01, max: 10000, step: 0.01 but those are insane so instead I'll use sane defaults
-                    {id: "mouseScrollMultiplier", name: "Mouse scroll multiplier", type: "number", range: true, value: 3, min: 0.1, max: 10, step: 0.1},
+                    {id: "mouseScrollMultiplier", name: "Mouse scroll multiplier", type: "range", value: 3, min: 0.1, max: 10, step: 0.1},
                     {id: "rightClickAction", name: "Right-click action", type: "dropdown", value: "context-menu", options: ["context-menu", "copy-or-paste", "copy", "paste", "ignore"]},
                     {id: "middleClickAction", name: "Middle-click action", type: "dropdown", value: "primary-paste", options: ["primary-paste", "ignore"]},
                     {id: "focusFollowsMouse", name: "Focus splits on mouse move", type: "switch", value: false},
@@ -575,7 +596,7 @@ const baseSettings = [
                     {id: "macosNonNativeFullscreen", name: "Use non-native fullscreen", note: "Tabs currently do not work with non-native fullscreen windows", type: "dropdown", value: "false", options: ["visible-menu", "true", "false", "padded-notch"]},
                     {id: "macosTitlebarStyle", name: "Titlebar style", type: "dropdown", value: "transparent", options: ["transparent", "native", "tabs", "hidden"]},
                     {id: "macosTitlebarProxyIcon", name: "Titlebar proxy icon", type: "dropdown", value: "visible", options: ["visible", "hidden"]},
-                    {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "dropdown", value: "", options: ["", "true", "false", "left", "right"]},
+                    {id: "macosOptionAsAlt", name: "Use option key as alt key", type: "dropdown", value: "", options: ["true", "false", "left", "right"], allowEmpty: true, emptyLabel: "Reset to default"},
                     {id: "macosWindowShadow", name: "Show the window shadow", type: "switch", value: true},
                     {id: "macosWindowButtons", name: "Window buttons (traffic lights)", type: "dropdown", value: "visible", options: ["visible", "hidden"]},
                     {id: "macosHidden", name: "Hide from dock and switcher", type: "dropdown", value: "never", options: ["never", "always"]},
@@ -586,8 +607,8 @@ const baseSettings = [
                     {id: "macosShortcuts", name: "macOS shortcuts", note: "Controls whether macOS system shortcuts (e.g. Cmd+Space) can be captured.", type: "dropdown", value: "ask", options: ["allow", "deny", "ask"]},
 
                     // TODO: move these once it is available on non-mac
-                    {id: "autoUpdate", name: "Auto update", note: "Leaving this unset will fall back to your Sparkle preferences.", type: "dropdown", value: "", options: ["", "off", "check", "download"]},
-                    {id: "autoUpdateChannel", name: "Update channel", note: "By default this will adhere to whichever version you downloaded.", type: "dropdown", value: "", options: ["", "stable", "tip"]},
+                    {id: "autoUpdate", name: "Auto update", note: "Leaving this unset will fall back to your Sparkle preferences.", type: "dropdown", placeholder: "Follow Sparkle", value: "", options: ["off", "check", "download"], allowEmpty: true, emptyLabel: "Follow Sparkle"},
+                    {id: "autoUpdateChannel", name: "Update channel", note: "By default this will adhere to whichever version you downloaded.", type: "dropdown", placeholder: "Current Channel", value: "", options: ["stable", "tip"], allowEmpty: true, emptyLabel: "Current Sparkle"},
                 ]
             },
             {
@@ -595,9 +616,35 @@ const baseSettings = [
                 name: "App Icon",
                 note: "If you choose the <code>custom-style</code> option, you can use any of the other icon settings to customize your icon with a live preview.",
                 settings: [
-                    {id: "macosIcon", name: "Icon", note: "Custom style must specify both ghost and screen colors.", type: "dropdown", value: "official", options: ["official", "blueprint", "chalkboard", "microchip", "glass", "holographic", "paper", "retro", "xray", "custom", "custom-style"]},
+                    {
+                        id: "macosIcon",
+                        name: "Icon",
+                        note: "Custom style must specify both ghost and screen colors.",
+                        type: "dropdown",
+                        value: "official",
+                        options: [
+                            ...Object.keys(iconUrls).map(key => ({
+                                value: key,
+                                name: key[0].toUpperCase() + key.slice(1),
+                                group: "Predefined icons",
+                                icon: iconUrls[key]
+                            })),
+                            {value: "custom", name: "Custom Icon", description: "Use your own icon file.", group: "Custom"},
+                            {value: "custom-style", name: "Custom Style", description: "Customize the icon with colors and frames.", group: "Custom"}
+                        ]
+                    },
                     {id: "macosCustomIcon", name: "Icon file", note: "Only used when <code>custom</code> is selected above.", type: "text", value: ""},
-                    {id: "macosIconFrame", name: "Icon frame", type: "dropdown", value: "aluminum", options: ["aluminum", "beige", "plastic", "chrome"]},
+                    {
+                        id: "macosIconFrame",
+                        name: "Icon frame",
+                        type: "dropdown",
+                        value: "aluminum",
+                        options: Object.keys(frameUrls).map(key => ({
+                            value: key,
+                            name: key[0].toUpperCase() + key.slice(1),
+                            icon: frameUrls[key]
+                        }))
+                    },
                     {id: "macosIconGhostColor", name: "Ghost color", type: "color", value: ""},
                     {id: "macosIconScreenColor", name: "Screen color", type: "color", value: ""},
                 ]

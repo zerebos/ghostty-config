@@ -5,16 +5,14 @@
         max?: number;
         step?: number;
         size?: number;
-        range?: boolean;
         placeholder?: string;
         integer?: boolean;
     };
 
     // why is eslint like this smh
     // eslint-disable-next-line prefer-const
-    let {value = $bindable(), min, max, step = 1, size, range, placeholder, integer = true}: Props = $props();
+    let {value = $bindable(), min, max, step = 1, size, placeholder, integer = true}: Props = $props();
 
-    const inputType = $derived(range ? "range" : "text");
 
     const wasInitiallyUndefined = value === undefined;
 
@@ -47,17 +45,8 @@
     // Determine if we should enforce integer values based on props
     const isActuallyInteger = $derived.by(() => integer && isDetectedAsInteger);
 
-    // Calculate the number of decimal places to show based on step, min, and max
-    const numDecimalPlaces = $derived.by(() => {
-        if (isDetectedAsInteger) return 0;
-        const stepDecimalPlaces = step.toString().split(".")[1]?.length ?? 0;
-        const minDecimalPlaces = min?.toString().split(".")[1]?.length ?? 0;
-        const maxDecimalPlaces = max?.toString().split(".")[1]?.length ?? 0;
-        return Math.max(stepDecimalPlaces, minDecimalPlaces, maxDecimalPlaces);
-    });
-
     $effect(() => {
-        if (!size && !range) {
+        if (!size) {
             const referenceValue = (value !== undefined && !Number.isNaN(value) && isValid()) ? value : (max ?? 100);
             size = referenceValue.toString().length + 2;
         }
@@ -141,44 +130,29 @@
     })();
 </script>
 
-<div class="input-wrapper">
-    {#if range}
-        <div class="label">{value?.toFixed?.(numDecimalPlaces)}</div>
-        <input type={inputType} bind:value {min} {max} {step} />
-    {:else}
-        <div class="number-input">
-            <input
-                type="text"
-                value={displayValue}
-                {size}
-                {placeholder}
-                oninput={handleInput}
-                onkeydown={handleKeyDown}
-                onblur={onBlur}
-            />
-            <div class="steppers">
-                <button type="button" class="stepper up" onclick={increment} aria-label="Increment">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6" /></svg>
-                </button>
-                <button type="button" class="stepper down" onclick={decrement} aria-label="Decrement">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                </button>
-            </div>
-        </div>
-    {/if}
+
+<div class="number-input">
+    <input
+        type="text"
+        value={displayValue}
+        {size}
+        {placeholder}
+        oninput={handleInput}
+        onkeydown={handleKeyDown}
+        onblur={onBlur}
+    />
+    <div class="steppers">
+        <button type="button" class="stepper up" onclick={increment} aria-label="Increment">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+        </button>
+        <button type="button" class="stepper down" onclick={decrement} aria-label="Decrement">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+        </button>
+    </div>
 </div>
 
+
 <style>
-.input-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.label {
-    font-variant-numeric: tabular-nums;
-}
-
 .number-input {
     position: relative;
     display: inline-flex;
@@ -244,35 +218,5 @@
 
 .stepper:hover svg {
     opacity: 1;
-}
-
-
-
-/* Range slider styles */
-input[type="range"] {
-   border: 0;
-   height: 5px;
-   background-color: var(--bg-separator);
-   border-radius: var(--radius-level-5);
-   cursor: pointer;
-}
-
-input[type="range"]::-moz-range-progress {
-   background-color: var(--color-input-accent);
-   border-radius: 5px;
-   height: 5px;
-   width: 100%;
-}
-
-input[type="range"]::-moz-range-thumb {
-   margin-top: -10px;
-   background-color: #98949B;
-   border-radius: 12px;
-   height: 20px;
-   width: 8px;
-}
-
-input[type="range"]:focus::-moz-range-thumb {
-    background-color: hsl(from #98949B h s calc(l + 10));
 }
 </style>

@@ -79,7 +79,37 @@ describe("parseKeybind", () => {
     it("validates resize action arguments", () => {
         const parsed = parseKeybind("ctrl+arrow_left=resize_split:diagonal,10");
 
-        expect(parsed.error).toContain("'resize_split' direction must be right, down, left, up, auto");
+        expect(parsed.error).toContain("'resize_split' direction must be up, down, left, right");
+    });
+
+    it("requires explicit search argument separator", () => {
+        const parsed = parseKeybind("ctrl+f=search");
+
+        expect(parsed.error).toContain("'search' requires arguments");
+    });
+
+    it("allows empty search text when separator is present", () => {
+        const parsed = parseKeybind("ctrl+f=search:");
+
+        expect(parsed.error).toEqual([]);
+    });
+
+    it("validates non-negative scroll_to_row", () => {
+        const parsed = parseKeybind("ctrl+home=scroll_to_row:-1");
+
+        expect(parsed.error).toContain("'scroll_to_row' expects a non-negative integer, got '-1'");
+    });
+
+    it("validates minimum value goto_tab", () => {
+        const parsed = parseKeybind("ctrl+home=goto_tab:0");
+
+        expect(parsed.error).toContain("'goto_tab' expects an integer >= 1, got '0'");
+    });
+
+    it("validates non-negative resize_split offset", () => {
+        const parsed = parseKeybind("ctrl+arrow_left=resize_split:left,-10");
+
+        expect(parsed.error).toContain("'resize_split' requires a non-negative integer offset");
     });
 
     it("rejects global/all sequences", () => {
