@@ -28,7 +28,7 @@ interface TextSetting extends SettingInfo {
 
 interface NumberSetting extends SettingInfo {
     type: "number";
-    default?: number;
+    default: number | undefined;
     min?: number;
     max?: number;
     step?: number;
@@ -99,5 +99,29 @@ export type SettingDef =
     | ThemeSetting
     | KeybindsSetting;
 
+
+export type DefToValue<T extends SettingDef> =
+    T extends SwitchSetting ? T["default"]
+    : T extends TextSetting ? T["default"]
+    : T extends NumberSetting ? T["default"]
+    : T extends RangeSetting ? T["default"]
+    : T extends DropdownSetting ? T["default"]
+    : T extends ColorSetting ? T["default"]
+    : T extends PaletteSetting ? T["default"]
+    : T extends ThemeSetting ? T["default"]
+    : T extends KeybindsSetting ? T["default"]
+    : never;
+
+export type TypeToValue<T extends string> =
+    T extends "switch" ? SwitchSetting["default"]
+    : T extends "text" ? TextSetting["default"]
+    : T extends "number" ? NumberSetting["default"]
+    : T extends "range" ? RangeSetting["default"]
+    : T extends "dropdown" ? DropdownSetting["default"]
+    : T extends "color" ? ColorSetting["default"]
+    : T extends "palette" ? PaletteSetting["default"]
+    : T extends "theme" ? ThemeSetting["default"]
+    : T extends "keybinds" ? KeybindsSetting["default"]
+    : never;
 
 export type SettingsRegistry = Record<string, SettingDef>;

@@ -1,9 +1,10 @@
 import {frameUrls, iconUrls} from "$lib/data/macicon";
-import type {SettingsRegistry} from "./types";
+import type {SettingsRegistry, TypeToValue} from "./types";
 
 /* eslint quote-props: ["error", "consistent-as-needed", {"keywords": false}] */
 
 export const registry = {
+    // export const registry: SettingsRegistry = {
     abnormalCommandExitRuntime: {
         default: 250,
         description: "The number of milliseconds of runtime below which a process exit is considered abnormal. Used to show an error message when the process exits too quickly.",
@@ -943,6 +944,7 @@ export const registry = {
         type: "switch"
     },
     linuxCgroupMemoryLimit: {
+        default: undefined,
         description: "Memory limit in bytes for any individual terminal process (tab, split, window). If unset, no limit is set. Sets the `MemoryHigh` setting on the transient systemd scope (soft limit). Changes not reflected in existing surfaces.",
         key: "linux-cgroup-memory-limit",
         max: 4294967295,
@@ -953,6 +955,7 @@ export const registry = {
         type: "number"
     },
     linuxCgroupProcessesLimit: {
+        default: undefined,
         description: "Number of processes limit for any individual terminal process (tab, split, window). If unset, no limit is set. Sets the `TasksMax` setting (hard limit). Changes not reflected in existing surfaces.",
         key: "linux-cgroup-processes-limit",
         min: 0,
@@ -1610,6 +1613,7 @@ export const registry = {
         type: "dropdown"
     },
     windowHeight: {
+        default: undefined,
         description: "The initial window height in terminal grid cells. Both `window-height` and `window-width` must be set to take effect. Values smaller than 4 are not allowed. Setting to 0 uses the app runtime default.",
         key: "window-height",
         min: 4,
@@ -1774,6 +1778,7 @@ export const registry = {
         type: "switch"
     },
     windowWidth: {
+        default: undefined,
         description: "The initial window width in terminal grid cells. Both `window-height` and `window-width` must be set to take effect. Values smaller than 10 are not allowed. Setting to 0 uses the app runtime default.",
         key: "window-width",
         min: 10,
@@ -1801,4 +1806,17 @@ export const registry = {
         platform: ["gtk-x11"],
         type: "text"
     }
+    // };
+    // } satisfies SettingsRegistry;
 } as const satisfies SettingsRegistry;
+
+
+export type SettingKeys = keyof typeof registry;
+
+export type SettingDefaults = {
+    [K in SettingKeys]: typeof registry[K]["default"]
+};
+
+export type SettingValues = {
+    [K in SettingKeys]: TypeToValue<typeof registry[K]["type"]>;
+};
