@@ -7,7 +7,6 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
 
-    // import settings from "$lib/data/settings";
     import registry from "$lib/settings/registry";
     import navigation from "$lib/settings/navigation";
     import config, {isNonDefault, resetSetting} from "$lib/stores/config.svelte";

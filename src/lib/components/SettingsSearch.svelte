@@ -243,6 +243,17 @@
                                                 {/each}
                                             </span>
                                         {/if}
+                                        {#if result.description}
+                                            <span>
+                                                {#each getHighlightParts(result.description) as part, i (`${result.routeKey}:description:${i}`)}
+                                                    {#if part.matched}
+                                                        <strong>{part.text}</strong>
+                                                    {:else}
+                                                        {part.text}
+                                                    {/if}
+                                                {/each}
+                                            </span>
+                                        {/if}
                                     </span>
                                 </a>
                             {/each}

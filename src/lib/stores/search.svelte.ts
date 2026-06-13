@@ -1,5 +1,8 @@
 import {resolve} from "$app/paths";
-import settings from "$lib/data/settings";
+import navigation from "$lib/settings/navigation";
+import registry from "$lib/settings/registry";
+import type {SettingsRegistry} from "$lib/settings/types";
+// import settings from "$lib/data/settings";
 
 
 // FIXME: this is a bit of a mess, now that we separated this logic from the UI,
@@ -83,29 +86,44 @@ export interface SearchResult {
     settingId: string;
     settingName: string;
     searchableText: string;
+    description: string;
 }
 
 // This doesn't belong here
 const stripHtmlRegex = (html: string) => html.replace(/<[^>]*>/g, "");
+
+export function stripMarkdownRegex(md: string): string {
+    return md
+        // Remove inline code markers
+        .replace(/`([^`]+)`/g, "$1")
+        // Remove list markers (-, *, +, 1.)
+        .replace(/^\s*([-*+]|\d+\.)\s+/gm, "")
+        .trim();
+}
+
 
 // TODO: this is pretty inefficient, we should probably build an index for this instead
 // of doing a linear search through all settings every time. However, it is unlikely that
 // there will be enough settings to cause performance issues, so this is good enough for now.
 const searchableSettings = (() => {
     const results: SearchResult[] = [];
-    for (const category of settings) {
+    for (const category of navigation) {
+        if (!category.groups) continue;
         for (const group of category.groups) {
-            for (const setting of group.settings) {
+            for (const id of group.settings) {
+                const setting = registry[id] as SettingsRegistry[keyof SettingsRegistry];
                 const cleanedNote = setting.note ? stripHtmlRegex(setting.note) : "";
-                const searchableText = [category.name, group.name, setting.name, cleanedNote];
+                const cleanedDescription = setting.description ? stripMarkdownRegex(setting.description) : "";
+                const searchableText = [category.name, group.name, setting.name, cleanedNote, cleanedDescription];
 
                 results.push({
                     categoryId: category.id,
                     categoryName: category.name,
                     groupName: group.name,
                     note: cleanedNote,
-                    routeKey: `${category.id}:${setting.id}`,
-                    settingId: setting.id,
+                    description: cleanedDescription,
+                    routeKey: `${category.id}:${id}`,
+                    settingId: id,
                     settingName: setting.name,
                     searchableText: searchableText.join(" ").toLocaleLowerCase(),
                 });
