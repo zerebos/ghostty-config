@@ -1,5 +1,5 @@
 import type {HexColor} from "$lib/utils/colors";
-import {frameUrls, iconUrls} from "./macicon";
+import {frameUrls, iconUrls} from "$lib/utils/macicon";
 import ghosttySchema, {type GhosttyPlatform} from "$lib/data/ghostty-schema";
 
 interface BaseSettingType {

@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from "$lib/stores/config.svelte";
-    import {iconUrls, frameUrls, customLayerUrls} from "$lib/data/macicon";
+    import {iconUrls, frameUrls, customLayerUrls} from "$lib/utils/macicon";
 
     let hasCdnError = $state(false);
 

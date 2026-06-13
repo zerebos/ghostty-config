@@ -1,5 +1,5 @@
-import {frameUrls, iconUrls} from "$lib/data/macicon";
-import type {SettingsRegistry, TypeToValue} from "./types";
+import type {DropdownOption, SettingsRegistry, TypeToValue} from "./types";
+
 
 /* eslint quote-props: ["error", "consistent-as-needed", {"keywords": false}] */
 
@@ -1015,16 +1015,7 @@ export const registry = {
         key: "macos-icon",
         name: "Icon",
         note: "Custom style must specify both ghost and screen colors.",
-        options: [
-            ...Object.keys(iconUrls).map(key => ({
-                value: key,
-                name: key[0].toUpperCase() + key.slice(1),
-                group: "Predefined icons",
-                icon: iconUrls[key]
-            })),
-            {value: "custom", name: "Custom Icon", description: "Use your own icon file.", group: "Custom"},
-            {value: "custom-style", name: "Custom Style", description: "Customize the icon with colors and frames.", group: "Custom"}
-        ],
+        options: [] as DropdownOption[],
         platform: ["macos"],
         type: "dropdown"
     },
@@ -1033,11 +1024,7 @@ export const registry = {
         description: "The material to use for the frame of the macOS app icon. Required when `macos-icon = custom-style`.\n\n- `aluminum` - Brushed aluminum frame (default)\n- `beige` - Classic 90's computer beige frame\n- `plastic` - Glossy dark plastic frame\n- `chrome` - Shiny chrome frame",
         key: "macos-icon-frame",
         name: "Icon frame",
-        options: Object.keys(frameUrls).map(key => ({
-            value: key,
-            name: key[0].toUpperCase() + key.slice(1),
-            icon: frameUrls[key]
-        })),
+        options: [] as DropdownOption[],
         platform: ["macos"],
         type: "dropdown"
     },
@@ -1533,7 +1520,7 @@ export const registry = {
         key: "theme",
         name: "Color theme",
         note: "Any colors selected after setting this will overwrite the theme's colors.",
-        options: [],
+        options: [] as string[],
         type: "theme"
     },
     title: {
@@ -1805,8 +1792,10 @@ export const registry = {
         platform: ["gtk-x11"],
         type: "text"
     }
-} as const satisfies SettingsRegistry;
+} satisfies SettingsRegistry;
 
+
+export type SettingSchema = typeof registry;
 
 export type SettingKeys = keyof typeof registry;
 

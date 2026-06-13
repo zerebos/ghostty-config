@@ -45,7 +45,7 @@ interface RangeSetting extends SettingInfo {
     showLabels?: boolean;
 }
 
-interface DropdownOption {
+export interface DropdownOption {
     name: string;
     value: string;
     description?: string;
