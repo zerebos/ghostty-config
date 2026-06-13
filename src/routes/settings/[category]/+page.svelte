@@ -41,7 +41,7 @@
             <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
         {/if}
         {#each category.groups as group (group.id)}
-            <Group title={group.name} note={group.note}>
+            <Group title={group.name} note={"note" in group ? group.note : undefined}>
                 {#if category.id === "colors" && group.id === "base"}
                     <BaseColorPreview />
                     <Separator />

@@ -1796,7 +1796,11 @@ export const registry = {
 
 export default registry;
 
-export type SettingSchema = typeof registry;
+export type SettingsSchema = {
+    [K in keyof typeof registry]: Omit<typeof registry[K], "default"> & {
+        default: TypeToValue<typeof registry[K]["type"]>;
+    }
+};
 
 export type SettingKeys = keyof typeof registry;
 
@@ -1807,3 +1811,15 @@ export type SettingDefaults = {
 export type SettingValues = {
     [K in SettingKeys]: TypeToValue<typeof registry[K]["type"]>;
 };
+
+
+// NOTE: if I ever want to do full omission of assertions
+// type OptionsOf<T extends SettingDef> = T extends {options: infer O} ? O extends unknown[] ? Array<DropdownOption | string> : never : never;
+
+// export type SettingsSchema = {
+//     [K in keyof typeof registry]: Omit<typeof registry[K], "default" | "options"> & {
+//         default: TypeToValue<typeof registry[K]["type"]>;
+//     } & (typeof registry[K] extends {options: unknown}
+//         ? {options: OptionsOf<typeof registry[K]>}
+//         : object)
+// };

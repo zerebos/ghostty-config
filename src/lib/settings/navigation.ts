@@ -1,3 +1,17 @@
+import application from "$lib/images/tabs/application.webp";
+import clipboard from "$lib/images/tabs/clipboard.webp";
+import window from "$lib/images/tabs/window.webp";
+
+import colors from "$lib/images/tabs/colors.webp";
+import fonts from "$lib/images/tabs/fonts.webp";
+
+import keybinds from "$lib/images/tabs/keybinds.webp";
+import mouse from "$lib/images/tabs/mouse.webp";
+
+import gtk from "$lib/images/tabs/gtk.svg";
+import linux from "$lib/images/tabs/linux.webp";
+import macos from "$lib/images/tabs/macos.webp";
+
 import {registry} from "./registry";
 
 interface NavGroup {
@@ -9,17 +23,18 @@ interface NavGroup {
 
 interface NavPanel {
     id: string;
+    icon: string;
     name: string;
     note?: string;
     groups?: NavGroup[];
     pages?: NavPanel[];
 }
 
-export const navigation: NavPanel[] = [
+export const navigation = [
     {
         id: "application",
+        icon: application,
         name: "Application",
-        note: "",
         groups: [
             {
                 id: "general",
@@ -121,6 +136,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "clipboard",
+        icon: clipboard,
         name: "Clipboard",
         groups: [
             {
@@ -139,6 +155,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "window",
+        icon: window,
         name: "Window",
         groups: [
             {
@@ -203,6 +220,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "colors",
+        icon: colors,
         name: "Colors",
         groups: [
             {
@@ -265,6 +283,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "fonts",
+        icon: fonts,
         name: "Fonts",
         groups: [
             {
@@ -340,6 +359,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "keybinds",
+        icon: keybinds,
         name: "Keybinds",
         groups: [
             {
@@ -353,6 +373,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "mouse",
+        icon: mouse,
         name: "Mouse",
         groups: [
             {
@@ -374,6 +395,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "gtk",
+        icon: gtk,
         name: "GTK",
         groups: [
             {
@@ -407,6 +429,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "linux",
+        icon: linux,
         name: "Linux",
         groups: [
             {
@@ -424,6 +447,7 @@ export const navigation: NavPanel[] = [
     },
     {
         id: "macos",
+        icon: macos,
         name: "macOS",
         groups: [
             {
@@ -460,9 +484,19 @@ export const navigation: NavPanel[] = [
             }
         ]
     }
-];
+] as const satisfies NavPanel[];
 
 export default navigation;
+
+type TopLevelPanelIDs = typeof navigation[number]["id"];
+type TabGroups = TopLevelPanelIDs[][]; // For grouping panels into tabs, each inner array is a tab, the strings are panel ids
+
+export const tabGroups: TabGroups = [
+    ["application", "clipboard", "window"],
+    ["colors", "fonts"],
+    ["keybinds", "mouse"],
+    ["gtk", "linux", "macos"]
+];
 
 // Validation: run at build time or in dev
 export function validateNavigation() {

@@ -44,6 +44,7 @@ const groupedSearchResults = $derived.by(() => {
     const grouped: Array<{
         categoryId: string;
         categoryName: string;
+        categoryIcon: string;
         categoryRoute: string;
         results: Array<SearchResult & {index: number;}>;
     }> = [];
@@ -58,6 +59,7 @@ const groupedSearchResults = $derived.by(() => {
         grouped.push({
             categoryId: result.categoryId,
             categoryName: result.categoryName,
+            categoryIcon: result.categoryIcon,
             categoryRoute: resolve("/settings/[category]", {category: result.categoryId}),
             results: [{...result, index}],
         });
@@ -79,6 +81,7 @@ export function hasGroupedResults() {
 export interface SearchResult {
     categoryId: string;
     categoryName: string;
+    categoryIcon: string;
     groupName: string;
     note: string;
     routeKey: string;
@@ -118,6 +121,7 @@ const searchableSettings = (() => {
                 results.push({
                     categoryId: category.id,
                     categoryName: category.name,
+                    categoryIcon: navigation.find(n => n.id === category.id)?.icon || "",
                     groupName: group.name,
                     note: cleanedNote,
                     description: cleanedDescription,

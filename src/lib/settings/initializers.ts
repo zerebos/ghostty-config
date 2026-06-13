@@ -1,13 +1,13 @@
 import {frameUrls, iconUrls} from "$lib/utils/macicon";
 import {fetchThemeFiles, parseThemeFiles} from "$lib/utils/themes";
-import {registry, type SettingSchema} from "./registry";
+import {registry, type SettingsSchema} from "./registry";
 
 
-type AsyncInitializer = (registry: SettingSchema) => Promise<void>;
+type AsyncInitializer = (registry: SettingsSchema) => Promise<void>;
 
 const asyncInitializers: AsyncInitializer[] = [
     // Theme list from iTerm2-Color-Schemes
-    async (reg: SettingSchema) => {
+    async (reg: SettingsSchema) => {
         const themeSetting = reg.theme;
         if (themeSetting?.type !== "theme") return;
         const files = await fetchThemeFiles();
@@ -16,7 +16,7 @@ const asyncInitializers: AsyncInitializer[] = [
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    async (reg: SettingSchema) => {
+    async (reg: SettingsSchema) => {
         const iconSetting = reg.macosIcon;
         if (iconSetting?.type !== "dropdown") return;
         iconSetting.options = [
@@ -32,7 +32,7 @@ const asyncInitializers: AsyncInitializer[] = [
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    async (reg: SettingSchema) => {
+    async (reg: SettingsSchema) => {
         const frameSetting = reg.macosIconFrame;
         if (frameSetting?.type !== "dropdown") return;
         frameSetting.options = Object.keys(frameUrls).map(key => ({
@@ -43,7 +43,7 @@ const asyncInitializers: AsyncInitializer[] = [
     },
 
     // Font list... web: skip or no-op; desktop: shell out to `ghostty +list-fonts`
-    async (_: SettingSchema) => {
+    async (_: SettingsSchema) => {
         // The following TODO was written by a clanker.
         // TODO: implement this, ideally by shelling out to `ghostty +list-fonts`
         // and parsing the output, which would ensure the list is accurate and
@@ -61,7 +61,6 @@ export async function runAsyncInitializers() {
 
 
 // TODO: this belongs elsewhere surely
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getOS = () => {
     const platform = navigator.userAgent?.toLowerCase();
     if (platform.includes("linux")) return "linux";
@@ -69,14 +68,16 @@ const getOS = () => {
     return "other";
 };
 
-type Initializer = (registry: SettingSchema) => void;
+type Initializer = (registry: SettingsSchema) => void;
 
 const syncInitializers: Initializer[] = [
-    (_: SettingSchema) => {
+    (_: SettingsSchema) => {
         // Leaving this here as an example for the future
         // Apparently Ghostty now sets this to "true" for both mac and linux
         // reg.copyOnSelect.default = getOS() === "linux" ? "true" : "false";
     },
+
+    (reg: SettingsSchema) => reg.quitAfterLastWindowClosed.default = getOS() !== "macos",
 ];
 
 export function runSyncInitializers() {
