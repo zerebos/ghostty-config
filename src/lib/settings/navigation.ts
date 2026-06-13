@@ -462,6 +462,8 @@ export const navigation: NavPanel[] = [
     }
 ];
 
+export default navigation;
+
 // Validation: run at build time or in dev
 export function validateNavigation() {
     const seen = new Set<string>();

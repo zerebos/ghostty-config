@@ -1,7 +1,7 @@
 <script lang="ts">
     import KeybindEditor from "./KeybindEditor.svelte";
     import Text from "./Text.svelte";
-    import settings from "$lib/data/settings";
+    import settings from "$lib/settings/registry";
     import {confirm} from "$lib/stores/modals.svelte";
     import {getDiagnostics} from "$lib/utils/keybinds";
     import icon from "$lib/images/tabs/keybinds.webp";
@@ -68,12 +68,7 @@
         success("Selected keybind(s) removed");
     }
 
-    const defaultKeybinds = (() => {
-        const panel = settings.find((entry) => entry.id === "keybinds");
-        const group = panel?.groups.find((entry) => entry.id === "keybinds");
-        const setting = group?.settings.find((entry) => entry.type === "keybinds");
-        return (setting?.value as string[]) ?? [];
-    })();
+    const defaultKeybinds = settings.keybind.default;
 
     function resetDefaults() {
         value = [...defaultKeybinds];

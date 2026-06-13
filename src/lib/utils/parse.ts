@@ -1,4 +1,4 @@
-import type {KeybindString} from "$lib/data/settings";
+import type {KeybindString} from "$lib/settings/types";
 import type {HexColor} from "./colors";
 
 const re = /^\s*([a-z-]+)[\s]*=\s*(.*)\s*$/;

@@ -7,7 +7,9 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
 
-    import settings from "$lib/data/settings";
+    // import settings from "$lib/data/settings";
+    import registry from "$lib/settings/registry";
+    import navigation from "$lib/settings/navigation";
     import config, {isNonDefault, resetSetting} from "$lib/stores/config.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
@@ -24,9 +26,10 @@
     import {resolve} from "$app/paths";
     import {success} from "$lib/stores/toasts.svelte";
     import Range from "$lib/components/settings/Range.svelte";
+    import {type SettingsRegistry} from "$lib/settings/types";
 
 
-    const category = $derived(settings.find(c => c.id === $page.params.category));
+    const category = $derived(navigation.find(c => c.id === $page.params.category));
     const title = $derived(category?.name ?? $page.params.category);
 </script>
 
@@ -53,38 +56,39 @@
                     <AppIconPreview />
                     <Separator />
                 {/if}
-                {#each group.settings as setting, i (setting.id)}
+                {#each group.settings as settingId, i (settingId)}
+                    {@const setting = registry[settingId] as SettingsRegistry[keyof SettingsRegistry]}
                     {#if i !== 0}<Separator />{/if}
                     <Item
-                        settingId={setting.id}
+                        {settingId}
                         name={setting.name}
                         note={setting.note}
                         // filter out the current platform from the badge list since it's already obvious from the UI
-                        platform={setting.platform?.filter(p => p !== title?.toLowerCase())}
+                        platform={setting?.platform?.filter(p => p !== title?.toLowerCase())}
                         since={setting.since}
-                        schemaDescription={setting.type !== "palette" ? setting.schemaDescription : undefined}
-                        isNonDefault={isNonDefault(setting.id as keyof typeof config)}
+                        schemaDescription={setting.type !== "palette" ? setting.description : undefined}
+                        isNonDefault={isNonDefault(settingId)}
                         onReset={() => {
-                            resetSetting(setting.id as keyof typeof config);
+                            resetSetting(settingId);
                             success(`${setting.name} reset to default`);
                         }}
                     >
                         {#if setting.type === "switch"}
-                            <Switch bind:checked={config[setting.id as keyof typeof config] as boolean} />
+                            <Switch bind:checked={config[settingId] as boolean} />
                         {:else if setting.type === "text"}
-                            <Text bind:value={config[setting.id as keyof typeof config] as string} placeholder={setting.placeholder} size={setting.size} />
+                            <Text bind:value={config[settingId] as string} placeholder={setting.placeholder} size={setting.size} />
                         {:else if setting.type === "range"}
-                            <Range bind:value={config[setting.id as keyof typeof config] as number} min={setting.min} max={setting.max} step={setting.step} showLabels={setting.showLabels} />
+                            <Range bind:value={config[settingId] as number} min={setting.min} max={setting.max} step={setting.step} showLabels={setting.showLabels} />
                         {:else if setting.type === "number"}
-                            <Number bind:value={config[setting.id as keyof typeof config] as number} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
+                            <Number bind:value={config[settingId] as number} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}
-                            <Dropdown bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} placeholder={setting.placeholder} allowEmpty={setting.allowEmpty} emptyLabel={setting.emptyLabel} disabled={setting.disabled} />
+                            <Dropdown bind:value={config[settingId] as string} options={setting.options} placeholder={setting.placeholder} allowEmpty={setting.allowEmpty} emptyLabel={setting.emptyLabel} disabled={setting.disabled} />
                         {:else if setting.type === "theme"}
-                            <Theme bind:value={config[setting.id as keyof typeof config] as string} options={setting.options} />
+                            <Theme bind:value={config[settingId] as string} options={setting.options} />
                         {:else if setting.type === "color"}
-                            <Color defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config] as HexColor} />
+                            <Color defaultValue={setting.default as HexColor} bind:value={config[settingId] as HexColor} />
                         {:else if setting.type === "palette"}
-                            <Palette defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config] as HexColor[]} />
+                            <Palette defaultValue={setting.default} bind:value={config[settingId] as HexColor[]} />
                         {/if}
                     </Item>
                 {/each}

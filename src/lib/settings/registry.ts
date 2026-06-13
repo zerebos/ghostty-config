@@ -1794,6 +1794,7 @@ export const registry = {
     }
 } satisfies SettingsRegistry;
 
+export default registry;
 
 export type SettingSchema = typeof registry;
 

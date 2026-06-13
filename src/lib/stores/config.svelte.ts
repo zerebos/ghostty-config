@@ -1,5 +1,5 @@
 import {dev} from "$app/environment";
-import {fetchColorScheme} from "$lib/data/settings";
+import {fetchColorScheme} from "$lib/utils/themes";
 import {registry, type SettingDefaults, type SettingValues} from "$lib/settings/registry";
 import parse from "$lib/utils/parse";
 // import defs from "../data/defaults.json";
