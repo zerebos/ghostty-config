@@ -3,9 +3,9 @@ import {fetchThemeFiles, parseThemeFiles} from "$lib/utils/themes";
 import {registry, type SettingSchema} from "./registry";
 
 
-type Initializer = (registry: SettingSchema) => Promise<void>;
+type AsyncInitializer = (registry: SettingSchema) => Promise<void>;
 
-const initializers: Initializer[] = [
+const asyncInitializers: AsyncInitializer[] = [
     // Theme list from iTerm2-Color-Schemes
     async (reg: SettingSchema) => {
         const themeSetting = reg.theme;
@@ -55,6 +55,36 @@ const initializers: Initializer[] = [
     },
 ];
 
+export async function runAsyncInitializers() {
+    await Promise.allSettled(asyncInitializers.map(fn => fn(registry)));
+}
+
+
+// TODO: this belongs elsewhere surely
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getOS = () => {
+    const platform = navigator.userAgent?.toLowerCase();
+    if (platform.includes("linux")) return "linux";
+    if (platform.includes("mac")) return "macos";
+    return "other";
+};
+
+type Initializer = (registry: SettingSchema) => void;
+
+const syncInitializers: Initializer[] = [
+    (_: SettingSchema) => {
+        // Leaving this here as an example for the future
+        // Apparently Ghostty now sets this to "true" for both mac and linux
+        // reg.copyOnSelect.default = getOS() === "linux" ? "true" : "false";
+    },
+];
+
+export function runSyncInitializers() {
+    syncInitializers.map(fn => fn(registry));
+}
+
+
 export async function runInitializers() {
-    await Promise.allSettled(initializers.map(fn => fn(registry)));
+    runSyncInitializers();
+    await runAsyncInitializers();
 }

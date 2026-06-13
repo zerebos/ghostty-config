@@ -369,7 +369,7 @@ export const registry = {
         type: "dropdown"
     },
     copyOnSelect: {
-        default: "false",
+        default: "true",
         description: "Whether to automatically copy selected text to the clipboard.\n\n- `true` - Copy to the selection clipboard (default on Linux and macOS)\n- `false` - Disable copy on select\n- `clipboard` - Copy to both the selection clipboard and system clipboard\n\nMiddle-click paste always uses the selection clipboard.",
         key: "copy-on-select",
         name: "Copy on select",

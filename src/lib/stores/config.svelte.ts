@@ -2,7 +2,11 @@ import {dev} from "$app/environment";
 import {fetchColorScheme} from "$lib/utils/themes";
 import {registry, type SettingDefaults, type SettingValues} from "$lib/settings/registry";
 import parse from "$lib/utils/parse";
+import {runInitializers} from "$lib/settings/initializers";
 
+
+// Run initializers before setting up defaults to ensure that any dynamic options are populated
+void runInitializers();
 
 const defaults = Object.fromEntries(Object.entries(registry).map(([k, v]) => [k, v.default])) as SettingDefaults;
 if (dev) console.log(defaults); // eslint-disable-line no-console
