@@ -4,7 +4,6 @@ import type {SettingsRegistry, TypeToValue} from "./types";
 /* eslint quote-props: ["error", "consistent-as-needed", {"keywords": false}] */
 
 export const registry = {
-    // export const registry: SettingsRegistry = {
     abnormalCommandExitRuntime: {
         default: 250,
         description: "The number of milliseconds of runtime below which a process exit is considered abnormal. Used to show an error message when the process exits too quickly.",
@@ -1806,8 +1805,6 @@ export const registry = {
         platform: ["gtk-x11"],
         type: "text"
     }
-    // };
-    // } satisfies SettingsRegistry;
 } as const satisfies SettingsRegistry;
 
 
