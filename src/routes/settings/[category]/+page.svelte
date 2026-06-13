@@ -65,7 +65,7 @@
                         // filter out the current platform from the badge list since it's already obvious from the UI
                         platform={setting?.platform?.filter(p => p !== title?.toLowerCase())}
                         since={setting.since}
-                        schemaDescription={setting.type !== "palette" ? setting.description : undefined}
+                        description={setting.type !== "palette" ? setting.description : undefined}
                         isNonDefault={isNonDefault(settingId)}
                         onReset={() => {
                             resetSetting(settingId);

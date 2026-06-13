@@ -2,31 +2,13 @@ import {dev} from "$app/environment";
 import {fetchColorScheme} from "$lib/utils/themes";
 import {registry, type SettingDefaults, type SettingValues} from "$lib/settings/registry";
 import parse from "$lib/utils/parse";
-// import defs from "../data/defaults.json";
 
-// TODO: find a good way to properly type the config
+
 const defaults = Object.fromEntries(Object.entries(registry).map(([k, v]) => [k, v.default])) as SettingDefaults;
-
-// for (const panel of settings) {
-//     for (const group of panel.groups) {
-//         for (const setting of group.settings) {
-//             // @ts-expect-error - this is a bit hacky but it allows us to avoid having to maintain a separate defaults file, and also ensures that the defaults are always in sync with the schema
-//             defaults[setting.id as keyof SettingValues] = setting.value;
-//         }
-//     }
-// }
-
-if (dev) {
-    // eslint-disable-next-line no-console
-    console.log(defaults);
-}
+if (dev) console.log(defaults); // eslint-disable-line no-console
 
 const config: SettingValues = $state(Object.assign({}, defaults));
 
-
-export function keyToConfig(key: string) {
-    return key.replaceAll(/([A-Z])/g, "-$1").toLowerCase();
-}
 
 export function diff() {
     // TODO: more elegance
@@ -34,21 +16,22 @@ export function diff() {
     const output: Partial<Record<keyof typeof defaults | string, any>> = {};
 
     for (const k in config) {
-        const key = k as keyof SettingValues;
-        if (Array.isArray(config[key]) && key === "keybind") {
-            const toAdd = config[key].filter(c => !defaults[key].includes(c as never));
-            if (toAdd.length) output[keyToConfig(key)] = toAdd;
+        const settingId = k as keyof SettingValues;
+        const settingKey = registry[settingId].key;
+        if (Array.isArray(config[settingId]) && settingId === "keybind") {
+            const toAdd = config[settingId].filter(c => !defaults[settingId].includes(c as never));
+            if (toAdd.length) output[settingKey] = toAdd;
         }
-        else if (Array.isArray(config[key]) && key === "palette") {
+        else if (Array.isArray(config[settingId]) && settingId === "palette") {
             const toAdd = [];
-            for (let p = 0; p < defaults[key].length; p++) {
-                if (config[key][p] === defaults[key][p]) continue;
-                toAdd.push(`${p}=${config[key][p]}`);
+            for (let p = 0; p < defaults[settingId].length; p++) {
+                if (config[settingId][p] === defaults[settingId][p]) continue;
+                toAdd.push(`${p}=${config[settingId][p]}`);
             }
-            if (toAdd.length) output[keyToConfig(key)] = toAdd;
+            if (toAdd.length) output[settingKey] = toAdd;
         }
-        else if (config[key] != defaults[key]) {
-            output[keyToConfig(key)] = config[key];
+        else if (config[settingId] != defaults[settingId]) {
+            output[settingKey] = config[settingId];
         }
     }
 

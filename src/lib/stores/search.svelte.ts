@@ -2,7 +2,6 @@ import {resolve} from "$app/paths";
 import navigation from "$lib/settings/navigation";
 import registry from "$lib/settings/registry";
 import type {SettingsRegistry} from "$lib/settings/types";
-// import settings from "$lib/data/settings";
 
 
 // FIXME: this is a bit of a mess, now that we separated this logic from the UI,

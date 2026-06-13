@@ -2,7 +2,7 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
-    import {diff, load, keyToConfig} from "$lib/stores/config.svelte";
+    import {diff, load} from "$lib/stores/config.svelte";
     import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
     import {
@@ -19,6 +19,7 @@
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
+    import registry from "$lib/settings/registry";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -322,7 +323,7 @@
     parsedConfig={sharedConfigParsed}
     previewText={sharedConfigPreview}
     parseError={sharedConfigParseError}
-    keyFormatter={keyToConfig}
+    keyFormatter={k => registry[k as keyof typeof registry]?.key}
     onclose={closeSharedConfigModal}
     onimport={importSharedConfig}
 />
