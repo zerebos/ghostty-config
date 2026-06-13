@@ -28,8 +28,10 @@
     import app from "$lib/stores/state.svelte";
     import ModalStack from "$lib/components/modals/ModalStack.svelte";
     import ToastStack from "$lib/components/ToastStack.svelte";
-    import type {Snippet} from "svelte";
+    import {onMount, type Snippet} from "svelte";
     import SettingsSearch from "$lib/components/SettingsSearch.svelte";
+    import {runInitializers} from "$lib/settings/initializers";
+
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -56,6 +58,10 @@
 
     const {children}: {children: Snippet} = $props();
 
+
+    onMount(() => {
+        void runInitializers();
+    });
 
 
 
