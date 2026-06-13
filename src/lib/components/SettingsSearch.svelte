@@ -1,26 +1,13 @@
 <script lang="ts">
-    import {resolve} from "$app/paths";
-    import Tab from "$lib/components/Tab.svelte";
-
-    import application from "$lib/images/tabs/application.webp";
-    import clipboard from "$lib/images/tabs/clipboard.webp";
-    import windowIcon from "$lib/images/tabs/window.webp";
-
-    import colors from "$lib/images/tabs/colors.webp";
-    import fonts from "$lib/images/tabs/fonts.webp";
-
-    import keybinds from "$lib/images/tabs/keybinds.webp";
-    import mouse from "$lib/images/tabs/mouse.webp";
-
-    import gtk from "$lib/images/tabs/gtk.svg";
-    import linux from "$lib/images/tabs/linux.webp";
-    import macos from "$lib/images/tabs/macos.webp";
-
     import type {Snippet} from "svelte";
-    import {scale} from "svelte/transition";
-    import {getGroupedResults, getHighlightParts, getResults, hasGroupedResults, hasResults, searchState, setQuery, type SearchResult} from "$lib/stores/search.svelte";
     import {goto} from "$app/navigation";
     import {page} from "$app/state";
+    import {resolve} from "$app/paths";
+    import {scale} from "svelte/transition";
+
+    import Tab from "$lib/components/Tab.svelte";
+
+    import {getGroupedResults, getHighlightParts, getResults, hasGroupedResults, hasResults, searchState, setQuery, type SearchResult} from "$lib/stores/search.svelte";
 
 
     const {children}: {children: Snippet} = $props();
@@ -171,28 +158,14 @@
                                 searchState.activeIndex = -1; // tab selection is inside component for now
                             }}
                         >
-                            <!-- TODO: a lot of de-duping with the main sidebar -->
                             {#snippet icon()}
-                                {#if category.categoryId === "application"}
-                                    <img src={application} alt="Application Settings" />
-                                {:else if category.categoryId === "clipboard"}
-                                    <img src={clipboard} alt="Clipboard Settings" />
-                                {:else if category.categoryId === "window"}
-                                    <img src={windowIcon} alt="Window Settings" />
-                                {:else if category.categoryId === "colors"}
-                                    <img src={colors} alt="Color Settings" />
-                                {:else if category.categoryId === "fonts"}
-                                    <img src={fonts} alt="Font Settings" />
-                                {:else if category.categoryId === "keybinds"}
-                                    <img src={keybinds} alt="Keybind Settings" />
-                                {:else if category.categoryId === "mouse"}
-                                    <img src={mouse} alt="Mouse Settings" />
-                                {:else if category.categoryId === "gtk"}
-                                    <div class="icon-wrapper"><img src={gtk} alt="GTK Settings" /></div>
-                                {:else if category.categoryId === "linux"}
-                                    <img src={linux} alt="Linux Settings" />
-                                {:else if category.categoryId === "macos"}
-                                    <img src={macos} alt="macOS Settings" />
+                                <!-- FIXME: this is a hack -->
+                                {#if category.categoryIcon.includes("svg+xml") || category.categoryIcon.endsWith(".svg")}
+                                    <div class="icon-wrapper">
+                                        <img src={category.categoryIcon} alt={`${category.categoryName} Settings`} />
+                                    </div>
+                                {:else}
+                                    <img src={category.categoryIcon} alt={`${category.categoryName} Settings`} />
                                 {/if}
                             {/snippet}
                             {category.categoryName}
@@ -235,6 +208,17 @@
                                         {#if result.note}
                                             <span>
                                                 {#each getHighlightParts(result.note) as part, i (`${result.routeKey}:note:${i}`)}
+                                                    {#if part.matched}
+                                                        <strong>{part.text}</strong>
+                                                    {:else}
+                                                        {part.text}
+                                                    {/if}
+                                                {/each}
+                                            </span>
+                                        {/if}
+                                        {#if result.description}
+                                            <span>
+                                                {#each getHighlightParts(result.description) as part, i (`${result.routeKey}:description:${i}`)}
                                                     {#if part.matched}
                                                         <strong>{part.text}</strong>
                                                     {:else}
@@ -332,7 +316,8 @@
     flex: 1;
     padding: 10px;
     min-height: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 #search-results {
@@ -452,7 +437,7 @@
     align-items: center;
 }
 
-#categories .icon-wrapper img {
+#categories .icon-wrapper :global(img) {
     height: 14px;
     width: 14px;
 }

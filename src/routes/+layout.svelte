@@ -1,22 +1,15 @@
 <script lang="ts">
+    // import {dev} from "$app/environment";
+    import {type Snippet} from "svelte";
+
+    import "../app.css";
+
     import Gap from "$lib/components/Gap.svelte";
     import Tab from "$lib/components/Tab.svelte";
     import User from "$lib/components/User.svelte";
-    import "../app.css";
-
-    import application from "$lib/images/tabs/application.webp";
-    import clipboard from "$lib/images/tabs/clipboard.webp";
-    import window from "$lib/images/tabs/window.webp";
-
-    import colors from "$lib/images/tabs/colors.webp";
-    import fonts from "$lib/images/tabs/fonts.webp";
-
-    import keybinds from "$lib/images/tabs/keybinds.webp";
-    import mouse from "$lib/images/tabs/mouse.webp";
-
-    import gtk from "$lib/images/tabs/gtk.svg";
-    import linux from "$lib/images/tabs/linux.webp";
-    import macos from "$lib/images/tabs/macos.webp";
+    import ModalStack from "$lib/components/modals/ModalStack.svelte";
+    import ToastStack from "$lib/components/ToastStack.svelte";
+    import SettingsSearch from "$lib/components/SettingsSearch.svelte";
 
     import github from "$lib/images/tabs/github.svg";
     import ghostty from "$lib/images/tabs/ghostty.webp";
@@ -26,10 +19,8 @@
 
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
-    import ModalStack from "$lib/components/modals/ModalStack.svelte";
-    import ToastStack from "$lib/components/ToastStack.svelte";
-    import type {Snippet} from "svelte";
-    import SettingsSearch from "$lib/components/SettingsSearch.svelte";
+    import navigation, {tabGroups} from "$lib/settings/navigation";
+
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -55,7 +46,6 @@
     });
 
     const {children}: {children: Snippet} = $props();
-
 
 
 
@@ -85,7 +75,7 @@
         </div>
         <SettingsSearch>
             <User route="/" />
-            <Gap />
+            <!-- <Gap />
             <Tab route="/settings/application">
                 {#snippet icon()}<img src={application} alt="Application Settings" />{/snippet}
                 Application
@@ -128,7 +118,28 @@
             <Tab route="/settings/macos">
                 {#snippet icon()}<img src={macos} alt="MacOS Settings" />{/snippet}
                 macOS
-            </Tab>
+            </Tab> -->
+            {#each tabGroups as group, i (i)}
+                <Gap />
+                {#each group as panelId (panelId)}
+                    {@const panel = navigation.find(p => p.id === panelId)}
+                    {#if panel}
+                        <Tab route={`/settings/${panel.id}`}>
+                            {#snippet icon()}
+                                <!-- FIXME: this is a hack -->
+                                {#if panel.icon.includes("svg+xml") || panel.icon.endsWith(".svg")}
+                                    <div class="icon-wrapper">
+                                        <img src={panel.icon} alt={`${panel.name} Settings`} />
+                                    </div>
+                                {:else}
+                                    <img src={panel.icon} alt={`${panel.name} Settings`} />
+                                {/if}
+                            {/snippet}
+                            {panel.name}
+                        </Tab>
+                    {/if}
+                {/each}
+            {/each}
             <Gap expand={true} />
             <Tab route="/app/import-export">
                 {#snippet icon()}<img src={sync} alt="Settings Sync" />{/snippet}
@@ -138,12 +149,12 @@
                 {#snippet icon()}<img src={calligraphy} alt="Font Playground" />{/snippet}
                 Font Playground
             </Tab>
-            {#if import.meta.env.DEV}
+            <!-- {#if dev}
             <Tab route="/app/dropdown-debug">
-                {#snippet icon()}<img src={application} alt="Dropdown Debug" />{/snippet}
+                {#snippet icon()}<img src={ghostty} alt="Dropdown Debug" />{/snippet}
                 Dropdown Debug
             </Tab>
-            {/if}
+            {/if} -->
             <Gap expand={true} />
             <Tab route="https://github.com/zerebos/ghostty-config">
                 {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}

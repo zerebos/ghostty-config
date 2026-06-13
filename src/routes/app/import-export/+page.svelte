@@ -2,7 +2,7 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
-    import {diff, load, keyToConfig} from "$lib/stores/config.svelte";
+    import {diff, diffFromDefaults, load} from "$lib/stores/config.svelte";
     import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
     import {
@@ -19,6 +19,7 @@
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
+    import {type SettingValues} from "$lib/settings/registry";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -319,10 +320,10 @@
 
 {#if showSharedConfigModal}
 <SharedConfigModal
-    parsedConfig={sharedConfigParsed}
+    // FIXME: revamp this
+    parsedConfig={diffFromDefaults(sharedConfigParsed as Partial<SettingValues>) as Record<string, string | string[]> | null}
     previewText={sharedConfigPreview}
     parseError={sharedConfigParseError}
-    keyFormatter={keyToConfig}
     onclose={closeSharedConfigModal}
     onimport={importSharedConfig}
 />

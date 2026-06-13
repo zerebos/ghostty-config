@@ -4,7 +4,7 @@
 /* TODO: rework all of these vars */
 :root {
     --app-width: 715px;
-    --app-height: 700px;
+    --app-height: 740px;
     --sidebar-width: 215px;
 
     /* Put -apple-system and BlinkMacSystemFont first for sf pro on macOS */

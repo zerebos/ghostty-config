@@ -11,7 +11,6 @@
         parseError: boolean;
         onclose?: () => void | Promise<void>;
         onimport?: () => void | Promise<void>;
-        keyFormatter?: (key: string) => string;
     }
 
     const {
@@ -20,7 +19,6 @@
         parseError,
         onclose,
         onimport,
-        keyFormatter = (key: string) => key
     }: Props = $props();
 </script>
 
@@ -38,11 +36,11 @@
                 {#if Array.isArray(value)}
                     {#each value as val, v (v)}
                         {#if val !== ""}
-                            <div class="row"><span class="p4">{keyFormatter(key)}</span> = <span class="p5">{val}</span></div>
+                            <div class="row"><span class="p4">{key}</span> = <span class="p5">{val}</span></div>
                         {/if}
                     {/each}
                 {:else}
-                    <div class="row"><span class="p4">{keyFormatter(key)}</span> = <span class="p5">{value}</span></div>
+                    <div class="row"><span class="p4">{key}</span> = <span class="p5">{value}</span></div>
                 {/if}
             {/each}
         {:else}
