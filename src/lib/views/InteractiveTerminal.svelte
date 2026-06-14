@@ -74,7 +74,7 @@
         for (const part of cwdParts) {
             const child = node.children[part];
             if (!child || child.type !== "dir") return root;
-            node = child as DirNode;
+            node = child;
         }
         return node;
     }
@@ -103,7 +103,7 @@
         let node: FileNode | DirNode = root;
         for (const part of parts) {
             if (node.type !== "dir") return null;
-            const child: FileNode | DirNode | undefined = (node as DirNode).children[part];
+            const child: FileNode | DirNode | undefined = node.children[part];
             if (!child) return null;
             node = child;
         }
@@ -138,7 +138,7 @@
             : name.endsWith(".sh")
             ? "-rwxr-xr-x"
             : "-rw-r--r--";
-        const size = isDir ? " 4096" : String((node as FileNode).content.length).padStart(5);
+        const size = isDir ? " 4096" : String(node.content.length).padStart(5);
         return `${perms}  1 ${USER} ${USER} ${size} Jan  1 10:00 ${colored}`;
     }
 
@@ -231,7 +231,7 @@
                     return {lines: [lsEntry(paths[0] ?? ".", targetNode, long)]};
                 }
 
-                const entries = Object.entries((targetNode as DirNode).children)
+                const entries = Object.entries(targetNode.children)
                     .filter(([name]) => all || !name.startsWith("."))
                     .sort(([a], [b]) => a.localeCompare(b));
 
@@ -265,7 +265,7 @@
                 const node = getNodeAt(parts);
                 if (!node) return {lines: [fg(1, `cat: ${args[0]}: No such file or directory`)]};
                 if (node.type === "dir") return {lines: [fg(1, `cat: ${args[0]}: Is a directory`)]};
-                return {lines: (node as FileNode).content.split("\n")};
+                return {lines: node.content.split("\n")};
             }
 
             case "clear":
@@ -460,14 +460,22 @@
         }
     }
 
-    function recreateTerminal() {
+    async function recreateTerminal() {
         if (!container) return;
 
+        // console.log("Recreating terminal with new config...");
+
         if (term) {
+            term.renderer?.clear();
+            term.clear();
+            term.reset();
             term.dispose();
+            fitAddon?.dispose();
             term = undefined;
             fitAddon = undefined;
-            while (container.firstChild) container.removeChild(container.firstChild);
+            // while (container.firstChild) container.removeChild(container.firstChild);
+            container.innerHTML = "";
+            await new Promise(resolve => setTimeout(resolve, 50)); // Wait a tick to ensure old terminal is fully cleaned up
         }
 
         // Reset shell state
@@ -484,7 +492,7 @@
             theme: getTheme(),
             convertEol: true,
             scrollback: 1000,
-            cursorBlink: config.cursorStyleBlink !== "false" && config.cursorStyleBlink !== false,
+            cursorBlink: config.cursorStyleBlink !== "false",
             cursorStyle: (config.cursorStyle as "block" | "underline" | "bar") || "block",
         });
 
@@ -502,7 +510,7 @@
     }
 
     onMount(() => {
-        init().then(() => {
+        void init().then(() => {
             initialized = true;
         });
 
@@ -511,23 +519,41 @@
         };
     });
 
+    // let onlyCreateOnce = false;
     $effect(() => {
         if (!initialized || !container) return;
         // Track config values to trigger reactivity on changes
-        const _configDependencies = [
-            config.background,
-            config.foreground,
-            config.fontFamily,
-            config.fontSize,
-            config.cursorColor,
-            config.cursorStyle,
-            config.cursorStyleBlink,
-            config.selectionBackground,
-            config.selectionForeground,
-            ...config.palette.slice(0, 16),
-        ];
-        term?.clear();
-        recreateTerminal();
+        // const _configDependencies = [
+        //     config.background,
+        //     config.foreground,
+        //     config.fontFamily,
+        //     config.fontSize,
+        //     config.cursorColor,
+        //     config.cursorStyle,
+        //     config.cursorStyleBlink,
+        //     config.selectionBackground,
+        //     config.selectionForeground,
+        //     ...config.palette.slice(0, 16),
+        // ];
+        // term?.clear();
+        // if (!onlyCreateOnce) {
+            void recreateTerminal();
+            // onlyCreateOnce = true;
+        // }
+        // term?.renderer?.setTheme(getTheme());
+    });
+
+    $effect(() => {
+        // if (!initialized || !container) return;
+        // term?.renderer?.setTheme(getTheme());
+        // term?.resize(term.cols, term.rows); // Trigger re-render to apply new theme colors
+        // term?.selectAll(); // Fix cursor color not updating sometimes by forcing a full re-render of the viewport
+        // term?.clearSelection();
+        // term?.scrollToBottom();
+        // term?.blur();
+        // term?.focus();
+        // term?.blur();
+        // fitAddon?.fit();
     });
 </script>
 

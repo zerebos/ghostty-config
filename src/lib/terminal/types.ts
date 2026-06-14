@@ -13,7 +13,12 @@ export type Segment = {
 
 export type Line = Segment[];
 
-export type ExecResult = {lines: Line[]; clear?: boolean; mutateCwd?: string[];};
+export type ExecResult = {
+    lines: Line[];
+    clear?: boolean;
+    mutateCwd?: string[];
+    failed?: boolean;
+};
 
 export type ExecContext = {
     cwd: () => string[]; // getter so commands always see latest

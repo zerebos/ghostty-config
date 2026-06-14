@@ -19,7 +19,7 @@ export const s = {
 // Helpers for constructing ExecResults
 export const ok = (lines: Line[]): ExecResult => ({lines});
 export const clear = (): ExecResult => ({lines: [], clear: true});
-export const err = (msg: string): ExecResult => ({lines: [[s.error(msg)]]});
+export const err = (msg: string): ExecResult => ({lines: [[s.error(msg)]], failed: true});
 
 
 // Constants and helpers for file segments in `ls` output

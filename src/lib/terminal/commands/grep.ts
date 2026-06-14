@@ -29,10 +29,8 @@ const command: Command = {
 
         function searchFile(content: string, displayName?: string) {
             content.split("\n").forEach((line, i) => {
-                // const testRegex = new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), ignoreCase ? "gi" : "g");
                 const ranges: Array<[number, number]> = [];
-                let m: RegExpExecArray | null;
-                while ((m = regex.exec(line)) !== null) ranges.push([m.index, m.index + m[0].length]);
+                for (const m of line.matchAll(regex)) ranges.push([m.index, m.index + m[0].length]);
                 if (ranges.length) matches.push({file: displayName, lineNum: i + 1, line, ranges});
             });
         }

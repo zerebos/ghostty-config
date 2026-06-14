@@ -11,9 +11,7 @@ export function execChain(input: string, ctx: ExecContext): ExecResult {
         const result = execSingle(part, ctx);
         if (result.clear) return result; // clear short-circuits everything
         allLines.push(...result.lines);
-        // Treat an error line (palette 1) as failure — stop the chain
-        const failed = result.lines.some(line => line.some(seg => seg.palette === 1));
-        if (failed) break;
+        if (result.failed) break;
     }
 
     return {lines: allLines};
