@@ -12,7 +12,7 @@ const asyncInitializers: AsyncInitializer[] = [
         if (themeSetting?.type !== "theme") return;
         const files = await fetchThemeFiles();
         const themeNames = parseThemeFiles(files);
-        themeSetting.options.push(...themeNames);
+        themeSetting.options = themeNames;
     },
 
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -88,5 +88,5 @@ export function runSyncInitializers() {
 
 export async function runInitializers() {
     runSyncInitializers();
-    await runAsyncInitializers();
+    if (typeof window !== "undefined") await runAsyncInitializers();
 }

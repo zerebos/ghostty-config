@@ -19,7 +19,7 @@
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
-    import registry, {type SettingValues} from "$lib/settings/registry";
+    import {type SettingValues} from "$lib/settings/registry";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -324,7 +324,6 @@
     parsedConfig={diffFromDefaults(sharedConfigParsed as Partial<SettingValues>) as Record<string, string | string[]> | null}
     previewText={sharedConfigPreview}
     parseError={sharedConfigParseError}
-    keyFormatter={k => registry[k as keyof typeof registry]?.key}
     onclose={closeSharedConfigModal}
     onimport={importSharedConfig}
 />

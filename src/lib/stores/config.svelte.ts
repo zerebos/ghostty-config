@@ -50,7 +50,8 @@ export function diffFromDefaults(conf: Partial<SettingValues>) {
 
     for (const k in conf) {
         const settingId = k as keyof SettingValues;
-        const settingKey = registry[settingId].key;
+        const settingKey = registry[settingId]?.key;
+        if (!settingKey) continue;
         if (Array.isArray(conf[settingId]) && settingId === "keybind") {
             const toAdd = conf[settingId].filter(c => !defaults[settingId].includes(c as never));
             if (toAdd.length) output[settingKey] = toAdd;
