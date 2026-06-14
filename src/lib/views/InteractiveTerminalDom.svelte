@@ -1,115 +1,15 @@
 <script lang="ts">
-    import type {ExecContext, Line, ExecResult, HistoryEntry, PromptSnapshot, DirNode} from "$lib/terminal";
-    import {cwdString, getNode, makeFilesystem, resolveParts} from "$lib/terminal/filesystem";
-    import {s, err} from "$lib/terminal/utils";
+    import type {ExecContext, Line, HistoryEntry, PromptSnapshot, DirNode} from "$lib/terminal/types";
+    import {cwdString, makeFilesystem} from "$lib/terminal/filesystem";
+    import {s} from "$lib/terminal/utils";
     import {tick} from "svelte";
     import commands from "$lib/terminal/commands";
+    import {getCompletion} from "$lib/terminal/completion";
+    import {execChain} from "$lib/terminal/exec";
 
 
-    // ── Command execution (with && chain support) ──────────────────────────────
-
-    function execChain(input: string, ctx: ExecContext): ExecResult {
-        // Split on && — run each segment, stop on first error/non-empty-exit
-        const parts = input.split("&&").map(p => p.trim()).filter(Boolean);
-        const allLines: Line[] = [];
-
-        for (const part of parts) {
-            const result = execSingle(part, ctx);
-            if (result.clear) return result; // clear short-circuits everything
-            allLines.push(...result.lines);
-            // Treat an error line (palette 1) as failure — stop the chain
-            const failed = result.lines.some(line => line.some(seg => seg.palette === 1));
-            if (failed) break;
-        }
-
-        return {lines: allLines};
-    }
-
-    function execSingle(input: string, ctx: ExecContext): ExecResult {
-        const trimmed = input.trim();
-        if (!trimmed) return {lines: []};
-
-        const argv = trimmed.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) ?? [];
-        const [cmd, ...args] = argv;
-        if (!cmd) return {lines: []};
-
-        const def = commands[cmd];
-        if (!def) {
-            return {lines: [[
-                s.error(`${cmd}: command not found`),
-                s.plain(". Type "),
-                s.bold("help"),
-                s.plain(" to list available commands."),
-            ]]};
-        }
-
-        try {
-            return def.fn(args, ctx);
-        }
-        catch {
-            return err(`${cmd}: unexpected error`);
-        }
-    }
-
-    // ── Tab completion ─────────────────────────────────────────────────────────
-
-    function tabComplete(input: string, cwd: string[], root: DirNode): string | null {
-        const argv = input.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) ?? [];
-        const isCmd = argv.length === 0 || (argv.length === 1 && !input.endsWith(" "));
-
-        if (isCmd) {
-            const partial = argv[0] ?? "";
-            const matches = Object.keys(commands).filter(c => c.startsWith(partial));
-            if (matches.length === 1) return matches[0] + " ";
-            if (matches.length > 1) {
-                // Return longest common prefix
-                const lcp = longestCommonPrefix(matches);
-                return lcp.length > partial.length ? lcp : null;
-            }
-            return null;
-        }
-
-        // File/dir completion for the last arg
-        const lastArg = input.endsWith(" ") ? "" : (argv[argv.length - 1] ?? "");
-        const slashIdx = lastArg.lastIndexOf("/");
-        const dirPart = slashIdx >= 0 ? lastArg.slice(0, slashIdx + 1) : "";
-        const filePart = slashIdx >= 0 ? lastArg.slice(slashIdx + 1) : lastArg;
-
-        const dirParts = resolveParts(cwd, dirPart || ".");
-        const dirNode = getNode(root, dirParts);
-        if (!dirNode || dirNode.type !== "dir") return null;
-
-        const matches = Object.entries(dirNode.children)
-            .filter(([name]) => name.startsWith(filePart))
-            .map(([name, node]) => dirPart + name + (node.type === "dir" ? "/" : ""));
-
-        if (matches.length === 1) {
-            // Replace last arg with completed version
-            const prefix = input.endsWith(" ") ? input : input.slice(0, input.length - lastArg.length);
-            return prefix + matches[0];
-        }
-        if (matches.length > 1) {
-            const lcp = longestCommonPrefix(matches);
-            const prefix = input.endsWith(" ") ? input : input.slice(0, input.length - lastArg.length);
-            const newLast = lcp.length > filePart.length ? lcp : null;
-            return newLast ? prefix + newLast : null;
-        }
-        return null;
-    }
-
-    function longestCommonPrefix(strs: string[]): string {
-        if (!strs.length) return "";
-        let prefix = strs[0];
-        for (const s of strs.slice(1)) {
-            while (!s.startsWith(prefix)) prefix = prefix.slice(0, -1);
-        }
-        return prefix;
-    }
-
-    // ── Terminal state ─────────────────────────────────────────────────────────
-
-    const USER = "john";
-    const HOST = "ghostty-pc";
+    const USER = "you";
+    const HOST = "ghostty-config";
 
     const root: DirNode = $state(makeFilesystem());
     let cwdParts: string[] = $state([]);
@@ -126,10 +26,10 @@
             id: outputIdCounter++,
             segments: [
                 s.plain("Type "), s.p("help", 10, true), s.plain(" to get started or "),
-                s.p("help <cmd>", 10), s.plain(" for command details."),
+                s.p("help <cmd>", 10, true), s.plain(" for command details."),
             ]
         },
-        {kind: "output", id: outputIdCounter++, segments: [s.plain("")]},
+        {kind: "output", id: outputIdCounter++, segments: [s.plain("\n")]},
     ]);
 
     const ctx: ExecContext = {
@@ -170,7 +70,7 @@
         switch (true) {
             case e.key === "Tab": {
                 e.preventDefault();
-                const completed = tabComplete(inputBuffer, cwdParts, root);
+                const completed = getCompletion(inputBuffer, ctx);
                 if (completed !== null) {
                     inputBuffer = completed;
                     cursorPos = inputBuffer.length;
@@ -295,7 +195,6 @@
         }
     }
 
-    // ── Derived prompt state ───────────────────────────────────────────────────
 
     const currentCwd = $derived(cwdString(cwdParts));
     const cursorChar = $derived(inputBuffer[cursorPos] ?? " ");
@@ -303,8 +202,6 @@
     const afterCursor = $derived(inputBuffer.slice(cursorPos + 1));
 
     function focusTerminal() {container?.focus();}
-
-    // ── Props ──────────────────────────────────────────────────────────────────
 
     interface Props {
         onCwdChange?: (cwd: string) => void;
@@ -409,8 +306,9 @@
 .line {
     display: flex;
     white-space: pre;
-    line-height: 1.4;
+    /* line-height: 1.4; */
     flex-wrap: nowrap;
+    padding: 1px 0;
 }
 
 .input-line {
