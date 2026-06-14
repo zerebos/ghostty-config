@@ -4,6 +4,7 @@
     import InteractiveTerminal from "$lib/views/InteractiveTerminal.svelte";
     import InteractiveTerminalWterm from "$lib/views/InteractiveTerminalWterm.svelte";
     import InteractiveTerminalXterm from "$lib/views/InteractiveTerminalXterm.svelte";
+    import InteractiveTerminalBash from "$lib/views/InteractiveTerminalBash.svelte";
 </script>
 
 <Page title="Live Preview">
@@ -11,4 +12,5 @@
     <InteractiveTerminal />
     <InteractiveTerminalWterm />
     <InteractiveTerminalXterm />
+    <InteractiveTerminalBash />
 </Page>
