@@ -1,4 +1,5 @@
 import application from "$lib/images/tabs/application.webp";
+import terminal from "$lib/images/tabs/terminal.webp"; // placeholder
 import clipboard from "$lib/images/tabs/clipboard.webp";
 import window from "$lib/images/tabs/window.webp";
 
@@ -13,6 +14,7 @@ import linux from "$lib/images/tabs/linux.webp";
 import macos from "$lib/images/tabs/macos.webp";
 
 import {registry} from "./registry";
+import {dev} from "$app/environment";
 
 interface NavGroup {
     id: string;
@@ -37,7 +39,7 @@ export const navigation = [
         name: "Application",
         groups: [
             {
-                id: "general",
+                id: "main",
                 name: "",
                 settings: [
                     "title",
@@ -48,6 +50,15 @@ export const navigation = [
                     "linkUrl",
                     "linkPreviews",
                     "undoTimeout"
+                ]
+            },
+            {
+                id: "bell",
+                name: "Bell",
+                settings: [
+                    "bellFeatures",
+                    "bellAudioPath",
+                    "bellAudioVolume"
                 ]
             },
             {
@@ -76,8 +87,28 @@ export const navigation = [
                 ]
             },
             {
+                id: "quickTerminal",
+                name: "Quick Terminal",
+                settings: [
+                    "quickTerminalPosition",
+                    "quickTerminalScreen",
+                    "quickTerminalSize",
+                    "quickTerminalAnimationDuration",
+                    "quickTerminalAutohide",
+                    "quickTerminalSpaceBehavior",
+                    "quickTerminalKeyboardInteractivity"
+                ]
+            }
+        ]
+    },
+    {
+        id: "terminal",
+        icon: terminal, // TODO: replace
+        name: "Terminal",
+        groups: [
+            {
                 id: "shell",
-                name: "Shell Integration",
+                name: "",
                 settings: [
                     "shellIntegration",
                     "shellIntegrationFeatures",
@@ -95,41 +126,25 @@ export const navigation = [
                 ]
             },
             {
-                id: "quick",
-                name: "Quick Terminal",
-                settings: [
-                    "quickTerminalPosition",
-                    "quickTerminalScreen",
-                    "quickTerminalSize",
-                    "quickTerminalAnimationDuration",
-                    "quickTerminalAutohide",
-                    "quickTerminalSpaceBehavior",
-                    "quickTerminalKeyboardInteractivity"
-                ]
-            },
-            {
-                id: "advanced",
-                name: "Advanced",
-                note: "You should only touch these settings if you know what you're doing, otherwise you could cause major issues with Ghostty!",
+                id: "display",
+                name: "Display",
                 settings: [
                     "scrollbackLimit",
-                    "customShader",
-                    "customShaderAnimation",
                     "scrollToBottom",
-                    "enquiryResponse",
-                    "oscColorReportFormat",
-                    "vtKamAllowed",
                     "imageStorageLimit",
-                    "progressStyle"
+                    "progressStyle",
+                    "customShader",
+                    "customShaderAnimation"
                 ]
             },
             {
-                id: "bell",
-                name: "Bell",
+                id: "compatibility",
+                name: "Protocol & Compatibility",
+                note: "These settings control low-level terminal protocol behavior. Only change these if you know what you're doing.",
                 settings: [
-                    "bellFeatures",
-                    "bellAudioPath",
-                    "bellAudioVolume"
+                    "oscColorReportFormat",
+                    "enquiryResponse",
+                    "vtKamAllowed"
                 ]
             }
         ]
@@ -288,7 +303,7 @@ export const navigation = [
         groups: [
             {
                 id: "general",
-                name: "General Font Settings",
+                name: "",
                 settings: [
                     "fontSize",
                     "fontThicken",
@@ -489,11 +504,11 @@ export const navigation = [
 export default navigation;
 
 type TopLevelPanelIDs = typeof navigation[number]["id"];
-type TabGroups = TopLevelPanelIDs[][]; // For grouping panels into tabs, each inner array is a tab, the strings are panel ids
+type TabGroups = TopLevelPanelIDs[][];
 
 export const tabGroups: TabGroups = [
-    ["application", "clipboard", "window"],
-    ["colors", "fonts"],
+    ["application", "terminal", "clipboard"],
+    ["window", "colors", "fonts"],
     ["keybinds", "mouse"],
     ["gtk", "linux", "macos"]
 ];
@@ -520,4 +535,4 @@ export function validateNavigation() {
     }
 }
 
-validateNavigation();
+if (dev) validateNavigation();

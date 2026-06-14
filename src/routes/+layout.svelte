@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {dev} from "$app/environment";
+    // import {dev} from "$app/environment";
     import {type Snippet} from "svelte";
 
     import "../app.css";
@@ -149,12 +149,12 @@
                 {#snippet icon()}<img src={calligraphy} alt="Font Playground" />{/snippet}
                 Font Playground
             </Tab>
-            {#if dev}
+            <!-- {#if dev}
             <Tab route="/app/dropdown-debug">
                 {#snippet icon()}<img src={ghostty} alt="Dropdown Debug" />{/snippet}
                 Dropdown Debug
             </Tab>
-            {/if}
+            {/if} -->
             <Gap expand={true} />
             <Tab route="https://github.com/zerebos/ghostty-config">
                 {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
