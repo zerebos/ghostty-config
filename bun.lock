@@ -6,10 +6,6 @@
       "name": "ghostty-config",
       "dependencies": {
         "@fontsource-variable/inter": "^5.2.8",
-        "@wterm/dom": "^0.3.0",
-        "@wterm/just-bash": "^0.3.0",
-        "@xterm/addon-fit": "^0.11.0",
-        "@xterm/xterm": "^6.0.0",
         "ghostty-web": "^0.4.0",
         "just-bash": "^3.0.1",
         "marked": "^18.0.4",
@@ -347,16 +343,6 @@
     "@vitest/spy": ["@vitest/spy@4.1.8", "", {}, "sha512-6EevtBp6OZOPF7bmz36HrGMeP3txgVSrgebWxHOafDXGkhIzfXK14f8KF6MuFfgXXUeHxmpD3BQxkV00/3s5mA=="],
 
     "@vitest/utils": ["@vitest/utils@4.1.8", "", { "dependencies": { "@vitest/pretty-format": "4.1.8", "convert-source-map": "^2.0.0", "tinyrainbow": "^3.1.0" } }, "sha512-uOJamYALNhfJ6iolExyQM40yIQwDqYnkKtQ5VCiSe17E33H0aQ/u+1GlRuz4LZBk6Mm3sg90G9hEbmEt37C1Zg=="],
-
-    "@wterm/core": ["@wterm/core@0.3.0", "", {}, "sha512-aQ73QBP+eyA3kcn31mA7DmAi7qmEsQijZdmvgwxtSjCi2248EAOZgtkGDpjlspfrxyVxQbUl/IF+gCVcXt4nZQ=="],
-
-    "@wterm/dom": ["@wterm/dom@0.3.0", "", { "dependencies": { "@wterm/core": "0.3.0" } }, "sha512-OiUl7reGSlW02yb5wGXMplMZhW2HBkBSFxvbFj15I832UK0QFIHRvhE2l6Xgae8ROn9bNLaALoKDFvcUuz80iQ=="],
-
-    "@wterm/just-bash": ["@wterm/just-bash@0.3.0", "", { "peerDependencies": { "just-bash": "^2" } }, "sha512-jaW0E5vg+gouWlbNRJX2arRsmscNIAusRWW2dbVXHRTEqYAiitdv7c85bin9uLyYBVJ0BcXoAuoz6qo3CjA8Jw=="],
-
-    "@xterm/addon-fit": ["@xterm/addon-fit@0.11.0", "", {}, "sha512-jYcgT6xtVYhnhgxh3QgYDnnNMYTcf8ElbxxFzX0IZo+vabQqSPAjC3c1wJrKB5E19VwQei89QCiZZP86DCPF7g=="],
-
-    "@xterm/xterm": ["@xterm/xterm@6.0.0", "", {}, "sha512-TQwDdQGtwwDt+2cgKDLn0IRaSxYu1tSUjgKarSDkUM0ZNiSRXFpjxEsvc/Zgc5kq5omJ+V0a8/kIM2WD3sMOYg=="],
 
     "@zerebos/eslint-config": ["@zerebos/eslint-config@1.0.2", "", { "dependencies": { "@eslint/js": "^10.0.1", "globals": "^17.3.0" }, "peerDependencies": { "eslint": ">=9.0.0" } }, "sha512-l+rXuWCnID1VKzbH5MEXsdHvZKc+nmsAU0p9cMW7lFgATWYUhBIFOKAAw4iXh7C+WwDwoyWHEKeUB1vs6iH+iQ=="],
 

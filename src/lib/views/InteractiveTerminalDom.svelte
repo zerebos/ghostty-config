@@ -55,7 +55,22 @@
         | {kind: "output"; segments: Segment[]}
         | {kind: "ctrlc"; user: string; host: string; cwd: string; input: string};
 
-    let history: HistoryEntry[] = $state([]);
+    let history: HistoryEntry[] = $state([
+        {
+            kind: "output",
+            segments: [
+                {text: "Welcome to the interactive terminal preview!", bold: true},
+            ]
+        },
+        {
+            kind: "output",
+            segments: [
+                {text: "Type "},
+                {text: "help", palette: 10, bold: true},
+                {text: " to get started.\n\n"}
+            ]
+        },
+    ]);
 
     // ── Filesystem helpers ─────────────────────────────────────────────────────
 
@@ -64,7 +79,7 @@
         for (const part of cwdParts) {
             const child = node.children[part];
             if (!child || child.type !== "dir") return root;
-            node = child as DirNode;
+            node = child;
         }
         return node;
     }
@@ -93,7 +108,7 @@
         let node: FileNode | DirNode = root;
         for (const part of parts) {
             if (node.type !== "dir") return null;
-            const child: FileNode | DirNode | undefined = (node as DirNode).children[part];
+            const child: FileNode | DirNode | undefined = node.children[part];
             if (!child) return null;
             node = child;
         }
@@ -206,7 +221,7 @@
                     return {lines: [[dirEntry(paths[0] ?? ".", targetNode)]]};
                 }
 
-                const entries = Object.entries((targetNode as DirNode).children)
+                const entries = Object.entries((targetNode).children)
                     .filter(([name]) => all || !name.startsWith("."))
                     .sort(([a], [b]) => a.localeCompare(b));
 
@@ -221,7 +236,7 @@
                         const perms = isDir ? "drwxr-xr-x" : name.endsWith(".sh") ? "-rwxr-xr-x" : "-rw-r--r--";
                         const size = isDir
                             ? " 4096"
-                            : String((node as FileNode).content.length).padStart(5);
+                            : String(node.content.length).padStart(5);
                         lines.push([
                             plain(`${perms}  1 ${USER} ${USER} ${size} Jan  1 10:00 `),
                             dirEntry(name, node),
@@ -254,7 +269,7 @@
                 const node = getNodeAt(parts);
                 if (!node) return {lines: [[error(`cat: ${args[0]}: No such file or directory`)]]};
                 if (node.type === "dir") return {lines: [[error(`cat: ${args[0]}: Is a directory`)]]};
-                return {lines: (node as FileNode).content.split("\n").map(l => [plain(l)])};
+                return {lines: node.content.split("\n").map(l => [plain(l)])};
             }
 
             case "clear":
@@ -367,7 +382,7 @@
                     history.push({kind: "output", segments});
                 }
             }
-            scrollToBottom();
+            void scrollToBottom();
         }
         else if (e.key === "Backspace") {
             e.preventDefault();
@@ -389,7 +404,7 @@
             inputBuffer = "";
             cursorPos = 0;
             histIdx = -1;
-            scrollToBottom();
+            void scrollToBottom();
         }
         else if (e.ctrlKey && e.key === "l") {
             e.preventDefault();
