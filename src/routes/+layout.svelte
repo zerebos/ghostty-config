@@ -1,23 +1,16 @@
 <script lang="ts">
+    // import {dev} from "$app/environment";
+    import {type Snippet} from "svelte";
+
+    import "../app.css";
+
     import Gap from "$lib/components/Gap.svelte";
     import Tab from "$lib/components/Tab.svelte";
     import User from "$lib/components/User.svelte";
+    import ModalStack from "$lib/components/modals/ModalStack.svelte";
+    import ToastStack from "$lib/components/ToastStack.svelte";
+    import SettingsSearch from "$lib/components/SettingsSearch.svelte";
     import MacDock from "$lib/components/MacDock.svelte";
-    import "../app.css";
-
-    import application from "$lib/images/tabs/application.webp";
-    import clipboard from "$lib/images/tabs/clipboard.webp";
-    import window from "$lib/images/tabs/window.webp";
-
-    import colors from "$lib/images/tabs/colors.webp";
-    import fonts from "$lib/images/tabs/fonts.webp";
-
-    import keybinds from "$lib/images/tabs/keybinds.webp";
-    import mouse from "$lib/images/tabs/mouse.webp";
-
-    import gtk from "$lib/images/tabs/gtk.svg";
-    import linux from "$lib/images/tabs/linux.webp";
-    import macos from "$lib/images/tabs/macos.webp";
 
     import github from "$lib/images/tabs/github.svg";
     import ghostty from "$lib/images/tabs/ghostty.webp";
@@ -27,6 +20,8 @@
 
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
+    import navigation, {tabGroups} from "$lib/settings/navigation";
+
 
     const cssConfigVars = $derived.by(() => {
         let str = "";
@@ -45,14 +40,13 @@
 
         // TODO: consider honoring separate fonts for bold/italic and such in previews
         // Add font settings
-        add("font-family", config.fontFamily || "monospace");
+        add("font-family", config.fontFamily || "JetBrainsMono Nerd Font");
         add("font-size", `${config.fontSize}px`);
 
         return str;
     });
 
-    const {children} = $props();
-
+    const {children}: {children: Snippet} = $props();
 
 
 
@@ -80,9 +74,9 @@
                 </div>
             </div>
         </div>
-        <nav id="categories">
+        <SettingsSearch>
             <User route="/" />
-            <Gap />
+            <!-- <Gap />
             <Tab route="/settings/application">
                 {#snippet icon()}<img src={application} alt="Application Settings" />{/snippet}
                 Application
@@ -125,7 +119,28 @@
             <Tab route="/settings/macos">
                 {#snippet icon()}<img src={macos} alt="MacOS Settings" />{/snippet}
                 macOS
-            </Tab>
+            </Tab> -->
+            {#each tabGroups as group, i (i)}
+                <Gap />
+                {#each group as panelId (panelId)}
+                    {@const panel = navigation.find(p => p.id === panelId)}
+                    {#if panel}
+                        <Tab route={`/settings/${panel.id}`}>
+                            {#snippet icon()}
+                                <!-- FIXME: this is a hack -->
+                                {#if panel.icon.includes("svg+xml") || panel.icon.endsWith(".svg")}
+                                    <div class="icon-wrapper">
+                                        <img src={panel.icon} alt={`${panel.name} Settings`} />
+                                    </div>
+                                {:else}
+                                    <img src={panel.icon} alt={`${panel.name} Settings`} />
+                                {/if}
+                            {/snippet}
+                            {panel.name}
+                        </Tab>
+                    {/if}
+                {/each}
+            {/each}
             <Gap expand={true} />
             <Tab route="/app/import-export">
                 {#snippet icon()}<img src={sync} alt="Settings Sync" />{/snippet}
@@ -143,6 +158,12 @@
                 {/snippet}
                 Live Preview
             </Tab>
+            <!-- {#if dev}
+            <Tab route="/app/dropdown-debug">
+                {#snippet icon()}<img src={ghostty} alt="Dropdown Debug" />{/snippet}
+                Dropdown Debug
+            </Tab>
+            {/if} -->
             <Gap expand={true} />
             <Tab route="https://github.com/zerebos/ghostty-config">
                 {#snippet icon()}<div class="icon-wrapper github"><img src={github} alt="Ghostty Config GitHub" /></div>{/snippet}
@@ -152,12 +173,14 @@
                 {#snippet icon()}<img src={ghostty} alt="Ghostty Website" />{/snippet}
                 Ghostty
             </Tab>
-        </nav>
+        </SettingsSearch>
     </div>
     <div id="content-view">
         {@render children()}
     </div>
     <MacDock />
+    <ModalStack />
+    <ToastStack />
 </div>
 
 <!-- <svelte:window onmouseup={onMouseUp} onmousemove={onMouseMove} /> -->
@@ -281,18 +304,18 @@
 
 
 
-#categories {
+/* #categories {
     display: flex;
     flex-direction: column;
     flex: 1;
     padding: 10px;
-}
+} */
 
-#categories img {
+:global(#categories img) {
     width: 100%;
 }
 
-#categories .icon-wrapper {
+:global(#categories .icon-wrapper) {
     background: linear-gradient(#D3E3E9, #908F8C);
     width: 20px;
     height: 20px;
@@ -302,22 +325,22 @@
     align-items: center;
 }
 
-#categories .icon-wrapper img {
+:global(#categories .icon-wrapper img) {
     height: 14px;
     width: 14px;
 }
 
-#categories .icon-wrapper.github {
+:global(#categories .icon-wrapper.github) {
     background: linear-gradient(#9C45A9, #3B1E68);
 }
 
-#categories .icon-wrapper.github img {
+:global(#categories .icon-wrapper.github img) {
     filter: invert(100%);
     height: 18px;
     width: 18px;
 }
 
-#categories .icon-wrapper.terminal {
+:global(#categories .icon-wrapper.terminal) {
     background: linear-gradient(#2D9F6B, #1A5C3E);
     color: #e8eaed;
 }

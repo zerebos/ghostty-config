@@ -5,6 +5,7 @@
     // eslint-disable-next-line prefer-const
     let {defaultValue = "#408080", value = $bindable(defaultValue)}: {defaultValue?: HexColor, value?: HexColor|""} = $props();
 
+    // svelte-ignore state_referenced_locally
     let {hue, saturation, value: brightness} = $state(rgbToHsv(...hexToRgb(value || defaultValue)));
     const [red, green, blue] = $derived.by(() => hsvToRgb(hue, saturation, brightness));
     const hueField = $derived(`rgb(${hsvToRgb(hue, 1, 1).join(", ")})`);

@@ -2,6 +2,7 @@
     import {fade, fly} from "svelte/transition";
     import {luminosity, isDark, type HexColor} from "$lib/utils/colors";
     import ColorPicker from "$lib/components/ColorPicker.svelte";
+    import {success} from "$lib/stores/toasts.svelte";
 
     // eslint-disable-next-line prefer-const
     let {value = $bindable(), size = 20, label = "", defaultValue}: {value: HexColor, size?: number, label?: string, defaultValue?: HexColor} = $props();
@@ -18,7 +19,10 @@
     function reset(event: MouseEvent) {
         event.preventDefault();
         event.stopPropagation();
-        if (defaultValue !== undefined) value = defaultValue;
+        if (defaultValue !== undefined) {
+            value = defaultValue;
+            success("Color reset to default");
+        }
     }
 
     function keydown(event: KeyboardEvent) {

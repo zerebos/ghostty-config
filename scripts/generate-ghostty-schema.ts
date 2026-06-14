@@ -16,8 +16,8 @@
  *   --dry-run     Print the generated schema to stdout instead of writing to file.
  */
 
-import { writeFileSync } from "fs";
-import { join } from "path";
+import {writeFileSync} from "fs";
+import {join} from "path";
 
 // ---------------------------------------------------------------------------
 // CLI args
@@ -128,7 +128,7 @@ function parseEnums(src: string): Map<string, string[]> {
 
     for (const startMatch of src.matchAll(startPattern)) {
         const name = startMatch[1];
-        const bodyStart = startMatch.index! + startMatch[0].length;
+        const bodyStart = startMatch.index + startMatch[0].length;
 
         // Manually scan to find the matching closing brace, tracking depth
         let depth = 1;
@@ -198,7 +198,7 @@ function extractConfigBody(src: string): string {
         // Try fallback – find the first field line
         const firstField = src.match(/\n(?:@"[^"]+"|[a-z]\w*): /);
         if (!firstField) throw new Error("Could not find start of Config fields");
-        return src.slice(firstField.index!);
+        return src.slice(firstField.index);
     }
 
     // Find where private fields start
@@ -448,8 +448,7 @@ console.log(`Found ${rawFields.length} raw fields.`);
 
 // Filter out private/internal fields
 const publicFields = rawFields.filter(f =>
-    !f.key.startsWith("_") &&
-    !["_arena", "_diagnostics", "_conditional_state", "_conditional_set", "_replay_steps"].includes(f.key)
+    !f.key.startsWith("_") && !["_arena", "_diagnostics", "_conditional_state", "_conditional_set", "_replay_steps"].includes(f.key)
 );
 
 console.log(`Processing ${publicFields.length} public fields...`);
@@ -476,10 +475,10 @@ const schemaEntries: SchemaEntry[] = publicFields.map(field => {
     }
 
     const entry: SchemaEntry = {
-        key: field.key,
+        "key": field.key,
         type,
-        default: defaultVal,
-        description: doc,
+        "default": defaultVal,
+        "description": doc,
     };
 
     if (repeatable) entry.repeatable = true;
@@ -607,7 +606,8 @@ const output = generateOutput(schemaEntries, REF);
 
 if (DRY_RUN) {
     console.log(output);
-} else {
+}
+else {
     writeFileSync(OUT, output, "utf8");
     console.log(`\nWritten ${schemaEntries.length} settings to ${OUT}`);
     console.log("Done!");

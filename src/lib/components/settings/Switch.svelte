@@ -1,9 +1,15 @@
 <script lang="ts">
+    interface Props {
+        disabled?: boolean;
+        checked?: boolean;
+        onchange?: (checked: boolean) => void;
+    }
     // eslint-disable-next-line prefer-const
-    let {disabled = false, checked = $bindable(false)}: {disabled?: boolean, checked?: boolean} = $props();
+    let {disabled = false, checked = $bindable(false), onchange}: Props = $props();
 
     function change() {
         checked = !checked;
+        if (onchange) onchange(checked);
     }
 </script>
 
@@ -12,7 +18,7 @@
     <input type="checkbox" {disabled} {checked} onchange={change} />
     <div class="switch-body">
         <svg class="switch-slider" viewBox="0 0 16 16" preserveAspectRatio="xMinYMid meet">
-            <rect class="switch-handle" fill="white" x="0" y="0" height="16" width="16" rx="8"></rect>
+            <rect class="switch-handle" fill="white" x="0" y="0" height="16" width="16" rx="8" />
         </svg>
     </div>
 </div>

@@ -1,56 +1,72 @@
 import {dev} from "$app/environment";
-import settings, {fetchColorScheme, type KeybindString} from "$lib/data/settings";
-import type {HexColor} from "$lib/utils/colors";
+import {fetchColorScheme} from "$lib/utils/themes";
+import {registry, type SettingDefaults, type SettingValues} from "$lib/settings/registry";
 import parse from "$lib/utils/parse";
-// import defs from "../data/defaults.json";
-
-// TODO: find a good way to properly type the config
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const defaults: Partial<Record<keyof DefaultConfig, any>> = {};
-
-for (const panel of settings) {
-    for (const group of panel.groups) {
-        for (const setting of group.settings) {
-            defaults[setting.id as keyof typeof defaults] = setting.value;
-        }
-    }
-}
-
-if (dev) {
-    // eslint-disable-next-line no-console
-    console.log(defaults);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const config = $state(Object.assign({}, defaults)) as Record<keyof DefaultConfig, any>;
+import {runInitializers} from "$lib/settings/initializers";
 
 
-export function keyToConfig(key: string) {
-    return key.replaceAll(/([A-Z])/g, "-$1").toLowerCase();
-}
+// Run initializers before setting up defaults to ensure that any dynamic options are populated
+void runInitializers();
+
+const defaults = Object.fromEntries(Object.entries(registry).map(([k, v]) => [k, v.default])) as SettingDefaults;
+if (dev) console.log(defaults); // eslint-disable-line no-console
+
+const config: SettingValues = $state(Object.assign({}, defaults));
+
 
 export function diff() {
     // TODO: more elegance
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
     const output: Partial<Record<keyof typeof defaults | string, any>> = {};
 
     for (const k in config) {
-        const key = k as keyof DefaultConfig;
-        if (Array.isArray(config[key]) && key === "keybind") {
-            const toAdd = config[key].filter(c => !defaults[key].includes(c));
-            if (toAdd.length) output[keyToConfig(key)] = toAdd;
+        const settingId = k as keyof SettingValues;
+        const settingKey = registry[settingId].key;
+        if (Array.isArray(config[settingId]) && settingId === "keybind") {
+            const toAdd = config[settingId].filter(c => !defaults[settingId].includes(c as never));
+            if (toAdd.length) output[settingKey] = toAdd;
         }
-        else if (Array.isArray(config[key]) && key === "palette") {
+        else if (Array.isArray(config[settingId]) && settingId === "palette") {
             const toAdd = [];
-            for (let p = 0; p < defaults[key].length; p++) {
-                if (config[key][p] === defaults[key][p]) continue;
-                toAdd.push(`${p}=${config[key][p]}`);
+            for (let p = 0; p < defaults[settingId].length; p++) {
+                if (config[settingId][p] === defaults[settingId][p]) continue;
+                toAdd.push(`${p}=${config[settingId][p]}`);
             }
-            // const toAdd = config[key].filter(c => !defaults[key].includes(c));
-            if (toAdd.length) output[keyToConfig(key)] = toAdd;
+            if (toAdd.length) output[settingKey] = toAdd;
         }
-        else if (config[key] != defaults[key]) {
-            output[keyToConfig(key)] = config[key];
+        else if (config[settingId] != defaults[settingId]) {
+            output[settingKey] = config[settingId];
+        }
+    }
+
+    return output;
+}
+
+// FIXME: de-dup with above
+export function diffFromDefaults(conf: Partial<SettingValues>) {
+    // TODO: more elegance
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
+    const output: Partial<Record<keyof typeof defaults | string, any>> = {};
+
+    for (const k in conf) {
+        const settingId = k as keyof SettingValues;
+        const settingKey = registry[settingId]?.key;
+        if (!settingKey) continue;
+        if (Array.isArray(conf[settingId]) && settingId === "keybind") {
+            const toAdd = conf[settingId].filter(c => !defaults[settingId].includes(c as never));
+            if (toAdd.length) output[settingKey] = toAdd;
+        }
+        else if (Array.isArray(conf[settingId]) && settingId === "palette") {
+            const toAdd = [];
+            for (let p = 0; p < defaults[settingId].length; p++) {
+                if (!conf[settingId][p]) continue;
+                if (conf[settingId][p] === defaults[settingId][p]) continue;
+                toAdd.push(`${p}=${conf[settingId][p]}`);
+            }
+            if (toAdd.length) output[settingKey] = toAdd;
+        }
+        else if (conf[settingId] != defaults[settingId]) {
+            output[settingKey] = conf[settingId];
         }
     }
 
@@ -61,37 +77,53 @@ export function load(conf: Partial<typeof config>) {
     for (const key in conf) {
         if (!(key in config)) continue;
         if (key !== "keybind" && key !== "palette") {
-            config[key as keyof typeof config] = conf[key as keyof typeof config];
+            // @ts-expect-error doing this properly is hard
+            config[key as keyof typeof config] = conf[key as keyof typeof config]!;
         }
         else if (key === "keybind") {
-            config.keybind = [...config.keybind, ...conf.keybind];
+            config.keybind = [...config.keybind, ...conf.keybind!];
         }
         else if (key === "palette") {
-            for (let p = 0; p < conf.palette.length; p++) {
-                if (!conf.palette[p]) continue;
-                config.palette[p] = conf.palette[p];
+            for (let p = 0; p < conf.palette!.length; p++) {
+                if (!conf.palette![p]) continue;
+                config.palette[p] = conf.palette![p];
             }
         }
     }
 }
 
-export async function setColorScheme(name: string) {
-    if (name === "") return resetColorScheme();
-    const colorSchemeResponse = await fetchColorScheme(name);
-    try {
-        const parsed = parse(colorSchemeResponse);
-        load(parsed);
+export async function setColorScheme(name: string): Promise<boolean> {
+    if (name === "") {
+        resetColorScheme();
+        return true;
     }
-    catch (error) {
+
+    try {
+        const colorSchemeResponse = await fetchColorScheme(name);
+        // TODO: move the assertion into the return,
+        // didn't do it now because it would have lead to a circular dep
+        const parsed = parse(colorSchemeResponse) as Partial<SettingValues>;
+        load(parsed);
+        return true;
+    }
+    catch (err) {
         // TODO: give feedback to user maybe?
-        console.error(error); // eslint-disable-line no-console
+        console.error(err); // eslint-disable-line no-console
+        return false;
     }
 }
 
-export async function resetColorScheme() {
-    const keys = ["background", "foreground", "cursorColor", "selectionBackground", "selectionForeground"] as (keyof DefaultConfig)[];
+export function resetColorScheme() {
+    const keys = [
+        "background",
+        "foreground",
+        "cursorColor",
+        "selectionBackground",
+        "selectionForeground"
+    ] as Array<keyof SettingValues>;
 
     for (const key of keys) {
+        // @ts-expect-error doing this properly is hard
         config[key] = defaults[key];
     }
 
@@ -100,198 +132,27 @@ export async function resetColorScheme() {
     }
 }
 
-export default config;
-
-
-// TODO: is this useful?
-interface DefaultConfig {
-    palette: HexColor[];
-    keybind: KeybindString[];
-    fontFamily: string;
-    fontFamilyBold: string;
-    fontFamilyItalic: string;
-    fontFamilyBoldItalic: string;
-    fontStyle: string;
-    fontStyleBold: string;
-    fontStyleItalic: string;
-    fontStyleBoldItalic: string;
-    fontFeature: string;
-    fontSize: number;
-    fontVariation: string;
-    fontVariationBold: string;
-    fontVariationItalic: string;
-    fontVariationBoldItalic: string;
-    fontCodepointMap: string;
-    fontThicken: boolean;
-    adjustCellWidth: string;
-    adjustCellHeight: string;
-    adjustFontBaseline: string;
-    adjustUnderlinePosition: string;
-    adjustUnderlineThickness: string;
-    adjustStrikethroughPosition: string;
-    adjustStrikethroughThickness: string;
-    adjustCursorThickness: string;
-    graphemeWidthMethod: string;
-    theme: string;
-    background: HexColor;
-    foreground: HexColor;
-    selectionForeground: string;
-    selectionBackground: string;
-    minimumContrast: number;
-    cursorColor: string;
-    cursorText: string;
-    cursorOpacity: number;
-    cursorStyle: string;
-    cursorStyleBlink: string;
-    cursorClickToMove: boolean;
-    mouseHideWhileTyping: boolean;
-    mouseShiftCapture: boolean;
-    mouseScrollMultiplier: number;
-    backgroundOpacity: number;
-    unfocusedSplitOpacity: number;
-    unfocusedSplitFill: string;
-    command: string;
-    waitAfterCommand: boolean;
-    abnormalCommandExitRuntime: number;
-    scrollbackLimit: number;
-    link: string;
-    linkUrl: boolean;
-    fullscreen: boolean;
-    title: string;
-    class: string;
-    workingDirectory: string;
-    windowPaddingX: number;
-    windowPaddingY: number;
-    windowPaddingBalance: boolean;
-    windowPaddingColor: string;
-    windowVsync: boolean;
-    windowInheritWorkingDirectory: boolean;
-    windowInheritFontSize: boolean;
-    windowDecoration: boolean;
-    windowTitleFontFamily: string;
-    windowTheme: string;
-    windowColorspace: string;
-    windowHeight: number;
-    windowWidth: number;
-    windowSaveState: string;
-    windowStepResize: boolean;
-    windowNewTabPosition: string;
-    resizeOverlay: string;
-    resizeOverlayPosition: string;
-    resizeOverlayDuration: string;
-    focusFollowsMouse: boolean;
-    clipboardRead: string;
-    clipboardWrite: string;
-    clipboardTrimTrailingSpaces: boolean;
-    clipboardPasteProtection: boolean;
-    clipboardPasteBracketedSafe: boolean;
-    imageStorageLimit: number;
-    copyOnSelect: boolean;
-    clickRepeatInterval: number;
-    configFile: string;
-    configDefaultFiles: boolean;
-    confirmCloseSurface: boolean;
-    quitAfterLastWindowClosed: boolean;
-    quitAfterLastWindowClosedDelay: string;
-    initialWindow: boolean;
-    shellIntegration: string;
-    shellIntegrationFeatures: string;
-    oscColorReportFormat: string;
-    vtKamAllowed: boolean;
-    customShader: string;
-    customShaderAnimation: boolean;
-    macosNonNativeFullscreen: boolean;
-    macosTitlebarStyle: string;
-    macosOptionAsAlt: boolean;
-    macosWindowShadow: boolean;
-    linuxCgroup: string;
-    linuxCgroupMemoryLimit: string;
-    linuxCgroupProcessesLimit: string;
-    linuxCgroupHardFail: boolean;
-    gtkSingleInstance: string;
-    gtkTitlebar: boolean;
-    gtkTabsLocation: string;
-    gtkWideTabs: boolean;
-    desktopNotifications: boolean;
-    term: string;
-    enquiryResponse: string;
-    linkPreviews: string;
-    undoTimeout: string;
-    initialCommand: string;
-    env: string;
-    input: string;
-    maximize: boolean;
-    titleReport: boolean;
-    quickTerminalPosition: string;
-    quickTerminalScreen: string;
-    quickTerminalSize: string;
-    quickTerminalAnimationDuration: number;
-    quickTerminalAutohide: boolean;
-    quickTerminalSpaceBehavior: string;
-    quickTerminalKeyboardInteractivity: string;
-    scrollToBottom: string;
-    bellFeatures: string;
-    bellAudioPath: string;
-    bellAudioVolume: number;
-    windowSubtitle: string;
-    tabInheritWorkingDirectory: boolean;
-    splitInheritWorkingDirectory: boolean;
-    windowShowTabBar: string;
-    windowTitlebarBackground: HexColor;
-    windowTitlebarForeground: HexColor;
-    backgroundBlur: string;
-    backgroundImage: string;
-    backgroundOpacityCells: boolean;
-    backgroundImageOpacity: number;
-    backgroundImagePosition: string;
-    backgroundImageFit: string;
-    backgroundImageRepeat: boolean;
-    scrollbar: string;
-    splitDividerColor: HexColor;
-    splitPreserveZoom: boolean;
-    windowPositionY: number;
-    windowPositionX: number;
-    boldColor: string;
-    faintOpacity: number;
-    paletteGenerate: boolean;
-    paletteHarmonious: boolean;
-    selectionClearOnTyping: boolean;
-    selectionClearOnCopy: boolean;
-    selectionWordChars: string;
-    fontThickenStrength: number;
-    fontShapingBreak: string;
-    fontSyntheticStyle: string;
-    alphaBlending: string;
-    adjustOverlinePosition: string;
-    adjustOverlineThickness: string;
-    adjustBoxThickness: string;
-    adjustCursorHeight: string;
-    adjustIconHeight: string;
-    freetypeLoadFlags: string;
-    mouseReporting: boolean;
-    rightClickAction: string;
-    x11InstanceName: string;
-    gtkCustomCss: string;
-    gtkOpenglDebug: boolean;
-    appNotifications: string;
-    gtkToolbarStyle: string;
-    gtkTitlebarStyle: string;
-    gtkTitlebarHideWhenMaximized: boolean;
-    gtkQuickTerminalLayer: string;
-    gtkQuickTerminalNamespace: string;
-    asyncBackend: string;
-    macosTitlebarProxyIcon: string;
-    macosWindowButtons: string;
-    macosHidden: string;
-    macosAutoSecureInput: boolean;
-    macosSecureInputIndication: boolean;
-    macosDockDropBehavior: string;
-    macosShortcuts: string;
-    autoUpdate: string;
-    autoUpdateChannel: string;
-    macosIcon: string;
-    macosIconFrame: string;
-    macosIconGhostColor: HexColor;
-    macosIconScreenColor: HexColor;
-    macosCustomIcon: string;
+export function resetSetting(key: keyof SettingValues) {
+    const defaultValue = defaults[key];
+    // @ts-expect-error doing this properly is hard
+    config[key] = Array.isArray(defaultValue) ? [...defaultValue] : defaultValue;
 }
+
+export function isNonDefault(key: keyof SettingValues): boolean {
+    const val = config[key];
+    const defaultVal = defaults[key];
+
+    // Handle array comparisons for keybinds and palette
+    if (Array.isArray(val) && Array.isArray(defaultVal)) {
+        if (val.length !== defaultVal.length) return true;
+        for (let i = 0; i < val.length; i++) {
+            if (val[i] !== defaultVal[i]) return true;
+        }
+        return false;
+    }
+
+    return val !== defaultVal;
+}
+
+export {defaults};
+export default config;

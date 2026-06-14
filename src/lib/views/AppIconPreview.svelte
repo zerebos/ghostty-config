@@ -1,6 +1,8 @@
 <script lang="ts">
     import GhosttyIcon from "$lib/components/GhosttyIcon.svelte";
-import config from "$lib/stores/config.svelte";
+    import config from "$lib/stores/config.svelte";
+
+
     const iconLabel = $derived(config.macosIcon === "custom-style" ? "Custom style" : config.macosIcon === "custom" ? "Custom file" : config.macosIcon);
     const isCustomStyle = $derived(config.macosIcon === "custom-style");
     const hasCustomColors = $derived(Boolean(config.macosIconGhostColor && config.macosIconScreenColor));

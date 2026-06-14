@@ -3,6 +3,7 @@
     const {name = "", note = "", href, icon}: {name?: string, note?: string, href: string, icon?: string} = $props();
 </script>
 
+<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 <a class="setting-item" {href}>
     <div class="row">
         <div class="setting-name">

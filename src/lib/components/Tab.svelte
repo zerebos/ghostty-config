@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {page} from "$app/stores";
+    import {page} from "$app/state";
     import type {Snippet} from "svelte";
 
 
@@ -7,19 +7,29 @@
         children: Snippet;
         icon: Snippet;
         route?: string;
+        onClick?: (e: MouseEvent) => void;
+        selected?: boolean; // for external control (e.g. search)
     }
-    const {children, icon, route = ""}: Props = $props();
-    const path = $derived($page.url.pathname);
+    const {children, icon, route = "", onClick, selected}: Props = $props();
+    const path = $derived(page.url.pathname);
 
-    const isExternal = route.startsWith("http");
-    const target = isExternal ? "_blank" : "";
-    const rel = isExternal ? "noopener noreferer" : "";
+    const isExternal = $derived(route.startsWith("http"));
+    const target = $derived(isExternal ? "_blank" : "");
+    const rel = $derived(isExternal ? "noopener noreferrer" : "");
 
-    const selected = $derived(path === route);
+    const isSelected = $derived(selected ?? (path === route));
 </script>
 
 
-<a href={route} class="nav-tab" class:selected {target} {rel}>
+<!-- Why is eslint like this? -->
+<!-- eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/first-attribute-linebreak -->
+<a href={route}
+    class="nav-tab"
+    class:selected={isSelected}
+    {target}
+    {rel}
+    onclick={onClick}
+>
     <div class="tab-icon">{@render icon()}</div>
     <div class="tab-label">{@render children()}</div>
     {#if isExternal}

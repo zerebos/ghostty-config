@@ -7,8 +7,9 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
 
-    import settings from "$lib/data/settings";
-    import config from "$lib/stores/config.svelte";
+    import registry from "$lib/settings/registry";
+    import navigation from "$lib/settings/navigation";
+    import config, {isNonDefault, resetSetting} from "$lib/stores/config.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
     import Dropdown from "$lib/components/settings/Dropdown.svelte";
@@ -20,9 +21,14 @@
     import Admonition from "$lib/components/Admonition.svelte";
     import Theme from "$lib/components/settings/Theme.svelte";
     import AppIconPreview from "$lib/views/AppIconPreview.svelte";
+    import type {HexColor} from "$lib/utils/colors";
+    import {resolve} from "$app/paths";
+    import {success} from "$lib/stores/toasts.svelte";
+    import Range from "$lib/components/settings/Range.svelte";
+    import {type SettingsRegistry} from "$lib/settings/types";
 
 
-    const category = $derived(settings.find(c => c.id === $page.params.category));
+    const category = $derived(navigation.find(c => c.id === $page.params.category));
     const title = $derived(category?.name ?? $page.params.category);
 </script>
 
@@ -30,12 +36,12 @@
 <Page {title}>
     {#if category}
         {#if category.id === "fonts"}
-            <Admonition size="1.5rem">The font playground has moved to a <a href="/app/font-playground/">separate page</a>.</Admonition>
+            <Admonition size="1.5rem">The font playground has moved to a <a href={resolve("/app/font-playground")}>separate page</a>.</Admonition>
         {:else if category.id === "colors"}
             <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
         {/if}
         {#each category.groups as group (group.id)}
-            <Group title={group.name} note={group.note}>
+            <Group title={group.name} note={"note" in group ? group.note : undefined}>
                 {#if category.id === "colors" && group.id === "base"}
                     <BaseColorPreview />
                     <Separator />
@@ -49,23 +55,39 @@
                     <AppIconPreview />
                     <Separator />
                 {/if}
-                {#each group.settings as setting, i (setting.id)}
+                {#each group.settings as settingId, i (settingId)}
+                    {@const setting = registry[settingId] as SettingsRegistry[keyof SettingsRegistry]}
                     {#if i !== 0}<Separator />{/if}
-                    <Item name={setting.name} note={setting.note}>
+                    <Item
+                        {settingId}
+                        name={setting.name}
+                        note={setting.note}
+                        // filter out the current platform from the badge list since it's already obvious from the UI
+                        platform={setting?.platform?.filter(p => p !== title?.toLowerCase())}
+                        since={setting.since}
+                        description={setting.type !== "palette" ? setting.description : undefined}
+                        isNonDefault={isNonDefault(settingId)}
+                        onReset={() => {
+                            resetSetting(settingId);
+                            success(`${setting.name} reset to default`);
+                        }}
+                    >
                         {#if setting.type === "switch"}
-                            <Switch bind:checked={config[setting.id as keyof typeof config]} />
+                            <Switch bind:checked={config[settingId] as boolean} />
                         {:else if setting.type === "text"}
-                            <Text bind:value={config[setting.id as keyof typeof config]} />
+                            <Text bind:value={config[settingId] as string} placeholder={setting.placeholder} size={setting.size} />
+                        {:else if setting.type === "range"}
+                            <Range bind:value={config[settingId] as number} min={setting.min} max={setting.max} step={setting.step} showLabels={setting.showLabels} />
                         {:else if setting.type === "number"}
-                            <Number bind:value={config[setting.id as keyof typeof config]} range={setting.range} min={setting.min} max={setting.max} step={setting.step} size={setting.size} />
+                            <Number bind:value={config[settingId] as number} min={setting.min} max={setting.max} step={setting.step} size={setting.size} placeholder={setting.placeholder} />
                         {:else if setting.type === "dropdown"}
-                            <Dropdown bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
+                            <Dropdown bind:value={config[settingId] as string} options={setting.options} placeholder={setting.placeholder} allowEmpty={setting.allowEmpty} emptyLabel={setting.emptyLabel} disabled={setting.disabled} />
                         {:else if setting.type === "theme"}
-                            <Theme bind:value={config[setting.id as keyof typeof config]} options={setting.options} />
+                            <Theme bind:value={config[settingId] as string} options={setting.options} />
                         {:else if setting.type === "color"}
-                            <Color defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config]} />
+                            <Color defaultValue={setting.default as HexColor} bind:value={config[settingId] as HexColor} />
                         {:else if setting.type === "palette"}
-                            <Palette defaultValue={setting.value} bind:value={config[setting.id as keyof typeof config]} />
+                            <Palette defaultValue={setting.default} bind:value={config[settingId] as HexColor[]} />
                         {/if}
                     </Item>
                 {/each}
