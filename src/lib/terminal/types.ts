@@ -21,6 +21,7 @@ export type ExecContext = {
     root: DirNode;
     user: string;
     host: string;
+    commands: Record<string, Command>;
 };
 
 export type Command = {

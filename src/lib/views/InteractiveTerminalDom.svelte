@@ -136,6 +136,7 @@
         cwd: () => cwdParts,
         setCwd: (p) => {cwdParts = p;},
         root,
+        commands,
         user: USER,
         host: HOST,
     };
