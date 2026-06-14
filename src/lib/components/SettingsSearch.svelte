@@ -160,7 +160,7 @@
                         >
                             {#snippet icon()}
                                 <!-- FIXME: this is a hack -->
-                                {#if category.categoryIcon.includes("svg+xml")}
+                                {#if category.categoryIcon.includes("svg+xml") || category.categoryIcon.endsWith(".svg")}
                                     <div class="icon-wrapper">
                                         <img src={category.categoryIcon} alt={`${category.categoryName} Settings`} />
                                     </div>

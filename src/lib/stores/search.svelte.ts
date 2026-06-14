@@ -121,7 +121,7 @@ const searchableSettings = (() => {
                 results.push({
                     categoryId: category.id,
                     categoryName: category.name,
-                    categoryIcon: navigation.find(n => n.id === category.id)?.icon || "",
+                    categoryIcon: category.icon,
                     groupName: group.name,
                     note: cleanedNote,
                     description: cleanedDescription,

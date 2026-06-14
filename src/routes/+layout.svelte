@@ -127,7 +127,7 @@
                         <Tab route={`/settings/${panel.id}`}>
                             {#snippet icon()}
                                 <!-- FIXME: this is a hack -->
-                                {#if panel.icon.includes("svg+xml")}
+                                {#if panel.icon.includes("svg+xml") || panel.icon.endsWith(".svg")}
                                     <div class="icon-wrapper">
                                         <img src={panel.icon} alt={`${panel.name} Settings`} />
                                     </div>

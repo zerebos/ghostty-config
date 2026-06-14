@@ -2,7 +2,7 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
-    import {diff, load} from "$lib/stores/config.svelte";
+    import {diff, diffFromDefaults, load} from "$lib/stores/config.svelte";
     import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
     import {
@@ -320,7 +320,7 @@
 
 {#if showSharedConfigModal}
 <SharedConfigModal
-    parsedConfig={sharedConfigParsed}
+    parsedConfig={diffFromDefaults(sharedConfigParsed)}
     previewText={sharedConfigPreview}
     parseError={sharedConfigParseError}
     keyFormatter={k => registry[k as keyof typeof registry]?.key}

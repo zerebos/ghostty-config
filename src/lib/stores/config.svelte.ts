@@ -42,6 +42,36 @@ export function diff() {
     return output;
 }
 
+// FIXME: de-dup with above
+export function diffFromDefaults(conf: Partial<SettingValues>) {
+    // TODO: more elegance
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
+    const output: Partial<Record<keyof typeof defaults | string, any>> = {};
+
+    for (const k in conf) {
+        const settingId = k as keyof SettingValues;
+        const settingKey = registry[settingId].key;
+        if (Array.isArray(conf[settingId]) && settingId === "keybind") {
+            const toAdd = conf[settingId].filter(c => !defaults[settingId].includes(c as never));
+            if (toAdd.length) output[settingKey] = toAdd;
+        }
+        else if (Array.isArray(conf[settingId]) && settingId === "palette") {
+            const toAdd = [];
+            for (let p = 0; p < defaults[settingId].length; p++) {
+                if (!conf[settingId][p]) continue;
+                if (conf[settingId][p] === defaults[settingId][p]) continue;
+                toAdd.push(`${p}=${conf[settingId][p]}`);
+            }
+            if (toAdd.length) output[settingKey] = toAdd;
+        }
+        else if (conf[settingId] != defaults[settingId]) {
+            output[settingKey] = conf[settingId];
+        }
+    }
+
+    return output;
+}
+
 export function load(conf: Partial<typeof config>) {
     for (const key in conf) {
         if (!(key in config)) continue;
