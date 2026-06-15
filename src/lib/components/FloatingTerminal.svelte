@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {onMount} from "svelte";
+    import {onMount, untrack} from "svelte";
     import InteractiveTerminalDom from "$lib/views/InteractiveTerminalDom.svelte";
     import app from "$lib/stores/state.svelte";
 
@@ -170,8 +170,8 @@
         const sourceRect = windowElement.getBoundingClientRect();
         const deltaX = (dockRect.left + dockRect.width / 2) - (sourceRect.left + sourceRect.width / 2);
         const deltaY = (dockRect.top + dockRect.height / 2) - (sourceRect.top + sourceRect.height / 2);
-        const scaleX = Math.max(0.12, dockRect.width / sourceRect.width);
-        const scaleY = Math.max(0.12, dockRect.height / sourceRect.height);
+        const scaleX = sourceRect.width > 0 ? Math.max(0.12, dockRect.width / sourceRect.width) : 0.12;
+        const scaleY = sourceRect.height > 0 ? Math.max(0.12, dockRect.height / sourceRect.height) : 0.12;
 
         const keyframes = mode === "minimize"
             ? [
@@ -232,7 +232,7 @@
     $effect(() => {
         if (!app.floatingTerminalRestoreRequested || !app.floatingTerminalRunning || app.floatingTerminalMinimized) return;
 
-        app.floatingTerminalRestoreRequested = false;
+        untrack(() => app.floatingTerminalRestoreRequested = false);
         if (shouldReduceMotion()) return;
 
         let canceled = false;

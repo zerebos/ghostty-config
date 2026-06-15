@@ -139,7 +139,7 @@
                 cursorPos = 0;
                 histIdx = -1;
 
-                history.push({kind: "cmd", prompt: snap, cmd});
+                history.push({id: outputIdCounter++, kind: "cmd", prompt: snap, cmd});
 
                 const result = execChain(cmd, ctx);
                 if (result.clear) {
@@ -172,7 +172,7 @@
 
             case e.ctrlKey && e.key === "c": {
                 e.preventDefault();
-                history.push({kind: "ctrlc", prompt: snapshot(), input: inputBuffer});
+                history.push({id: outputIdCounter++, kind: "ctrlc", prompt: snapshot(), input: inputBuffer});
                 inputBuffer = "";
                 cursorPos = 0;
                 histIdx = -1;
@@ -224,7 +224,7 @@
     onclick={focusTerminal}
 >
     <div class="term-scroll">
-        {#each history as entry (entry.kind === "output" ? entry.id : entry)}
+        {#each history as entry (entry.id)}
             {#if entry.kind === "cmd"}
                 <div class="line">
                     <span class="p2 bold">{entry.prompt.user}</span><!--

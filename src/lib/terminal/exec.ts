@@ -2,11 +2,26 @@ import type {ExecContext, ExecResult, Line} from "./types";
 import {err, s} from "./utils";
 
 
+const chainRegex = /"[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*'|&&/g;
 export function execChain(input: string, ctx: ExecContext): ExecResult {
-    // Split on && — run each segment, stop on first error/non-empty-exit
-    const parts = input.split("&&").map(p => p.trim()).filter(Boolean);
-    const allLines: Line[] = [];
 
+    // This regex matches either:
+    // - double-quoted strings (allowing for escaped quotes)
+    // - single-quoted strings (allowing for escaped quotes)
+    // - the chain operator "&&"
+    // We use it to split the input into parts while respecting quoted substrings.
+    let match;
+    let lastIndex = 0;
+    const parts: string[] = [];
+    while ((match = chainRegex.exec(input)) !== null) {
+        if (match[0] !== "&&") continue;
+        parts.push(input.slice(lastIndex, match.index).trim());
+        lastIndex = chainRegex.lastIndex;
+    }
+    parts.push(input.slice(lastIndex).trim());
+
+    // Now we have the input split into parts by "&&", but quoted substrings are preserved.
+    const allLines: Line[] = [];
     for (const part of parts) {
         const result = execSingle(part, ctx);
         if (result.clear) return result; // clear short-circuits everything

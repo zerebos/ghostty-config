@@ -1,5 +1,5 @@
-import {getNode} from "../filesystem";
-import type {Command, DirNode} from "../types";
+import {getNode, resolveParts} from "../filesystem";
+import type {Command} from "../types";
 import {err, ok} from "../utils";
 
 
@@ -8,8 +8,12 @@ const command: Command = {
     usage: "<file>",
     fn(args, ctx) {
         if (!args[0]) return err("touch: missing file operand");
-        const cwd = getNode(ctx.root, ctx.cwd()) as DirNode;
-        if (!cwd.children[args[0]]) cwd.children[args[0]] = {type: "file", content: ""};
+        const parts = resolveParts(ctx.cwd(), args[0]);
+        const fileName = parts.pop();
+        if (!fileName) return err("touch: missing file operand");
+        const parentNode = getNode(ctx.root, parts);
+        if (!parentNode || parentNode.type !== "dir") return err(`touch: cannot touch '${args[0]}': No such file or directory`);
+        if (!parentNode.children[fileName]) parentNode.children[fileName] = {type: "file", content: ""};
         return ok([]);
     },
 };

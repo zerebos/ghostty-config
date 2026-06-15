@@ -7,9 +7,9 @@ const command: Command = {
     desc: "Print text",
     usage: "[text...]",
     fn(args, ctx) {
-        const text = args
+        const cleanArgs = args.map(arg => arg.replace(/^["']|["']$/g, ""));
+        const text = cleanArgs
             .join(" ")
-            .replace(/^["']|["']$/g, "")
             .replace(/\$USER/g, ctx.user)
             .replace(/\$HOME/g, `/home/${ctx.user}`)
             .replace(/\$PWD/g, cwdAbs(ctx.user, ctx.cwd()));

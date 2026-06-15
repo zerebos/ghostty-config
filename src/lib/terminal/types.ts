@@ -40,8 +40,8 @@ export type Command = {
 };
 
 export type HistoryEntry =
-    | {kind: "cmd"; prompt: PromptSnapshot; cmd: string;}
-    | {kind: "output"; id: number; segments: Segment[];}
-    | {kind: "ctrlc"; prompt: PromptSnapshot; input: string;};
+    | {id: number; kind: "cmd"; prompt: PromptSnapshot; cmd: string;}
+    | {id: number; kind: "output"; segments: Segment[];}
+    | {id: number; kind: "ctrlc"; prompt: PromptSnapshot; input: string;};
 
 export type PromptSnapshot = {user: string; host: string; cwd: string;};

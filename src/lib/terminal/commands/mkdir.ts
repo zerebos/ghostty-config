@@ -1,4 +1,4 @@
-import {getNode} from "../filesystem";
+import {getNode, resolveParts} from "../filesystem";
 import type {Command} from "../types";
 import {err, ok, s} from "../utils";
 
@@ -8,10 +8,13 @@ const command: Command = {
     usage: "<dir>",
     fn(args, ctx) {
         if (!args[0]) return err("mkdir: missing operand");
-        const cwd = getNode(ctx.root, ctx.cwd());
-        if (!cwd || cwd.type !== "dir") return err("mkdir: current directory is invalid");
-        if (cwd.children[args[0]]) return err(`mkdir: cannot create directory '${args[0]}': File exists`);
-        cwd.children[args[0]] = {type: "dir", children: {}};
+        const parts = resolveParts(ctx.cwd(), args[0]);
+        const dirName = parts.pop();
+        if (!dirName) return err("mkdir: missing operand");
+        const parentNode = getNode(ctx.root, parts);
+        if (!parentNode || parentNode.type !== "dir") return err(`mkdir: cannot create directory '${args[0]}': No such file or directory`);
+        if (parentNode.children[dirName]) return err(`mkdir: cannot create directory '${args[0]}': File exists`);
+        parentNode.children[dirName] = {type: "dir", children: {}};
         return ok([[s.plain(`mkdir: created directory '${args[0]}'`)]]);
     },
 };
