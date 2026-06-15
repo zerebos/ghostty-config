@@ -9,6 +9,7 @@
     import {execChain} from "$lib/terminal/exec";
     import {renderLine} from "$lib/terminal/ansi";
     import {seg} from "$lib/terminal/utils";
+    import {getCompletion} from "$lib/terminal/completion";
 
     const {standalone = false}: {standalone?: boolean} = $props();
 
@@ -146,6 +147,14 @@
             if (cursorPos > 0) {
                 cursorPos--;
                 term.write("\x1b[D");
+            }
+            return;
+        }
+        // tab complete
+        if (data === "\t") {
+            const completed = getCompletion(inputBuffer, ctx);
+            if (completed) {
+                replaceInput(completed);
             }
             return;
         }
