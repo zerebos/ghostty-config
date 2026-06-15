@@ -248,7 +248,7 @@
                 </div>
             {:else}
                 <div class="line">
-                    {#each entry.segments as seg (seg)}
+                    {#each entry.segments as seg, i (i)}
                         <span
                             class:bold={seg.bold}
                             class:dimmed={seg.dim}

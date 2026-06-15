@@ -4,6 +4,7 @@ import {err, s} from "./utils";
 
 const chainRegex = /"[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*'|&&/g;
 export function execChain(input: string, ctx: ExecContext): ExecResult {
+    chainRegex.lastIndex = 0; // reset regex state in case of reuse
 
     // This regex matches either:
     // - double-quoted strings (allowing for escaped quotes)

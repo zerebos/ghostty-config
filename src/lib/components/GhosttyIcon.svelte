@@ -10,11 +10,7 @@
 
     function handlePrimaryIconError(event: Event) {
         const image = event.currentTarget as HTMLImageElement;
-        if (image.src === iconUrls.official) {
-            hasCdnError = true;
-            return;
-        }
-
+        image.onerror = null;
         image.src = iconUrls.official;
         hasCdnError = true;
     }

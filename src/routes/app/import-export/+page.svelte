@@ -55,7 +55,7 @@
 
             // Try to parse for pretty display
             try {
-                sharedConfigParsed = parse(decodedConfig) as Record<string, string | string[]>;
+                sharedConfigParsed = parse(decodedConfig);
                 sharedConfigParseError = false;
             }
             catch {
