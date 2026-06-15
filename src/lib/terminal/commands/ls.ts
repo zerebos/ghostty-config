@@ -1,10 +1,48 @@
 import {getNode, resolveParts} from "../filesystem";
-import type {Command, Line, Segment} from "../types";
+import type {Command, FSNode, Line, Segment} from "../types";
 import {err, fileSegment, ok, s} from "../utils";
 
 
+const permissions = {
+    "d": s.p("d", 12),
+    ".": s.p(".", 7),
+    "-": s.p("-", 8),
+    "r": s.p("r", 11),
+    "w": s.p("w", 9),
+    "x": s.p("x", 10),
+};
+
+
+const RWX = [permissions.r, permissions.w, permissions.x, permissions.r, permissions["-"], permissions.x, permissions.r, permissions["-"], permissions.x];
+const RW = [permissions.r, permissions.w, permissions["-"], permissions.r, permissions["-"], permissions["-"], permissions.r, permissions["-"], permissions["-"]];
+
+function buildPermissions(name: string, node: FSNode): Segment[] {
+    const isDir = node.type === "dir";
+    const isDot = name.startsWith(".");
+    const isExec = node.type === "file" && node.executable;
+    const chars: Segment[] = [];
+
+    // Dir or file
+    if (isDir) chars.push(permissions.d);
+    else chars.push(permissions["."]);
+
+    // Special perms for dotfiles: rwx for owner, --- for group and others
+    if (isDir && isDot) {
+        chars.push(permissions.r, permissions.w, permissions.x, permissions["-"], permissions["-"], permissions["-"], permissions["-"], permissions["-"], permissions["-"]);
+    }
+
+    // Generic permissions: rwx for dirs, rw- for executables, r-- for regular files
+    if (isExec || (isDir && !isDot)) chars.push(...RWX);
+    else if (!isDir) chars.push(...RW);
+    chars.push(s.plain(" ")); // spacer after permissions
+    return chars;
+}
+
+
+// const LONG_HEADER = [s.underline("Permissions"), s.plain(" "), s.underline("Size"), s.plain(" "), s.underline("User"), s.plain(" "), s.underline("Date Modified"), s.plain(" "), s.underline("Name")];
+
 const command: Command = {
-    desc: "List directory contents",
+    desc: "List directory contents (eza-like)",
     usage: "[-la] [path]",
     details: [
         "-l  long listing format",
@@ -33,22 +71,44 @@ const command: Command = {
             });
 
         if (long) {
-            const now = "Jan  1 10:00";
-            const lines: Line[] = [[s.dim(`total ${entries.length * 8}`)]];
-            if (all) {
-                lines.push([s.dim(`drwxr-xr-x  2 ${ctx.user} ${ctx.user}  4096 ${now} `), s.p("./", 4, true)]);
-                lines.push([s.dim(`drwxr-xr-x  2 ${ctx.user} ${ctx.user}  4096 ${now} `), s.p("../", 4, true)]);
-            }
+            // const now = "  1 Jan 10:00";
+            const userLength = Math.max(ctx.user.length, 4); // cheating here because there's only one potential user, but in a real fs need to measure actual owner names across all rows
+            // const lines: Line[] = [[s.dim(`total ${entries.length * 8}`)]];
+            const lines: Line[] = [];
+            lines.push([
+                s.underline("Permissions"),
+                s.plain(" "),
+                s.underline("Size"),
+                s.plain(" "),
+                s.underline("User"),
+                s.plain(" ".padStart(userLength - 4, " ")), // account for username longer than "User"
+                s.plain(" "),
+                s.underline("Date Modified"),
+                s.plain(" "),
+                s.underline("Name")
+            ]);
             for (const [name, node] of entries) {
+                const randomDate = new Date(Date.now() - Math.floor(Math.random() * 31536000000)); // random date within the last year
+                const day = String(randomDate.getDate()).padStart(2, " ");
+                const month = randomDate.toLocaleString("en-US", {month: "short"});
+                const time = randomDate.toLocaleTimeString("en-US", {hour: "2-digit", minute: "2-digit", hour12: false});
+                const now = `${day} ${month} ${time}`;
                 const isDir = node.type === "dir";
-                const isExec = !isDir && node.executable;
-                const perms = isDir ? "drwxr-xr-x" : isExec ? "-rwxr-xr-x" : "-rw-r--r--";
-                const size = isDir ? " 4096" : String(node.content.length).padStart(5);
+                const perms = buildPermissions(name, node);
+                const size = isDir ? s.p("-".padStart(4, " "), 8) : s.p(`${String(node.content.length).padStart(4)}`, 2);
                 lines.push([
-                    s.dim(`${perms}  1 ${ctx.user} ${ctx.user} ${size} ${now} `),
+                    ...perms,
+                    s.plain(" "),
+                    size,
+                    s.plain(" "),
+                    s.p(ctx.user, 11),
+                    s.plain(" "),
+                    s.p(`${now}`, 4),
+                    s.plain("  "),
                     fileSegment(name, node),
                 ]);
             }
+            lines.push([s.plain("\n")]);
             return ok(lines);
         }
 

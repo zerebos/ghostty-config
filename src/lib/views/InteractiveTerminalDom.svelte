@@ -8,8 +8,8 @@
     import {execChain} from "$lib/terminal/exec";
 
 
-    const USER = "you";
-    const HOST = "ghostty-config";
+    const USER = "ghostty";
+    const HOST = "config-app";
 
     const root: DirNode = $state(makeFilesystem());
     let cwdParts: string[] = $state([]);
@@ -44,11 +44,11 @@
     // ── Rendering helpers ──────────────────────────────────────────────────────
 
     let container: HTMLDivElement | undefined = $state();
-    let scrollTarget: HTMLDivElement | undefined = $state();
 
     async function scrollToBottom() {
         await tick();
-        scrollTarget?.scrollIntoView({block: "end"});
+        if (!container) return;
+        container.scrollTop = container.scrollHeight;
     }
 
     function snapshot(): PromptSnapshot {
@@ -147,6 +147,7 @@
                 }
                 else {
                     pushOutput(result.lines);
+                    // pushOutput([[{text: "\n"}]]);
                 }
                 void scrollToBottom();
                 break;
@@ -252,6 +253,9 @@
                             class:bold={seg.bold}
                             class:dimmed={seg.dim}
                             class:italic={seg.italic}
+                            class:underline={seg.underline}
+                            class:inverse={seg.inverse}
+                            class:clickable={seg.clickable}
                             style:color={seg.hex ?? (seg.palette !== undefined ? `var(--config-palette-${seg.palette})` : undefined)}
                         >{seg.text}</span>
                     {/each}
@@ -271,7 +275,6 @@
             --><span class="fg">{afterCursor}</span>
         </div>
 
-        <div bind:this={scrollTarget}></div>
     </div>
 </div>
 
@@ -318,6 +321,9 @@
 .bold   {font-weight: 700;}
 .dimmed {opacity: 0.55;}
 .italic {font-style: italic;}
+.underline {text-decoration: underline;}
+.inverse {background: var(--config-fg); color: var(--config-bg);}
+.clickable {text-decoration: underline; cursor: pointer;}
 
 .fg {color: var(--config-fg);}
 .p1 {color: var(--config-palette-1);}

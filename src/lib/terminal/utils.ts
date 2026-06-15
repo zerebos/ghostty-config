@@ -6,6 +6,9 @@ export const s = {
     bold: (text: string): Segment => ({text, bold: true}),
     dim: (text: string): Segment => ({text, dim: true}),
     italic: (text: string): Segment => ({text, italic: true}),
+    underline: (text: string, bold?: boolean): Segment => ({text, underline: true, bold}),
+    inverse: (text: string): Segment => ({text, inverse: true}),
+    clickable: (text: string): Segment => ({text, clickable: true}),
     p: (text: string, n: number, bold?: boolean): Segment => ({text, palette: n, bold}),
     hex: (text: string, hex: string, bold?: boolean): Segment => ({text, hex, bold}),
     error: (text: string): Segment => ({text, palette: 1}),
@@ -37,11 +40,11 @@ function extOf(name: string): string {
 
 // Colorize file segments based on type, extension, etc.
 export function fileSegment(name: string, node: FSNode): Segment {
-    if (node.type === "dir") return s.p(name + "/", 4, true);
-    if (name.startsWith(".")) return s.dim(name);
+    if (node.type === "dir") return s.p(name, 4);
+    if (name.startsWith(".")) return s.p(name, 7); // hidden files in dim white
     const ext = extOf(name);
-    if (node.executable) return s.p(name + "*", 2, true);
-    if (ARCHIVE_EXTS.has(ext)) return s.p(name, 1, true);
+    if (node.executable) return s.p(name + "*", 2);
+    if (ARCHIVE_EXTS.has(ext)) return s.p(name, 1);
     if (IMAGE_EXTS.has(ext)) return s.p(name, 5);
     if (DOCUMENT_EXTS.has(ext)) return s.p(name, 9);
     if (MARKDOWN_EXTS.has(ext)) return s.p(name, 6);

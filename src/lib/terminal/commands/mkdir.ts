@@ -1,6 +1,6 @@
 import {getNode} from "../filesystem";
 import type {Command} from "../types";
-import {err, ok} from "../utils";
+import {err, ok, s} from "../utils";
 
 
 const command: Command = {
@@ -12,7 +12,7 @@ const command: Command = {
         if (!cwd || cwd.type !== "dir") return err("mkdir: current directory is invalid");
         if (cwd.children[args[0]]) return err(`mkdir: cannot create directory '${args[0]}': File exists`);
         cwd.children[args[0]] = {type: "dir", children: {}};
-        return ok([]);
+        return ok([[s.plain(`mkdir: created directory '${args[0]}'`)]]);
     },
 };
 

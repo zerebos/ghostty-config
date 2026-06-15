@@ -3,6 +3,7 @@
     import {init, Terminal, FitAddon} from "ghostty-web";
     import Group from "$lib/components/settings/Group.svelte";
     import config from "$lib/stores/config.svelte";
+    import {makeFilesystem} from "$lib/terminal/filesystem";
 
     const {standalone = false}: {standalone?: boolean} = $props();
 
@@ -10,52 +11,6 @@
 
     type FileNode = {type: "file"; content: string};
     type DirNode = {type: "dir"; children: Record<string, FileNode | DirNode>};
-
-    function makeFilesystem(): DirNode {
-        return {
-            type: "dir",
-            children: {
-                "Desktop": {type: "dir", children: {}},
-                "Documents": {
-                    type: "dir",
-                    children: {
-                        "notes.txt": {
-                            type: "file",
-                            content: "Meeting notes – Jan 1\nTODO: update ghostty config",
-                        },
-                        "todo.md": {
-                            type: "file",
-                            content: "# TODO\n- [ ] Configure ghostty\n- [x] Install ghostty\n- [ ] Customize colors",
-                        },
-                    },
-                },
-                "Downloads": {
-                    type: "dir",
-                    children: {
-                        "ghostty-1.0.0.tar.gz": {type: "file", content: "(binary file)"},
-                    },
-                },
-                "Pictures": {
-                    type: "dir",
-                    children: {
-                        "screenshot.png": {type: "file", content: "(binary file)"},
-                    },
-                },
-                ".bash_profile": {
-                    type: "file",
-                    content: "export PATH=\"$HOME/.local/bin:$PATH\"\nexport TERM=ghostty",
-                },
-                "install.sh": {
-                    type: "file",
-                    content: "#!/bin/bash\necho \"Installing...\"\napt-get install -y ghostty",
-                },
-                "README.md": {
-                    type: "file",
-                    content: "# My Ghostty Setup\n\nA customized Ghostty configuration.\nGenerated with ghostty-config.",
-                },
-            },
-        };
-    }
 
     const USER = "john";
     const HOST = "ghostty-pc";

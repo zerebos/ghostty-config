@@ -9,6 +9,9 @@ export type Segment = {
     bold?: boolean;
     dim?: boolean;
     italic?: boolean;
+    underline?: boolean;
+    inverse?: boolean;
+    clickable?: boolean;
 };
 
 export type Line = Segment[];
