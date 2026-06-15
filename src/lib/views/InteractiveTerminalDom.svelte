@@ -255,7 +255,7 @@
                             class:italic={seg.italic}
                             class:underline={seg.underline}
                             class:inverse={seg.inverse}
-                            class:clickable={seg.clickable}
+                            class:href={seg.href}
                             style:color={seg.hex ?? (seg.palette !== undefined ? `var(--config-palette-${seg.palette})` : undefined)}
                         >{seg.text}</span>
                     {/each}
@@ -323,7 +323,7 @@
 .italic {font-style: italic;}
 .underline {text-decoration: underline;}
 .inverse {background: var(--config-fg); color: var(--config-bg);}
-.clickable {text-decoration: underline; cursor: pointer;}
+.href {text-decoration: underline; cursor: pointer;}
 
 .fg {color: var(--config-fg);}
 .p1 {color: var(--config-palette-1);}

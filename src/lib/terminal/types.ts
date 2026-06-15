@@ -11,7 +11,7 @@ export type Segment = {
     italic?: boolean;
     underline?: boolean;
     inverse?: boolean;
-    clickable?: boolean;
+    href?: string; // for clickable segments, the URL to open
 };
 
 export type Line = Segment[];

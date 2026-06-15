@@ -101,7 +101,7 @@ const command: Command = {
                     s.plain(" "),
                     size,
                     s.plain(" "),
-                    s.p(ctx.user, 11),
+                    s.p(ctx.user.padEnd(5, " "), 11),
                     s.plain(" "),
                     s.p(`${now}`, 4),
                     s.plain("  "),

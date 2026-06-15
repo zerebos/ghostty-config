@@ -7,7 +7,7 @@
     import commands from "$lib/terminal/commands";
     import type {ExecContext} from "$lib/terminal/types";
     import {execChain} from "$lib/terminal/exec";
-    import {encodeSegment, renderLine} from "$lib/terminal/ansi";
+    import {renderLine} from "$lib/terminal/ansi";
     import {seg} from "$lib/terminal/utils";
 
     const {standalone = false}: {standalone?: boolean} = $props();
@@ -22,33 +22,6 @@
     let inputBuffer = "";
     let cursorPos = 0;
 
-
-    // ── ANSI helpers ───────────────────────────────────────────────────────────
-
-    // function promptStr(): string {
-    //     return (
-    //         style.bold.fg(2)(USER) +
-    //         style.fg(6)("@") +
-    //         style.bold.fg(4)(HOST) +
-    //         ":" +
-    //         style.fg(3)(cwdString(cwdParts)) +
-    //         style.bold("$") +
-    //         " "
-    //     );
-    // }
-
-    // function promptStr(): string {
-    //     return renderLine([
-    //         s.p(USER, 2, true),
-    //         s.p("@", 6),
-    //         s.p(HOST, 4, true),
-    //         s.plain(":"),
-    //         s.p(cwdString(cwdParts), 3, false),
-    //         s.bold("$"),
-    //         s.plain(" "),
-    //     ]);
-    // }
-
     function promptStr(): string {
         return renderLine([
             seg.fg(2).bold(USER),
@@ -60,8 +33,6 @@
             seg(" "),
         ]);
     }
-
-
 
 
     // ── Terminal setup ─────────────────────────────────────────────────────────
@@ -278,8 +249,14 @@
 
         term.onData(handleData);
 
-        term.writeln(encodeSegment({text: "Welcome to the interactive terminal preview!", bold: true}));
-        term.writeln(`Type ${encodeSegment({text: "help", palette: 2, bold: true})} to see available commands.\r\n`);
+        term.writeln(renderLine([
+            seg.bold("Welcome to the Ghostty interactive terminal demo!"),
+        ]));
+        term.writeln(renderLine([
+            seg("Type "),
+            seg.fg(2).bold("help"),
+            seg(" to see available commands.\n"),
+        ]));
         writePrompt();
     }
 

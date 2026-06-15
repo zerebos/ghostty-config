@@ -8,7 +8,7 @@ export const s = {
     italic: (text: string): Segment => ({text, italic: true}),
     underline: (text: string, bold?: boolean): Segment => ({text, underline: true, bold}),
     inverse: (text: string): Segment => ({text, inverse: true}),
-    clickable: (text: string): Segment => ({text, clickable: true}),
+    href: (text: string, url: string): Segment => ({text, href: url}),
     p: (text: string, n: number, bold?: boolean): Segment => ({text, palette: n, bold}),
     hex: (text: string, hex: string, bold?: boolean): Segment => ({text, hex, bold}),
     error: (text: string): Segment => ({text, palette: 1}),
@@ -18,6 +18,57 @@ export const s = {
     pink: (text: string): Segment => ({text, palette: 5}),
     cyan: (text: string): Segment => ({text, palette: 6}),
 };
+
+type SegmentFn = ((text: string) => Segment) & {
+    bold: SegmentFn;
+    dim: SegmentFn;
+    italic: SegmentFn;
+    underline: SegmentFn;
+    inverse: SegmentFn;
+    href: (url: string) => SegmentFn;
+    fg: (n: number) => SegmentFn;
+    hex: (h: string) => SegmentFn;
+};
+
+const STYLE_KEYS = [
+    "bold",
+    "dim",
+    "italic",
+    "underline",
+    "inverse",
+] as const;
+
+type StyleKey = typeof STYLE_KEYS[number];
+
+function buildSegStyle(base: Partial<Segment> = {}): SegmentFn {
+    const fn = ((text: string) => ({...base, text})) as SegmentFn;
+
+    return new Proxy(fn, {
+        get(target, prop, receiver) {
+            if (typeof prop === "string" && STYLE_KEYS.includes(prop as StyleKey)) {
+                return buildSegStyle({...base, [prop]: true});
+            }
+
+            if (prop === "fg") {
+                return (n: number) => buildSegStyle({...base, palette: n});
+            }
+
+            if (prop === "hex") {
+                return (h: string) => buildSegStyle({...base, hex: h});
+            }
+
+            if (prop === "href") {
+                return (url: string) => buildSegStyle({...base, href: url});
+            }
+
+            return Reflect.get(target, prop, receiver) as SegmentFn;
+        },
+    });
+}
+
+export const seg = buildSegStyle();
+
+
 
 // Helpers for constructing ExecResults
 export const ok = (lines: Line[]): ExecResult => ({lines});
