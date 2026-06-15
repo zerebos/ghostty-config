@@ -71,7 +71,7 @@
             theme: getTheme(),
             convertEol: true,
             scrollback: 100,
-            cursorBlink: config.cursorStyleBlink !== "false" && config.cursorStyleBlink !== false,
+            cursorBlink: config.cursorStyleBlink !== "false",
             cursorStyle: (config.cursorStyle as "block" | "underline" | "bar") || "block",
         });
 
@@ -85,7 +85,7 @@
     }
 
     onMount(() => {
-        init().then(() => {
+        void init().then(() => {
             initialized = true;
         });
 

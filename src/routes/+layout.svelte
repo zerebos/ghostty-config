@@ -150,6 +150,7 @@
                 {#snippet icon()}<img src={calligraphy} alt="Font Playground" />{/snippet}
                 Font Playground
             </Tab>
+            <!-- {#if dev}
             <Tab route="/app/live-preview">
                 {#snippet icon()}
                     <div class="icon-wrapper terminal">
@@ -158,7 +159,6 @@
                 {/snippet}
                 Live Preview
             </Tab>
-            <!-- {#if dev}
             <Tab route="/app/dropdown-debug">
                 {#snippet icon()}<img src={ghostty} alt="Dropdown Debug" />{/snippet}
                 Dropdown Debug
