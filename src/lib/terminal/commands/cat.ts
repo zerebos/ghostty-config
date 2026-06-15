@@ -13,7 +13,6 @@ const command: Command = {
         if (!node) return err(`cat: ${args[0]}: No such file or directory`);
         if (node.type === "dir") return err(`cat: ${args[0]}: Is a directory`);
         const lines = node.content.split("\n").map(l => [s.plain(l)]);
-        lines.push([s.plain("\n")]);
         return ok(lines);
     },
 };

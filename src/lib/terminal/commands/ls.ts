@@ -108,7 +108,6 @@ const command: Command = {
                     fileSegment(name, node),
                 ]);
             }
-            lines.push([s.plain("\n")]);
             return ok(lines);
         }
 

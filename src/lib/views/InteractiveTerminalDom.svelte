@@ -147,7 +147,7 @@
                 }
                 else {
                     pushOutput(result.lines);
-                    // pushOutput([[{text: "\n"}]]);
+                    if (result.lines.length > 0) pushOutput([[{text: "\n"}]]);
                 }
                 void scrollToBottom();
                 break;
