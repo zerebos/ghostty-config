@@ -37,7 +37,8 @@ export function execSingle(input: string, ctx: ExecContext): ExecResult {
     const trimmed = input.trim();
     if (!trimmed) return {lines: []};
 
-    const argv = trimmed.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) ?? [];
+    const rawArgv = trimmed.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) ?? [];
+    const argv = rawArgv.map(a => a.replace(/^["']|["']$/g, "")); // Remove surrounding quotes if present
     const [cmd, ...args] = argv;
     if (!cmd) return {lines: []};
 
