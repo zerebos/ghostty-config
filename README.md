@@ -67,7 +67,7 @@ You can also run the project using Docker without installing Bun locally:
 
 ```bash
 docker build -t ghostty-config .
-docker run -p 5173:5173 ghostty-config
+docker run -p 5173:5173 -v .:/app -v /app/node_modules ghostty-config
 ```
 
 Then open `http://localhost:5173` in your browser.
