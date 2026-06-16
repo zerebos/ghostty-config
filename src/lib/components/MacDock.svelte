@@ -31,7 +31,7 @@
 
 <div class="dock-layer">
     <FloatingTerminal />
-    <div class="dock" role="toolbar" aria-label="macOS-style dock" style:height={`${dockHeight}px`}>
+    <div class="dock" role="toolbar" aria-label="macOS-style dock" style:--tile-size={`${tileSize}px`} style:--dock-height={`${dockHeight}px`}>
         <!-- Ghostty Config icon — always running -->
         <div class="dock-item dock-btn" title="Ghostty Config">
             <div class="dock-icon-wrap">
@@ -87,7 +87,7 @@
 }
 
 .dock {
-    height: 86px;
+    height: var(--dock-height);
     pointer-events: all;
     display: flex;
     align-items: center;
@@ -108,7 +108,7 @@
     flex-direction: column;
     align-items: center;
     /* gap: 3px; */
-    /* position: relative; */
+    position: relative;
 }
 
 .dock-btn {
@@ -155,6 +155,7 @@
     flex-shrink: 0;
     position: absolute;
     bottom: 3px;
+    bottom: calc(-1 * ((var(--dock-height) - var(--tile-size)) / 2) + (3px * 2));
 }
 
 .running-dot.hidden {

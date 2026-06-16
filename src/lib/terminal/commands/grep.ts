@@ -30,7 +30,10 @@ const command: Command = {
         function searchFile(content: string, displayName?: string) {
             content.split("\n").forEach((line, i) => {
                 const ranges: Array<[number, number]> = [];
-                for (const m of line.matchAll(regex)) ranges.push([m.index, m.index + m[0].length]);
+                for (const m of line.matchAll(regex)) {
+                    if (m.index === undefined) continue;
+                    ranges.push([m.index, m.index + m[0].length]);
+                }
                 if (ranges.length) matches.push({file: displayName, lineNum: i + 1, line, ranges});
             });
         }

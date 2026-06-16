@@ -60,7 +60,7 @@
         width: 7.5rem;
         height: 7.5rem;
         border-radius: 1.65rem;
-        /* overflow: hidden; */
+        overflow: hidden;
         /* box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.9); */
     }
 

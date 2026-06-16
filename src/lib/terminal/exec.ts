@@ -11,7 +11,7 @@ export function execChain(input: string, ctx: ExecContext): ExecResult {
     // - single-quoted strings (allowing for escaped quotes)
     // - the chain operator "&&"
     // We use it to split the input into parts while respecting quoted substrings.
-    let match;
+    let match: RegExpExecArray | null;
     let lastIndex = 0;
     const parts: string[] = [];
     while ((match = chainRegex.exec(input)) !== null) {
