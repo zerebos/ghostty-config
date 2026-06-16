@@ -56,6 +56,7 @@ const command: Command = {
             const parts = resolveParts(ctx.cwd(), fp);
             const node = getNode(ctx.root, parts);
             if (!node) return err(`grep: ${fp}: No such file or directory`);
+            if (node.type === "dir" && !recursive) return err(`grep: ${fp}: Is a directory`);
             searchNode(node, fp, fp);
         }
 

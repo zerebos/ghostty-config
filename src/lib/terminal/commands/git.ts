@@ -51,7 +51,7 @@ const command: Command = {
         if (sub === "log" || (sub === "log" && args.includes("--oneline"))) {
             const oneline = args.includes("--oneline");
             const nIdx = args.indexOf("-n");
-            const nStr = nIdx >= 0 ? args[nIdx + 1] : args.find(a => /^-?\d+$/.test(a))?.slice(1);
+            const nStr = nIdx >= 0 ? args[nIdx + 1] : args.find(a => /^-\d+$/.test(a))?.slice(1);
             const n = parseInt(nStr ?? "5");
             const count = isNaN(n) ? 5 : Math.min(n, gitState.log.length);
             const lines: Line[] = [];

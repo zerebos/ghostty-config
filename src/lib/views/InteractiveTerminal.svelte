@@ -16,9 +16,9 @@
     const USER = "john";
     const HOST = "ghostty-pc";
 
-    let root = makeFilesystem();
+    const root = makeFilesystem();
     let cwdParts: string[] = [];
-    let cmdHistory: string[] = [];
+    const cmdHistory: string[] = [];
     let histIdx = -1;
     let inputBuffer = "";
     let cursorPos = 0;
@@ -233,12 +233,12 @@
         }
 
         // Reset shell state
-        root = makeFilesystem();
-        cwdParts = [];
-        inputBuffer = "";
-        cursorPos = 0;
-        histIdx = -1;
-        cmdHistory = [];
+        // root = makeFilesystem();
+        // cwdParts = [];
+        // inputBuffer = "";
+        // cursorPos = 0;
+        // histIdx = -1;
+        // cmdHistory = [];
 
         term = new Terminal({
             fontSize: config.fontSize || 13,
@@ -279,27 +279,23 @@
         };
     });
 
-    // let onlyCreateOnce = false;
     $effect(() => {
         if (!initialized || !container) return;
         // Track config values to trigger reactivity on changes
-        // const _configDependencies = [
-        //     config.background,
-        //     config.foreground,
-        //     config.fontFamily,
-        //     config.fontSize,
-        //     config.cursorColor,
-        //     config.cursorStyle,
-        //     config.cursorStyleBlink,
-        //     config.selectionBackground,
-        //     config.selectionForeground,
-        //     ...config.palette.slice(0, 16),
-        // ];
-        // term?.clear();
-        // if (!onlyCreateOnce) {
-            void recreateTerminal();
-            // onlyCreateOnce = true;
-        // }
+        const _configDependencies = [
+            config.background,
+            config.foreground,
+            config.fontFamily,
+            config.fontSize,
+            config.cursorColor,
+            config.cursorStyle,
+            config.cursorStyleBlink,
+            config.selectionBackground,
+            config.selectionForeground,
+            ...config.palette.slice(0, 16),
+        ];
+        term?.clear();
+        void recreateTerminal();
         // term?.renderer?.setTheme(getTheme());
     });
 
