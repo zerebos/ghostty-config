@@ -7,18 +7,35 @@
     import {getCompletion} from "$lib/terminal/completion";
     import {execChain} from "$lib/terminal/exec";
 
-
+    // Consts
     const USER = "ghostty";
     const HOST = "config-app";
 
+    // FS
     const root: DirNode = $state(makeFilesystem());
-    let cwdParts: string[] = $state([]);
-    const cmdHistory: string[] = $state([]);
-    let histIdx = $state(-1);
-    let inputBuffer = $state("");
-    let cursorPos = $state(0);
-    let outputIdCounter = 0;
 
+    // CWD
+    let cwdParts: string[] = $state([]);
+    const currentCwd = $derived(cwdString(cwdParts));
+
+    function snapshot(): PromptSnapshot {
+        return {user: USER, host: HOST, cwd: cwdString(cwdParts)};
+    }
+
+    // Terminal context for command execution
+    const ctx: ExecContext = {
+        cwd: () => cwdParts,
+        setCwd: (p) => {cwdParts = p;},
+        root,
+        commands,
+        user: USER,
+        host: HOST,
+    };
+
+    // Command history
+    let outputIdCounter = 0;
+    let histIdx = $state(-1);
+    const cmdHistory: string[] = $state([]);
     let history: HistoryEntry[] = $state([
         {kind: "output", id: outputIdCounter++, segments: [{text: "Welcome to the interactive terminal preview!", bold: true}]},
         {
@@ -32,37 +49,23 @@
         {kind: "output", id: outputIdCounter++, segments: [s.plain("\n")]},
     ]);
 
-    const ctx: ExecContext = {
-        cwd: () => cwdParts,
-        setCwd: (p) => {cwdParts = p;},
-        root,
-        commands,
-        user: USER,
-        host: HOST,
-    };
-
-    // ── Rendering helpers ──────────────────────────────────────────────────────
-
-    let container: HTMLDivElement | undefined = $state();
-
-    async function scrollToBottom() {
-        await tick();
-        if (!container) return;
-        container.scrollTop = container.scrollHeight;
-    }
-
-    function snapshot(): PromptSnapshot {
-        return {user: USER, host: HOST, cwd: cwdString(cwdParts)};
-    }
-
     function pushOutput(lines: Line[]) {
         for (const segments of lines) {
             history.push({kind: "output", id: outputIdCounter++, segments});
         }
     }
 
-    // ── Input handling ─────────────────────────────────────────────────────────
+    // Input buffer and cursor state
+    let inputBuffer = $state("");
+    let cursorPos = $state(0);
+    const cursorChar = $derived(inputBuffer[cursorPos] ?? " ");
+    const beforeCursor = $derived(inputBuffer.slice(0, cursorPos));
+    const afterCursor = $derived(inputBuffer.slice(cursorPos + 1));
 
+
+
+    // Handle key input for terminal interaction
+    // Could potentially move to a virtual terminal handler module in the future if it grows more complex
     function handleKeydown(e: KeyboardEvent) {
         if (e.metaKey) return;
         if (e.ctrlKey && !["c", "l"].includes(e.key)) return;
@@ -201,26 +204,14 @@
         }
     }
 
-
-    const currentCwd = $derived(cwdString(cwdParts));
-    const cursorChar = $derived(inputBuffer[cursorPos] ?? " ");
-    const beforeCursor = $derived(inputBuffer.slice(0, cursorPos));
-    const afterCursor = $derived(inputBuffer.slice(cursorPos + 1));
-
+    // DOM handling for copy and selection behavior
+    let container: HTMLDivElement | undefined = $state();
     function focusTerminal() {container?.focus();}
-
-    interface Props {
-        onCwdChange?: (cwd: string) => void;
-        selectionClearOnCopy?: boolean;
-        selectionClearOnTyping?: boolean;
-        copyOnSelect?: boolean;
-        cursorBlink?: boolean;
-        cursorStyle?: "block" | "underline" | "bar" | "block_hollow";
+    async function scrollToBottom() {
+        await tick();
+        if (!container) return;
+        container.scrollTop = container.scrollHeight;
     }
-
-    const {onCwdChange, selectionClearOnCopy, selectionClearOnTyping, copyOnSelect, cursorBlink, cursorStyle}: Props = $props();
-
-    $effect(() => {onCwdChange?.(cwdString(cwdParts));});
 
     function onCopy(event: ClipboardEvent) {
         const selection = document.getSelection();
@@ -239,6 +230,20 @@
         if (!selection || selection.isCollapsed) return;
         document.execCommand("copy");
     }
+
+
+    interface Props {
+        onCwdChange?: (cwd: string) => void;
+        selectionClearOnCopy?: boolean;
+        selectionClearOnTyping?: boolean;
+        copyOnSelect?: boolean;
+        cursorBlink?: boolean;
+        cursorStyle?: "block" | "underline" | "bar" | "block_hollow";
+    }
+
+    const {onCwdChange, selectionClearOnCopy, selectionClearOnTyping, copyOnSelect, cursorBlink, cursorStyle}: Props = $props();
+
+    $effect(() => {onCwdChange?.(cwdString(cwdParts));});
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->

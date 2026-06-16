@@ -36,8 +36,6 @@
     }
 
 
-    // ── Terminal setup ─────────────────────────────────────────────────────────
-
     const PALETTE_KEYS = [
         "black", "red", "green", "yellow",
         "blue", "magenta", "cyan", "white",
