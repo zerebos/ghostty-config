@@ -10,6 +10,7 @@
     import ModalStack from "$lib/components/modals/ModalStack.svelte";
     import ToastStack from "$lib/components/ToastStack.svelte";
     import SettingsSearch from "$lib/components/SettingsSearch.svelte";
+    import MacDock from "$lib/components/MacDock.svelte";
 
     import github from "$lib/images/tabs/github.svg";
     import ghostty from "$lib/images/tabs/ghostty.webp";
@@ -32,6 +33,9 @@
         add("fg", config.foreground);
         add("selection-bg", config.selectionBackground || config.foreground);
         add("selection-fg", config.selectionForeground || config.background);
+        add("cursor-color", config.cursorColor || config.foreground);
+        add("cursor-text", config.cursorText || config.background);
+        add("cursor-opacity", String(config.cursorOpacity ?? 1));
 
         // Add the palette colors
         const paletteSize = 16; // config.palette.length;
@@ -150,6 +154,14 @@
                 Font Playground
             </Tab>
             <!-- {#if dev}
+            <Tab route="/app/live-preview">
+                {#snippet icon()}
+                    <div class="icon-wrapper terminal">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H4V5h16v14zM6 15h5v2H6zm6.5-7.5 1.41-1.41L18 10.17l-4.09 4.08-1.41-1.41 2.67-2.67zM6 11.17l1.41-1.41 2.12 2.12-2.12 2.12L6 12.59z" /></svg>
+                    </div>
+                {/snippet}
+                Live Preview
+            </Tab>
             <Tab route="/app/dropdown-debug">
                 {#snippet icon()}<img src={ghostty} alt="Dropdown Debug" />{/snippet}
                 Dropdown Debug
@@ -169,6 +181,7 @@
     <div id="content-view">
         {@render children()}
     </div>
+    <MacDock />
     <ModalStack />
     <ToastStack />
 </div>
@@ -328,5 +341,10 @@
     filter: invert(100%);
     height: 18px;
     width: 18px;
+}
+
+:global(#categories .icon-wrapper.terminal) {
+    background: linear-gradient(#2D9F6B, #1A5C3E);
+    color: #e8eaed;
 }
 </style>

@@ -44,6 +44,7 @@
     "type": "module",
     "dependencies": {
         "@fontsource-variable/inter": "^5.2.8",
+        "ghostty-web": "^0.4.0",
         "marked": "^18.0.4"
     }
 }

@@ -8,6 +8,7 @@ const colors = ["background", "foreground", "cursor-color", "selection-backgroun
 export default function (configString: string) {
     const lines = configString.split("\n");
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const results = {
         palette: Array(256) as Array<HexColor | "">,
         keybind: [] as KeybindString[]
