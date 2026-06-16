@@ -60,6 +60,18 @@ bun run dev
 ```
 Then open `http://localhost:5173` in your browser when prompted.
 
+
+### Docker
+
+You can also run the project using Docker without installing Bun locally:
+
+```bash
+docker build -t ghostty-config .
+docker run -p 5173:5173 ghostty-config
+```
+
+Then open `http://localhost:5173` in your browser.
+
 Other useful commands:
 ```bash
 bun run build    # production build (output under build/)
