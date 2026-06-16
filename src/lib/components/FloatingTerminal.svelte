@@ -2,6 +2,7 @@
     import {onMount, untrack} from "svelte";
     import InteractiveTerminalDom from "$lib/views/InteractiveTerminalDom.svelte";
     import app from "$lib/stores/state.svelte";
+    import config from "$lib/stores/config.svelte";
 
     const DEFAULT_WIDTH = 680;
     const DEFAULT_HEIGHT = 480;
@@ -300,7 +301,14 @@
             <div class="titlebar-end"></div>
         </div>
         <div class="terminal-body">
-            <InteractiveTerminalDom {onCwdChange} />
+            <InteractiveTerminalDom
+                {onCwdChange}
+                selectionClearOnCopy={config.selectionClearOnCopy}
+                selectionClearOnTyping={config.selectionClearOnTyping}
+                copyOnSelect={config.copyOnSelect !== "false"}
+                cursorBlink={config.cursorStyleBlink !== "false"}
+                cursorStyle={config.cursorStyle as "block" | "underline" | "bar" | "block_hollow"}
+            />
         </div>
 
         <div class="resize-handle resize-n" onmousedown={(e) => startResize(e, "n")} aria-hidden="true"></div>

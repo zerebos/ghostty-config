@@ -194,6 +194,11 @@
                 }
             }
         }
+
+        if (selectionClearOnTyping && container) {
+            const selection = document.getSelection();
+            if (selection) selection.removeAllRanges();
+        }
     }
 
 
@@ -206,11 +211,34 @@
 
     interface Props {
         onCwdChange?: (cwd: string) => void;
+        selectionClearOnCopy?: boolean;
+        selectionClearOnTyping?: boolean;
+        copyOnSelect?: boolean;
+        cursorBlink?: boolean;
+        cursorStyle?: "block" | "underline" | "bar" | "block_hollow";
     }
 
-    const {onCwdChange}: Props = $props();
+    const {onCwdChange, selectionClearOnCopy, selectionClearOnTyping, copyOnSelect, cursorBlink, cursorStyle}: Props = $props();
 
     $effect(() => {onCwdChange?.(cwdString(cwdParts));});
+
+    function onCopy(event: ClipboardEvent) {
+        const selection = document.getSelection();
+        if (!selection || !event.clipboardData) return;
+
+        // Copy as plain text to preserve formatting when pasting into other applications
+        event.clipboardData.setData("text/plain", selection.toString());
+        event.preventDefault();
+
+        if (selectionClearOnCopy) selection.removeAllRanges();
+    }
+
+    function onSelect() {
+        if (!copyOnSelect) return;
+        const selection = document.getSelection();
+        if (!selection || selection.isCollapsed) return;
+        document.execCommand("copy");
+    }
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
@@ -222,6 +250,8 @@
     bind:this={container}
     onkeydown={handleKeydown}
     onclick={focusTerminal}
+    oncopy={onCopy}
+    onmouseup={onSelect}
 >
     <div class="term-scroll">
         {#each history as entry (entry.id)}
@@ -271,7 +301,14 @@
             --><span class="p3">{currentCwd}</span><!--
             --><span class="fg bold">$&nbsp;</span><!--
             --><span class="fg">{beforeCursor}</span><!--
-            --><span class="cursor">{cursorChar}</span><!--
+            --><span
+                    class="cursor"
+                    class:blink={cursorBlink}
+                    class:block={cursorStyle === "block"}
+                    class:underline={cursorStyle === "underline"}
+                    class:bar={cursorStyle === "bar"}
+                    class:block_hollow={cursorStyle === "block_hollow"}
+                >{cursorChar}</span><!--
             --><span class="fg">{afterCursor}</span>
         </div>
 
@@ -293,6 +330,7 @@
     cursor: text;
     overflow-y: auto;
     height: 360px;
+    user-select: text;
 }
 
 .term.standalone {
@@ -332,23 +370,53 @@
 .p4 {color: var(--config-palette-4);}
 .p6 {color: var(--config-palette-6);}
 
+::selection {
+    background-color: var(--config-selection-bg);
+    color: var(--config-selection-fg);
+}
+
 .cursor {
-    color: var(--config-bg);
-    background: var(--config-fg);
     min-width: 1ch;
     display: inline-block;
+    opacity: var(--config-cursor-opacity);
+}
+
+.cursor.block {
+    color: var(--config-cursor-text);
+    background: var(--config-cursor-color);
+}
+
+.cursor.underline {
+    background: transparent;
+    color: var(--config-cursor-color);
+    text-decoration: none; /* Override the default underline to position it better */
+    border-bottom: 1px solid var(--config-cursor-color);
+}
+
+.cursor.bar {
+    background: transparent;
+    color: var(--config-cursor-color);
+    border-left: 1px solid var(--config-cursor-color);
+}
+
+.cursor.block_hollow {
+    color: transparent;
+    background: transparent;
+    border: 1px solid var(--config-cursor-color);
+}
+
+.term:not(:focus) .cursor.block {
+    background: transparent;
+    color: var(--config-cursor-color);
+    border: 1px solid var(--config-cursor-color);
+}
+
+.term:focus .cursor.blink {
     animation: blink 1.2s step-start infinite;
 }
 
-.term:not(:focus) .cursor {
-    background: transparent;
-    color: var(--config-fg);
-    outline: 1px solid var(--config-fg);
-    animation: none;
-}
-
 @keyframes blink {
-    0%, 100% {opacity: 1;}
+    0%, 100% {opacity: var(--config-cursor-opacity);}
     50% {opacity: 0;}
 }
 </style>

@@ -1,5 +1,7 @@
 <script lang="ts">
+    import {resolve} from "$app/paths";
     import {page} from "$app/state";
+    import type {Pathname} from "$app/types";
     import logo from "$lib/images/avatar.webp";
 
     const {route = "/", name = "Ghostty Config"} = $props();
@@ -8,8 +10,8 @@
     const selected = $derived(path === route);
 </script>
 
-<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-<a href={route} class="user-tab" class:selected>
+
+<a href={resolve(route as Pathname)} class="user-tab" class:selected>
     <div class="user-avatar">
         <img src={logo} alt="Ghostty Config Logo" />
     </div>
@@ -18,6 +20,7 @@
         <div class="user-subtext">by @zerebos</div>
     </div>
 </a>
+
 
 <style>
     .user-tab {

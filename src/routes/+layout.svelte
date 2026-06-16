@@ -33,6 +33,9 @@
         add("fg", config.foreground);
         add("selection-bg", config.selectionBackground || config.foreground);
         add("selection-fg", config.selectionForeground || config.background);
+        add("cursor-color", config.cursorColor || config.foreground);
+        add("cursor-text", config.cursorText || config.background);
+        add("cursor-opacity", String(config.cursorOpacity ?? 1));
 
         // Add the palette colors
         const paletteSize = 16; // config.palette.length;
