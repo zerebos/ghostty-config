@@ -5,21 +5,14 @@
     import {diff, diffFromDefaults, load} from "$lib/stores/config.svelte";
     import {alert as showAlert} from "$lib/stores/modals.svelte";
     import parse from "$lib/utils/parse";
-    import {
-        buildShareUrl,
-        decodeConfig,
-        encodeConfig,
-        getSharePayloadFromHash,
-        MAX_SHARE_URL_LENGTH,
-        removeSharePayloadFromHash
-    } from "$lib/utils/share";
+    import {buildShareUrl, decodeConfig, encodeConfig, getSharePayloadFromHash, MAX_SHARE_URL_LENGTH, removeSharePayloadFromHash} from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
     import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
     import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
-    import {type SettingValues} from "$lib/settings/registry";
+    import ImportConfigModal from "$lib/components/modals/ImportConfigModal.svelte";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -28,8 +21,15 @@
 
     let sharedConfigPreview = $state<string | null>(null);
     let sharedConfigParsed = $state<Record<string, string | string[]> | null>(null);
+    let sharedConfigParsedDiff = $state<Record<string, string | string[]> | null>(null);
     let sharedConfigParseError = $state(false);
     let showSharedConfigModal = $state(false);
+
+    let importConfigPreview = $state<string | null>(null);
+    let importConfigParsed = $state<Record<string, string | string[]> | null>(null);
+    let importConfigParsedDiff = $state<Record<string, string | string[]> | null>(null);
+    let importConfigParseError = $state(false);
+    let showImportConfigModal = $state(false);
 
     let showShareComposer = $state(false);
     let shareUrl = $state<string | null>(null);
@@ -56,6 +56,7 @@
             // Try to parse for pretty display
             try {
                 sharedConfigParsed = parse(decodedConfig);
+                sharedConfigParsedDiff = diffFromDefaults(sharedConfigParsed) as Record<string, string | string[]> | null;
                 sharedConfigParseError = false;
             }
             catch {
@@ -64,7 +65,18 @@
                 sharedConfigParseError = true;
             }
 
-            showSharedConfigModal = true;
+            const anyKeys = sharedConfigParsedDiff && Object.keys(sharedConfigParsedDiff).length > 0;
+            if (anyKeys) {
+                showSharedConfigModal = true;
+            }
+            else {
+                void showAlert({
+                    title: "No config found",
+                    message: "We couldn't find any valid config settings in the shared URL.",
+                    buttonText: "Dismiss"
+                });
+                clearShareHashFromAddressBar();
+            }
         }
         catch {
             error("Failed to read shared config from URL");
@@ -112,6 +124,33 @@
         return true;
     }
 
+    function showImportModal(text: string, source: "clipboard" | "file" = "clipboard") {
+        importConfigPreview = text;
+
+        try {
+            importConfigParsed = parse(text);
+            importConfigParseError = false;
+            importConfigParsedDiff = diffFromDefaults(importConfigParsed) as Record<string, string | string[]> | null;
+        }
+        catch {
+            importConfigParsed = null;
+            importConfigParseError = true;
+        }
+
+        const anyKeys = importConfigParsedDiff && Object.keys(importConfigParsedDiff).length > 0;
+
+        if (anyKeys) {
+            showImportConfigModal = true;
+        }
+        else {
+            void showAlert({
+                title: "No config found",
+                message: `We couldn't find any valid config settings in the ${source} you provided.`,
+                buttonText: "Dismiss"
+            });
+        }
+    }
+
     async function pasteConfig() {
         if (pasteConfigText === "Pasted!") return;
 
@@ -119,8 +158,9 @@
             const text = await window.navigator.clipboard.readText();
             pasteConfigText = "Pasted!";
             setTimeout(() => (pasteConfigText = "Clipboard"), LABEL_RESET_TIMEOUT_MS);
-            const loaded = await loadConfig(text);
-            if (loaded) success("Config loaded from clipboard");
+            showImportModal(text, "clipboard");
+            // const loaded = await loadConfig(text);
+            // if (loaded) success("Config loaded from clipboard");
         }
         catch {
             error("Clipboard access failed! Please paste manually or import from file.");
@@ -139,9 +179,10 @@
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
             const loadedText = event.target?.result?.toString();
             if (!loadedText) return;
-            void loadConfig(loadedText).then((didLoad) => {
-                if (didLoad) success("Config loaded from file");
-            });
+            showImportModal(loadedText, "file");
+            // void loadConfig(loadedText).then((didLoad) => {
+            //     if (didLoad) success("Config loaded from file");
+            // });
         });
         reader.readAsText(file);
     }
@@ -227,6 +268,21 @@
         clearShareHashFromAddressBar();
     }
 
+    function closeImportConfigModal() {
+        showImportConfigModal = false;
+        importConfigPreview = null;
+        importConfigParsed = null;
+        importConfigParseError = false;
+    }
+
+    async function importImportConfig() {
+        if (importConfigPreview) {
+            const loaded = await loadConfig(importConfigPreview);
+            if (loaded) success("Config imported");
+        }
+        closeImportConfigModal();
+    }
+
     function downloadConfig() {
         if (!hasExportableConfig) {
             return;
@@ -255,29 +311,28 @@
 <svelte:window onkeydown={handleWindowKeydown} />
 
 <Page title="Import & Export">
-    <!-- <Group flex={1}> -->
-        <div class="preview">
-            {#if hasExportableConfig}
-                <div class="row p2"># Config generated by Ghostty Config</div>
-                <div class="row p2"># https://ghostty.zerebos.com</div>
-            {:else}
-                <div class="row p2"># No changes to the default config yet</div>
-            {/if}
-            <div class="row">&nbsp;</div>
+    <div class="preview">
+        {#if hasExportableConfig}
+            <div class="row p2"># Config generated by Ghostty Config</div>
+            <div class="row p2"># https://ghostty.zerebos.com</div>
+        {:else}
+            <div class="row p2"># No changes to the default config yet</div>
+        {/if}
+        <div class="row">&nbsp;</div>
 
-            {#if hasExportableConfig}
-                {#each Object.entries(currentConfigDiff) as [key, value], i (i)}
-                    {#if Array.isArray(value)}
-                        {#each value as val, v (v)}
-                        <div class="row"><span class="p4">{key}</span> = <span class="p5">{val}</span></div>
-                        {/each}
-                    {:else}
-                        <div class="row"><span class="p4">{key}</span> = <span class="p5">{value}</span></div>
-                    {/if}
-                {/each}
-            {/if}
-        </div>
-    <!-- </Group> -->
+        {#if hasExportableConfig}
+            {#each Object.entries(currentConfigDiff) as [key, value], i (i)}
+                {#if Array.isArray(value)}
+                    {#each value as val, v (v)}
+                    <div class="row"><span class="p4">{key}</span> = <span class="p5">{val}</span></div>
+                    {/each}
+                {:else}
+                    <div class="row"><span class="p4">{key}</span> = <span class="p5">{value}</span></div>
+                {/if}
+            {/each}
+        {/if}
+    </div>
+
     <Group title="Import">
         <Item name="From Clipboard" note="Paste a config copied to your clipboard">
             <div class="button-group">
@@ -338,14 +393,24 @@
 
 {#if showSharedConfigModal}
 <SharedConfigModal
-    // FIXME: revamp this
-    parsedConfig={diffFromDefaults(sharedConfigParsed as Partial<SettingValues>) as Record<string, string | string[]> | null}
+    parsedConfig={sharedConfigParsedDiff}
     previewText={sharedConfigPreview}
     parseError={sharedConfigParseError}
     onclose={closeSharedConfigModal}
     onimport={importSharedConfig}
 />
 {/if}
+
+{#if showImportConfigModal}
+<ImportConfigModal
+    parsedConfig={importConfigParsedDiff}
+    previewText={importConfigPreview}
+    parseError={importConfigParseError}
+    onclose={closeImportConfigModal}
+    onimport={importImportConfig}
+/>
+{/if}
+
 
 <style>
 .preview {
