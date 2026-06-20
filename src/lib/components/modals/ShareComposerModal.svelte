@@ -4,6 +4,7 @@
     import DialogModal from "$lib/components/modals/DialogModal.svelte";
     import Button from "$lib/components/Button.svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
+    import {withPendingGuard} from "$lib/utils/debounce";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
@@ -67,14 +68,14 @@
         }
     }
 
-    async function copyConfigForFallback() {
+    const copyConfigForFallback = withPendingGuard(async function() {
         if (!oncopyconfigtext) return;
 
         const ok = await oncopyconfigtext();
         notice = ok
             ? "Config copied. You can share it as plain text instead of a link."
             : "Clipboard access failed. Use file export instead.";
-    }
+    });
 </script>
 
 <DialogModal title="Share Config" {onclose}>
