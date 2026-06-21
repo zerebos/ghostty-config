@@ -34,8 +34,8 @@ import {execSync} from "node:child_process";
 import {mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, existsSync, mkdirSync} from "node:fs";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
-import {ColorScheme} from "$lib/utils/themes";
-import {HexColor} from "$lib/utils/colors";
+import {type ColorScheme} from "$lib/utils/themes";
+import {type HexColor} from "$lib/utils/colors";
 
 
 const REPO_URL = "https://github.com/mbadolato/iTerm2-Color-Schemes.git";
