@@ -26,6 +26,7 @@ export interface ColorScheme {
     background?: HexColor;
     foreground?: HexColor;
     cursorColor?: HexColor;
+    cursorText?: HexColor;
     selectionBackground?: HexColor;
     selectionForeground?: HexColor;
 }
