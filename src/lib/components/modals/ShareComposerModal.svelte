@@ -43,7 +43,7 @@
         }
     }
 
-    function onClickCopy() {
+    const onClickCopy = debounce(() => {
         if (isTooLong) {
             void copyToClipboard(
                 configText,
@@ -58,7 +58,7 @@
                 "Select the link and copy manually."
             );
         }
-    }
+    }, 300);
 
     async function nativeShareLink() {
         if (!shareUrl) return;
@@ -102,7 +102,7 @@
             <Button onclick={nativeShareLink}>Share...</Button>
         {/if}
 
-        <Button primary onclick={debounce(onClickCopy, 300)}>{isTooLong ? "Copy Config Text" : "Copy Link"}</Button>
+        <Button primary onclick={onClickCopy}>{isTooLong ? "Copy Config Text" : "Copy Link"}</Button>
     {/snippet}
 </DialogModal>
 

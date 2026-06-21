@@ -42,6 +42,7 @@ export function getSourceInfo(source: ImportSource) {
 }
 
 function clearHash() {
+    if (typeof window === "undefined") return;
     const cleaned = removeSharePayloadFromHash(window.location.hash);
     window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${cleaned}`);
 }
@@ -61,7 +62,7 @@ export function checkTextForImport(source: ImportSource, text: string) {
     const preview = buildPreview(source, text);
     const hasKeys = preview.parsedDiff && Object.keys(preview.parsedDiff).length > 0;
 
-    if (!hasKeys) {
+    if (!hasKeys && !preview.parseError) {
         void showAlert({title: "No config found", message: SOURCE_INFO[source].noConfigMessage, buttonText: "Dismiss"});
         if (source === "share") clearHash();
         return;
@@ -72,6 +73,7 @@ export function checkTextForImport(source: ImportSource, text: string) {
 }
 
 export function checkHashForShare() {
+    if (typeof window === "undefined") return;
     const payload = getSharePayloadFromHash(window.location.hash);
     if (!payload) return;
 

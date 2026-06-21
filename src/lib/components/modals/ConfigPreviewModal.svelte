@@ -25,7 +25,7 @@
     <ConfigPreview parsed={parsedConfig} parsedDiff={parsedConfig} text={previewText} {parseError} showEmptyState={false} clampHeight />
     {#snippet footer()}
         <Button onclick={onclose}>Dismiss</Button>
-        <Button primary onclick={onimport}>Import Config</Button>
+        <Button primary onclick={onimport} disabled={!parsedConfig}>Import Config</Button>
     {/snippet}
 </DialogModal>
 

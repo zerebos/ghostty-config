@@ -44,9 +44,17 @@ export function withPendingGuard<Args extends unknown[]>(
         if (pending) return;
         pending = true;
 
-        void fn(...args).finally(() => {
+        // Guard against both synchronous and asynchronous errors to ensure pending is reset correctly
+        try {
+            const result = fn(...args);
+            void Promise.resolve(result).finally(() => {
+                pending = false;
+            });
+        }
+        catch (err) {
             pending = false;
-        });
+            throw err;
+        }
     };
 
     Object.defineProperty(guarded, "pending", {
