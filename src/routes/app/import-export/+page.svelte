@@ -41,9 +41,10 @@
         }
     }
 
-    let filePicker: HTMLInputElement;
+    let filePicker: HTMLInputElement | null = $state(null);
     function selectFile() {
-        const file = filePicker.files![0];
+        const file = filePicker?.files?.[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -129,7 +130,7 @@
         <Item name="From File" note="Upload a config file from your device">
             <div class="button-group">
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <Button onclick={() => filePicker.click()} title="Upload">Choose File...</Button>
+                <Button onclick={() => filePicker?.click()} title="Upload">Choose File...</Button>
             </div>
         </Item>
     </Group>

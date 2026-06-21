@@ -6,8 +6,13 @@
     import {error, success} from "$lib/stores/toasts.svelte";
     import {debounce} from "$lib/utils/debounce";
 
-    const LABEL_RESET_TIMEOUT_MS = 3000;
 
+    // Prereq
+    onMount(() => {
+        canUseNativeShare = !isTooLong && !!window.navigator.share;
+    });
+
+    // Local props and state
     interface Props {
         isTooLong: boolean;
         shareUrl: string | null;
@@ -18,9 +23,6 @@
 
     const {isTooLong, shareUrl, configText, onclose, ondownload}: Props = $props();
 
-    // Svelte did this
-    const defaultLabel = (() => isTooLong ? "Copy Config Text" : "Copy Link")();
-    let copyButtonLabel = $state(defaultLabel);
     let notice = $state<string | null>(null);
     let canUseNativeShare = $state(false);
 
@@ -28,29 +30,20 @@
         notice ?? (isTooLong ? null : "This link contains your config data. Share only with people you trust.")
     );
 
-    onMount(() => {
-        canUseNativeShare = !isTooLong && !!window.navigator.share;
-    });
-
+    // Button handlers
     async function copyToClipboard(text: string, successNotice: string, failureNotice: string) {
-        if (copyButtonLabel === "Copied!") return;
-
         try {
             await window.navigator.clipboard.writeText(text);
-            copyButtonLabel = "Copied!";
             notice = successNotice;
             success(successNotice);
         }
         catch {
-            copyButtonLabel = "Copy Failed";
             notice = failureNotice;
             error(failureNotice);
         }
-
-        setTimeout(() => (copyButtonLabel = defaultLabel), LABEL_RESET_TIMEOUT_MS);
     }
 
-    function copyPrimary() {
+    function onClickCopy() {
         if (isTooLong) {
             void copyToClipboard(
                 configText,
@@ -101,17 +94,15 @@
     {/if}
 
     {#snippet footer()}
+        <Button onclick={onclose}>Close</Button>
+
         {#if isTooLong}
-            <Button primary onclick={debounce(copyPrimary, 300)}>{copyButtonLabel}</Button>
             <Button onclick={ondownload}>Download File</Button>
-            <Button onclick={onclose}>Close</Button>
-        {:else}
-            <Button onclick={onclose}>Close</Button>
-            {#if canUseNativeShare}
-                <Button onclick={nativeShareLink}>Share...</Button>
-            {/if}
-            <Button primary onclick={debounce(copyPrimary, 300)}>{copyButtonLabel}</Button>
+        {:else if canUseNativeShare}
+            <Button onclick={nativeShareLink}>Share...</Button>
         {/if}
+
+        <Button primary onclick={debounce(onClickCopy, 300)}>{isTooLong ? "Copy Config Text" : "Copy Link"}</Button>
     {/snippet}
 </DialogModal>
 
