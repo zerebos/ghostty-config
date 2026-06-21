@@ -4,79 +4,80 @@
     import DialogModal from "$lib/components/modals/DialogModal.svelte";
     import Button from "$lib/components/Button.svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
-    import {withPendingGuard} from "$lib/utils/debounce";
+    import {debounce} from "$lib/utils/debounce";
 
     const LABEL_RESET_TIMEOUT_MS = 3000;
 
     interface Props {
         isTooLong: boolean;
         shareUrl: string | null;
+        configText: string;
         onclose?: () => void;
         ondownload?: () => void;
-        oncopyconfigtext?: () => Promise<boolean> | boolean;
     }
 
-    const {
-        isTooLong,
-        shareUrl,
-        onclose,
-        ondownload,
-        oncopyconfigtext
-    }: Props = $props();
+    const {isTooLong, shareUrl, configText, onclose, ondownload}: Props = $props();
 
-    let copyLinkText = $state("Copy Link");
+    // Svelte did this
+    const defaultLabel = (() => isTooLong ? "Copy Config Text" : "Copy Link")();
+    let copyButtonLabel = $state(defaultLabel);
     let notice = $state<string | null>(null);
     let canUseNativeShare = $state(false);
+
     const displayNotice = $derived(
         notice ?? (isTooLong ? null : "This link contains your config data. Share only with people you trust.")
     );
 
     onMount(() => {
-        canUseNativeShare = !!navigator.share;
+        canUseNativeShare = !isTooLong && !!window.navigator.share;
     });
 
-    async function copyShareLink() {
-        if (!shareUrl || copyLinkText === "Copied!") return;
+    async function copyToClipboard(text: string, successNotice: string, failureNotice: string) {
+        if (copyButtonLabel === "Copied!") return;
 
         try {
-            await window.navigator.clipboard.writeText(shareUrl);
-            copyLinkText = "Copied!";
-            notice = "Share link copied to clipboard.";
-            success("Share link copied to clipboard");
-            setTimeout(() => (copyLinkText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
+            await window.navigator.clipboard.writeText(text);
+            copyButtonLabel = "Copied!";
+            notice = successNotice;
+            success(successNotice);
         }
         catch {
-            copyLinkText = "Copy Failed";
-            notice = "Select the link and copy manually.";
-            error("Failed to copy share link to clipboard");
-            setTimeout(() => (copyLinkText = "Copy Link"), LABEL_RESET_TIMEOUT_MS);
+            copyButtonLabel = "Copy Failed";
+            notice = failureNotice;
+            error(failureNotice);
+        }
+
+        setTimeout(() => (copyButtonLabel = defaultLabel), LABEL_RESET_TIMEOUT_MS);
+    }
+
+    function copyPrimary() {
+        if (isTooLong) {
+            void copyToClipboard(
+                configText,
+                "Config copied. You can share it as plain text instead of a link.",
+                "Clipboard access failed. Use file export instead."
+            );
+        }
+        else if (shareUrl) {
+            void copyToClipboard(
+                shareUrl,
+                "Share link copied to clipboard.",
+                "Select the link and copy manually."
+            );
         }
     }
 
     async function nativeShareLink() {
-        if (!shareUrl || !navigator.share) return;
-
+        if (!shareUrl) return;
         try {
-            await navigator.share({
-                title: "Ghostty Config",
-                text: "Ghostty config share link",
-                url: shareUrl
-            });
+            await navigator.share({title: "Ghostty Config", text: "Ghostty config share link", url: shareUrl});
         }
         catch {
             // User cancellation should not show an error.
         }
     }
-
-    const copyConfigForFallback = withPendingGuard(async function() {
-        if (!oncopyconfigtext) return;
-
-        const ok = await oncopyconfigtext();
-        notice = ok
-            ? "Config copied. You can share it as plain text instead of a link."
-            : "Clipboard access failed. Use file export instead.";
-    });
 </script>
+
 
 <DialogModal title="Share Config" {onclose}>
     {#snippet icon()}
@@ -85,9 +86,6 @@
 
     {#if isTooLong}
         <p class="share-modal-desc">This config is too large for reliable URL sharing across apps and browsers.</p>
-        {#if displayNotice}
-            <p class="status-text" role="status">{displayNotice}</p>
-        {/if}
     {:else}
         <p class="share-modal-desc">Review and copy the share link below.</p>
         <input
@@ -97,14 +95,14 @@
             readonly
             onclick={(event) => event.currentTarget.select()}
         />
-        {#if displayNotice}
-            <p class="status-text" role="status">{displayNotice}</p>
-        {/if}
+    {/if}
+    {#if displayNotice}
+        <p class="status-text" role="status">{displayNotice}</p>
     {/if}
 
     {#snippet footer()}
         {#if isTooLong}
-            <Button primary onclick={copyConfigForFallback}>Copy Config Text</Button>
+            <Button primary onclick={debounce(copyPrimary, 300)}>{copyButtonLabel}</Button>
             <Button onclick={ondownload}>Download File</Button>
             <Button onclick={onclose}>Close</Button>
         {:else}
@@ -112,10 +110,11 @@
             {#if canUseNativeShare}
                 <Button onclick={nativeShareLink}>Share...</Button>
             {/if}
-            <Button primary onclick={copyShareLink}>{copyLinkText}</Button>
+            <Button primary onclick={debounce(copyPrimary, 300)}>{copyButtonLabel}</Button>
         {/if}
     {/snippet}
 </DialogModal>
+
 
 <style>
 .share-modal-desc {

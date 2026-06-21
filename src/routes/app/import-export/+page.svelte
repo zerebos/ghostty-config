@@ -17,16 +17,7 @@
     import ShareIcon from "$lib/components/icons/ShareIcon.svelte";
     import ImportIcon from "$lib/components/icons/ImportIcon.svelte";
 
-
-    const DEBOUNCE_DELAY_MS = 300;
-
-    let showShareComposer = $state(false);
-    let shareUrl = $state<string | null>(null);
-    let isShareTooLong = $state(false);
-
-    const currentConfigDiff = $derived(diff());
-    const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
-
+    // Handling for share urls
     onMount(() => {
         checkHashForShare();
         const handler = () => checkHashForShare();
@@ -34,6 +25,11 @@
         return () => window.removeEventListener("hashchange", handler);
     });
 
+    // Local states
+    const currentConfigDiff = $derived(diff());
+    const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
+
+    // Button handlers
     async function pasteConfig() {
         try {
             const text = await window.navigator.clipboard.readText();
@@ -45,10 +41,6 @@
     }
 
     let filePicker: HTMLInputElement;
-    function openFilePicker() {
-        filePicker.click();
-    }
-
     function selectFile() {
         const file = filePicker.files![0];
         const reader = new FileReader();
@@ -73,34 +65,6 @@
         }
     });
 
-    function openShareComposer() {
-        if (!hasExportableConfig) return;
-
-        const config = serialize(currentConfigDiff, false);
-        const encoded = encodeConfig(config);
-        const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
-
-        isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
-        shareUrl = isShareTooLong ? null : nextShareUrl;
-        showShareComposer = true;
-    }
-
-    function closeShareComposer() {
-        showShareComposer = false;
-        shareUrl = null;
-        isShareTooLong = false;
-    }
-
-    async function copyConfigForFallback() {
-        try {
-            await window.navigator.clipboard.writeText(serialize(currentConfigDiff, false));
-            return true;
-        }
-        catch {
-            return false;
-        }
-    }
-
     const downloadConfig = debounce(function() {
         if (!hasExportableConfig) return;
 
@@ -114,7 +78,33 @@
 
         URL.revokeObjectURL(url);
         success("Config file downloaded");
-    }, DEBOUNCE_DELAY_MS);
+    }, 300);
+
+
+    // Share Composer Modal Logic
+    let showShareComposer = $state(false);
+    let shareUrl = $state<string | null>(null);
+    let shareConfigText = $state("");
+    let isShareTooLong = $state(false);
+    function openShareComposer() {
+        if (!hasExportableConfig) return;
+
+        const config = serialize(currentConfigDiff, false);
+        const encoded = encodeConfig(config);
+        const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
+
+        isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
+        shareUrl = isShareTooLong ? null : nextShareUrl;
+        shareConfigText = config;
+        showShareComposer = true;
+    }
+
+    function closeShareComposer() {
+        showShareComposer = false;
+        shareUrl = null;
+        shareConfigText = "";
+        isShareTooLong = false;
+    }
 
     function handleWindowKeydown(e: KeyboardEvent) {
         if (e.key !== "Escape") return;
@@ -158,7 +148,7 @@
         <Item name="From File" note="Upload a config file from your device">
             <div class="button-group">
                 <input id="config-input" type="file" onchange={selectFile} bind:this={filePicker} />
-                <Button onclick={openFilePicker} title="Upload">Choose File...</Button>
+                <Button onclick={() => filePicker.click()} title="Upload">Choose File...</Button>
             </div>
         </Item>
     </Group>
@@ -200,9 +190,9 @@
 <ShareComposerModal
     isTooLong={isShareTooLong}
     {shareUrl}
+    configText={shareConfigText}
     onclose={closeShareComposer}
     ondownload={downloadConfig}
-    oncopyconfigtext={copyConfigForFallback}
 />
 {/if}
 
