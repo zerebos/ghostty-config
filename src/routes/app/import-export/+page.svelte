@@ -5,24 +5,20 @@
     import {diff, diffFromDefaults, load} from "$lib/stores/config.svelte";
     import {alert as showAlert} from "$lib/stores/modals.svelte";
     import {parse, serialize} from "$lib/utils/parse";
-    import {buildShareUrl, decodeConfig, encodeConfig, getSharePayloadFromHash, MAX_SHARE_URL_LENGTH, removeSharePayloadFromHash} from "$lib/utils/share";
+    import {buildShareUrl, encodeConfig, MAX_SHARE_URL_LENGTH} from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
     import ShareComposerModal from "$lib/components/modals/ShareComposerModal.svelte";
-    import SharedConfigModal from "$lib/components/modals/SharedConfigModal.svelte";
     import {onMount} from "svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
-    import ImportConfigModal from "$lib/components/modals/ImportConfigModal.svelte";
     import {debounce, withPendingGuard} from "$lib/utils/debounce";
+    import {applyIncomingShare, checkHashForShare, dismissIncomingShare, incomingShare} from "$lib/stores/share.svelte";
+    import ConfigPreviewModal from "$lib/components/modals/ConfigPreviewModal.svelte";
+    import ShareIcon from "$lib/components/icons/ShareIcon.svelte";
+    import ImportIcon from "$lib/components/icons/ImportIcon.svelte";
 
 
     const DEBOUNCE_DELAY_MS = 300;
-
-    let sharedConfigPreview = $state<string | null>(null);
-    let sharedConfigParsed = $state<Record<string, string | string[]> | null>(null);
-    let sharedConfigParsedDiff = $state<Record<string, string | string[]> | null>(null);
-    let sharedConfigParseError = $state(false);
-    let showSharedConfigModal = $state(false);
 
     let importConfigPreview = $state<string | null>(null);
     let importConfigParsed = $state<Record<string, string | string[]> | null>(null);
@@ -38,56 +34,11 @@
     const hasExportableConfig = $derived(Object.keys(currentConfigDiff).length > 0);
 
     onMount(() => {
-        maybeShowSharedConfigFromHash();
-        const handler = () => maybeShowSharedConfigFromHash();
+        checkHashForShare();
+        const handler = () => checkHashForShare();
         window.addEventListener("hashchange", handler);
         return () => window.removeEventListener("hashchange", handler);
     });
-
-    function maybeShowSharedConfigFromHash() {
-        const shareParam = getSharePayloadFromHash(window.location.hash);
-        if (!shareParam) return;
-
-        try {
-            const decodedConfig = decodeConfig(shareParam);
-            sharedConfigPreview = decodedConfig;
-
-            // Try to parse for pretty display
-            try {
-                sharedConfigParsed = parse(decodedConfig);
-                sharedConfigParsedDiff = diffFromDefaults(sharedConfigParsed) as Record<string, string | string[]> | null;
-                sharedConfigParseError = false;
-            }
-            catch {
-                // Parsing failed, will fall back to raw text display
-                sharedConfigParsed = null;
-                sharedConfigParseError = true;
-            }
-
-            const anyKeys = sharedConfigParsedDiff && Object.keys(sharedConfigParsedDiff).length > 0;
-            if (anyKeys) {
-                showSharedConfigModal = true;
-            }
-            else {
-                void showAlert({
-                    title: "No config found",
-                    message: "We couldn't find any valid config settings in the shared URL.",
-                    buttonText: "Dismiss"
-                });
-                clearShareHashFromAddressBar();
-            }
-        }
-        catch {
-            error("Failed to read shared config from URL");
-            clearShareHashFromAddressBar();
-        }
-    }
-
-    function clearShareHashFromAddressBar() {
-        const cleanedHash = removeSharePayloadFromHash(window.location.hash);
-        const nextUrl = `${window.location.pathname}${window.location.search}${cleanedHash}`;
-        window.history.replaceState(null, "", nextUrl);
-    }
 
     async function loadConfig(candidate: string): Promise<boolean> {
         let parsed;
@@ -218,19 +169,8 @@
     }
 
     async function importSharedConfig() {
-        if (sharedConfigPreview) {
-            const loaded = await loadConfig(sharedConfigPreview);
-            if (loaded) success("Shared config imported");
-        }
-        closeSharedConfigModal();
-    }
-
-    function closeSharedConfigModal() {
-        showSharedConfigModal = false;
-        sharedConfigPreview = null;
-        sharedConfigParsed = null;
-        sharedConfigParseError = false;
-        clearShareHashFromAddressBar();
+        await applyIncomingShare();
+        success("Shared config imported");
     }
 
     function closeImportConfigModal() {
@@ -266,7 +206,7 @@
     function handleWindowKeydown(e: KeyboardEvent) {
         if (e.key !== "Escape") return;
         if (showShareComposer) closeShareComposer();
-        else if (showSharedConfigModal) closeSharedConfigModal();
+        else if (incomingShare.show) dismissIncomingShare();
     }
 </script>
 
@@ -353,24 +293,50 @@
 />
 {/if}
 
-{#if showSharedConfigModal}
-<SharedConfigModal
+{#if incomingShare.show && incomingShare.preview}
+<!-- <SharedConfigModal
     parsedConfig={sharedConfigParsedDiff}
     previewText={sharedConfigPreview}
     parseError={sharedConfigParseError}
     onclose={closeSharedConfigModal}
     onimport={importSharedConfig}
-/>
+/> -->
+<ConfigPreviewModal
+    title="Shared Config"
+    description="Someone shared a Ghostty config with you. Review it before importing."
+    parsedConfig={incomingShare.preview?.parsedDiff ?? null}
+    previewText={incomingShare.preview?.text ?? null}
+    parseError={incomingShare.preview?.parseError ?? false}
+    onclose={dismissIncomingShare}
+    onimport={importSharedConfig}
+>
+{#snippet icon()}
+    <ShareIcon />
+{/snippet}
+</ConfigPreviewModal>
 {/if}
 
 {#if showImportConfigModal}
-<ImportConfigModal
+<!-- <ImportConfigModal
     parsedConfig={importConfigParsedDiff}
     previewText={importConfigPreview}
     parseError={importConfigParseError}
     onclose={closeImportConfigModal}
     onimport={importImportConfig}
-/>
+/> -->
+<ConfigPreviewModal
+    title="Import Config"
+    description="Importing will overwrite any changes you have made. Review it before importing."
+    parsedConfig={importConfigParsedDiff}
+    previewText={importConfigPreview}
+    parseError={importConfigParseError}
+    onclose={closeImportConfigModal}
+    onimport={importImportConfig}
+>
+{#snippet icon()}
+    <ImportIcon />
+{/snippet}
+</ConfigPreviewModal>
 {/if}
 
 
