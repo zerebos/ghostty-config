@@ -6,7 +6,7 @@ import {alert as showAlert} from "$lib/stores/modals.svelte";
 
 export type ImportSource = "share" | "clipboard" | "file";
 
-interface PreviewState {
+export interface PreviewState {
     source: ImportSource;
     text: string;
     parsed: Record<string, string | string[]> | null;
