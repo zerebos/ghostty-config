@@ -2,9 +2,9 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
-    import {diff, diffFromDefaults, load} from "$lib/stores/config.svelte";
-    import {alert as showAlert} from "$lib/stores/modals.svelte";
-    import {parse, serialize} from "$lib/utils/parse";
+    import {diff} from "$lib/stores/config.svelte";
+    // import {alert as showAlert} from "$lib/stores/modals.svelte";
+    import {serialize} from "$lib/utils/parse";
     import {buildShareUrl, encodeConfig, MAX_SHARE_URL_LENGTH} from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
@@ -12,19 +12,13 @@
     import {onMount} from "svelte";
     import {error, success} from "$lib/stores/toasts.svelte";
     import {debounce, withPendingGuard} from "$lib/utils/debounce";
-    import {applyIncomingShare, checkHashForShare, dismissIncomingShare, incomingShare} from "$lib/stores/share.svelte";
+    import {applyIncomingImport, checkHashForShare, checkTextForImport, dismissIncomingImport, getSourceInfo, incomingImport} from "$lib/stores/import.svelte";
     import ConfigPreviewModal from "$lib/components/modals/ConfigPreviewModal.svelte";
     import ShareIcon from "$lib/components/icons/ShareIcon.svelte";
     import ImportIcon from "$lib/components/icons/ImportIcon.svelte";
 
 
     const DEBOUNCE_DELAY_MS = 300;
-
-    let importConfigPreview = $state<string | null>(null);
-    let importConfigParsed = $state<Record<string, string | string[]> | null>(null);
-    let importConfigParsedDiff = $state<Record<string, string | string[]> | null>(null);
-    let importConfigParseError = $state(false);
-    let showImportConfigModal = $state(false);
 
     let showShareComposer = $state(false);
     let shareUrl = $state<string | null>(null);
@@ -40,71 +34,10 @@
         return () => window.removeEventListener("hashchange", handler);
     });
 
-    async function loadConfig(candidate: string): Promise<boolean> {
-        let parsed;
-        try {
-            // TODO: remove this assertions when the return type of parse is fixed
-            parsed = parse(candidate) as Parameters<typeof load>[0];
-        }
-        catch (parseError) {
-            // eslint-disable-next-line no-console
-            console.error(parseError);
-            await showAlert({
-                title: "Could not parse config",
-                message: "Something went wrong while parsing your config. Please open an issue on GitHub.",
-                buttonText: "Dismiss"
-            });
-            return false;
-        }
-
-        try {
-            load(parsed);
-        }
-        catch (loadError) {
-            // eslint-disable-next-line no-console
-            console.error(loadError);
-            await showAlert({
-                title: "Could not load config",
-                message: "Something went wrong while loading your parsed config. Please open an issue on GitHub.",
-                buttonText: "Dismiss"
-            });
-            return false;
-        }
-
-        return true;
-    }
-
-    function showImportModal(text: string, source: "clipboard" | "file" = "clipboard") {
-        importConfigPreview = text;
-
-        try {
-            importConfigParsed = parse(text);
-            importConfigParseError = false;
-            importConfigParsedDiff = diffFromDefaults(importConfigParsed) as Record<string, string | string[]> | null;
-        }
-        catch {
-            importConfigParsed = null;
-            importConfigParseError = true;
-        }
-
-        const anyKeys = importConfigParsedDiff && Object.keys(importConfigParsedDiff).length > 0;
-
-        if (anyKeys) {
-            showImportConfigModal = true;
-        }
-        else {
-            void showAlert({
-                title: "No config found",
-                message: `We couldn't find any valid config settings in the ${source} you provided.`,
-                buttonText: "Dismiss"
-            });
-        }
-    }
-
     async function pasteConfig() {
         try {
             const text = await window.navigator.clipboard.readText();
-            showImportModal(text, "clipboard");
+            checkTextForImport("clipboard", text);
         }
         catch {
             error("Clipboard access failed! Please paste manually or import from file.");
@@ -123,7 +56,7 @@
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
             const loadedText = event.target?.result?.toString();
             if (!loadedText) return;
-            showImportModal(loadedText, "file");
+            checkTextForImport("file", loadedText);
         });
         reader.readAsText(file);
     }
@@ -168,26 +101,6 @@
         }
     }
 
-    async function importSharedConfig() {
-        await applyIncomingShare();
-        success("Shared config imported");
-    }
-
-    function closeImportConfigModal() {
-        showImportConfigModal = false;
-        importConfigPreview = null;
-        importConfigParsed = null;
-        importConfigParseError = false;
-    }
-
-    async function importImportConfig() {
-        if (importConfigPreview) {
-            const loaded = await loadConfig(importConfigPreview);
-            if (loaded) success("Config imported");
-        }
-        closeImportConfigModal();
-    }
-
     const downloadConfig = debounce(function() {
         if (!hasExportableConfig) return;
 
@@ -206,7 +119,7 @@
     function handleWindowKeydown(e: KeyboardEvent) {
         if (e.key !== "Escape") return;
         if (showShareComposer) closeShareComposer();
-        else if (incomingShare.show) dismissIncomingShare();
+        else if (incomingImport.show) dismissIncomingImport();
     }
 </script>
 
@@ -293,50 +206,26 @@
 />
 {/if}
 
-{#if incomingShare.show && incomingShare.preview}
-<!-- <SharedConfigModal
-    parsedConfig={sharedConfigParsedDiff}
-    previewText={sharedConfigPreview}
-    parseError={sharedConfigParseError}
-    onclose={closeSharedConfigModal}
-    onimport={importSharedConfig}
-/> -->
-<ConfigPreviewModal
-    title="Shared Config"
-    description="Someone shared a Ghostty config with you. Review it before importing."
-    parsedConfig={incomingShare.preview?.parsedDiff ?? null}
-    previewText={incomingShare.preview?.text ?? null}
-    parseError={incomingShare.preview?.parseError ?? false}
-    onclose={dismissIncomingShare}
-    onimport={importSharedConfig}
->
-{#snippet icon()}
-    <ShareIcon />
-{/snippet}
-</ConfigPreviewModal>
-{/if}
 
-{#if showImportConfigModal}
-<!-- <ImportConfigModal
-    parsedConfig={importConfigParsedDiff}
-    previewText={importConfigPreview}
-    parseError={importConfigParseError}
-    onclose={closeImportConfigModal}
-    onimport={importImportConfig}
-/> -->
-<ConfigPreviewModal
-    title="Import Config"
-    description="Importing will overwrite any changes you have made. Review it before importing."
-    parsedConfig={importConfigParsedDiff}
-    previewText={importConfigPreview}
-    parseError={importConfigParseError}
-    onclose={closeImportConfigModal}
-    onimport={importImportConfig}
->
-{#snippet icon()}
-    <ImportIcon />
-{/snippet}
-</ConfigPreviewModal>
+{#if incomingImport.show && incomingImport.preview}
+    {@const info = getSourceInfo(incomingImport.preview.source)}
+    <ConfigPreviewModal
+        title={info.title}
+        description={info.description}
+        parsedConfig={incomingImport.preview?.parsedDiff ?? null}
+        previewText={incomingImport.preview?.text ?? null}
+        parseError={incomingImport.preview?.parseError ?? false}
+        onclose={dismissIncomingImport}
+        onimport={applyIncomingImport}
+    >
+    {#snippet icon()}
+    {#if incomingImport.preview!.source === "share"}
+        <ShareIcon />
+    {:else}
+        <ImportIcon />
+    {/if}
+    {/snippet}
+    </ConfigPreviewModal>
 {/if}
 
 
