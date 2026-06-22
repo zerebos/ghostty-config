@@ -1,8 +1,7 @@
 import {dev} from "$app/environment";
-import {fetchColorScheme} from "$lib/utils/themes";
 import {registry, type SettingDefaults, type SettingValues} from "$lib/settings/registry";
-import parse from "$lib/utils/parse";
 import {runInitializers} from "$lib/settings/initializers";
+import themes from "$lib/data/themes";
 
 
 // Run initializers before setting up defaults to ensure that any dynamic options are populated
@@ -92,25 +91,17 @@ export function load(conf: Partial<typeof config>) {
     }
 }
 
-export async function setColorScheme(name: string): Promise<boolean> {
+export function setColorScheme(name: string): boolean {
     if (name === "") {
         resetColorScheme();
         return true;
     }
 
-    try {
-        const colorSchemeResponse = await fetchColorScheme(name);
-        // TODO: move the assertion into the return,
-        // didn't do it now because it would have lead to a circular dep
-        const parsed = parse(colorSchemeResponse) as Partial<SettingValues>;
-        load(parsed);
-        return true;
-    }
-    catch (err) {
-        // TODO: give feedback to user maybe?
-        console.error(err); // eslint-disable-line no-console
-        return false;
-    }
+    const theme = themes[name as keyof typeof themes];
+    if (!theme) return false;
+
+    load(theme);
+    return true;
 }
 
 export function resetColorScheme() {
@@ -118,6 +109,7 @@ export function resetColorScheme() {
         "background",
         "foreground",
         "cursorColor",
+        "cursorText",
         "selectionBackground",
         "selectionForeground"
     ] as Array<keyof SettingValues>;

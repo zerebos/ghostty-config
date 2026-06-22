@@ -3,6 +3,16 @@ export type RgbArray = [number, number, number];
 export type HsvArray = [number, number, number];
 export type HsvObj = {hue: number, saturation: number, value: number;};
 
+export interface ColorScheme {
+    palette: HexColor[];
+    background?: HexColor;
+    foreground?: HexColor;
+    cursorColor?: HexColor;
+    cursorText?: HexColor;
+    selectionBackground?: HexColor;
+    selectionForeground?: HexColor;
+}
+
 export function luminosity(color: HexColor) {
     const int = parseInt(color.substring(1), 16);
     const red = int >> 16 & 0xFF;

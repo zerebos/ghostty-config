@@ -26,7 +26,7 @@
  *   selection-foreground = c5c8c6
  *
  * This script parses that directly into the `ColorScheme` shape used by
- * $lib/utils/themes.ts, so no dependency on the app's own parse() util is
+ * $lib/utils/colors.ts, so no dependency on the app's own parse() util is
  * needed here (this runs standalone in CI, not inside the SvelteKit app).
  */
 
@@ -34,8 +34,7 @@ import {execSync} from "node:child_process";
 import {mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync, existsSync, mkdirSync} from "node:fs";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
-import {type ColorScheme} from "$lib/utils/themes";
-import {type HexColor} from "$lib/utils/colors";
+import type {HexColor, ColorScheme} from "$lib/utils/colors";
 
 
 const REPO_URL = "https://github.com/mbadolato/iTerm2-Color-Schemes.git";
@@ -227,7 +226,7 @@ function renderModule(themes: ThemeMap): string {
     lines.push("// See .github/workflows/sync-themes.yml for the generation schedule.");
     lines.push("/* eslint-disable quote-props, key-spacing */");
     lines.push("");
-    lines.push("import type {ColorScheme} from \"$lib/utils/themes\";");
+    lines.push("import type {ColorScheme} from \"$lib/utils/colors\";");
     lines.push("");
     lines.push("export const themes = {");
 
