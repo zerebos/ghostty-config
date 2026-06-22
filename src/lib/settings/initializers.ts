@@ -1,5 +1,5 @@
 import themes from "$lib/data/themes";
-import {frameUrls, iconUrls} from "$lib/utils/macicon";
+import {frameUrls, iconUrls} from "$lib/data/macicons";
 import {registry, type SettingsSchema} from "./registry";
 
 
@@ -58,7 +58,7 @@ const syncInitializers: Initializer[] = [
                 value: key,
                 name: key[0].toUpperCase() + key.slice(1),
                 group: "Predefined icons",
-                icon: iconUrls[key]
+                icon: iconUrls[key as keyof typeof iconUrls]
             })),
             {value: "custom", name: "Custom Icon", description: "Use your own icon file.", group: "Custom"},
             {value: "custom-style", name: "Custom Style", description: "Customize the icon with colors and frames.", group: "Custom"}
@@ -72,7 +72,7 @@ const syncInitializers: Initializer[] = [
         frameSetting.options = Object.keys(frameUrls).map(key => ({
             value: key,
             name: key[0].toUpperCase() + key.slice(1),
-            icon: frameUrls[key]
+            icon: frameUrls[key as keyof typeof frameUrls]
         }));
     },
 

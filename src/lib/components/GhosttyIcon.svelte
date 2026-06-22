@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from "$lib/stores/config.svelte";
-    import {iconUrls, frameUrls, customLayerUrls} from "$lib/utils/macicon";
+    import {iconUrls, frameUrls, customLayerUrls} from "$lib/data/macicons";
 
     let hasCdnError = $state(false);
 
@@ -16,8 +16,8 @@
     }
 
     const iconLabel = $derived(config.macosIcon === "custom-style" ? "Custom style" : config.macosIcon === "custom" ? "Custom file" : config.macosIcon);
-    const iconUrl = $derived(iconUrls[config.macosIcon] ?? iconUrls.official);
-    const frameUrl = $derived(frameUrls[config.macosIconFrame] ?? frameUrls.aluminum);
+    const iconUrl = $derived(iconUrls[config.macosIcon as keyof typeof iconUrls] ?? iconUrls.official);
+    const frameUrl = $derived(frameUrls[config.macosIconFrame as keyof typeof frameUrls] ?? frameUrls.aluminum);
     const isCustomStyle = $derived(config.macosIcon === "custom-style");
     const isCustomFile = $derived(config.macosIcon === "custom");
     const ghostColor = $derived(config.macosIconGhostColor || "#f6f7fb");
