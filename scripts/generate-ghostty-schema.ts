@@ -30,7 +30,7 @@ const getArg = (flag: string): string | undefined => {
 };
 
 const REF = getArg("--ref") ?? "main";
-const OUT = getArg("--out") ?? join(import.meta.dir, "../src/lib/data/ghostty-schema.ts");
+const OUT = getArg("--out") ?? join(import.meta.dirname, "../src/lib/data/ghostty-schema.ts");
 const DRY_RUN = args.includes("--dry-run");
 
 // ---------------------------------------------------------------------------
@@ -120,6 +120,7 @@ function mapZigType(zigType: string): string {
  * Extracts all `pub const EnumName = enum { ... }` definitions from the source.
  * Returns a map of EnumName → string[].
  */
+/* eslint-disable */
 function parseEnums(src: string): Map<string, string[]> {
     const enums = new Map<string, string[]>();
 
@@ -163,6 +164,7 @@ function parseEnums(src: string): Map<string, string[]> {
 
     return enums;
 }
+/* eslint-enable */
 
 // ---------------------------------------------------------------------------
 // Parse field definitions from the Config struct body
