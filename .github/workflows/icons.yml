@@ -1,0 +1,67 @@
+name: Sync Ghostty macOS Icon Assets
+
+on:
+  schedule:
+    # Monthly on the 1st at 06:00 UTC. Icon assets in ghostty-org/ghostty
+    # change very infrequently (the last addition was over a year ago), so
+    # a monthly sanity check is plenty. Offset from theme sync (00:00) to
+    # avoid both jobs cloning from GitHub at the same instant.
+    # https://crontab.guru/#0_6_1_*_*
+    - cron: "0 6 1 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-macicon-assets:
+    name: 🔄️ Sync macOS Icon Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.13.13 # Locking to 1.13 to avoid potential issues with the 1.14 rust rewrite
+
+      - name: Generate icon assets
+        run: bun run scripts/generate-macicons.ts
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet -- src/lib/images/vendor src/lib/data/macicons.ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Read summary
+        id: summary
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          {
+            echo "body<<EOF"
+            cat macicon-diff-summary.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: sync ghostty macOS icon assets from upstream"
+          branch: workflows/macicons
+          delete-branch: true
+          title: "Sync Ghostty macOS icon assets from upstream"
+          body: ${{ steps.summary.outputs.body }}
+          sign-commits: true
+          add-paths: |
+            src/lib/images/vendor
+            src/lib/data/macicons.ts
+          labels: |
+            workflow
