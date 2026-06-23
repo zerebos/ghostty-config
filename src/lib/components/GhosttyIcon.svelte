@@ -31,7 +31,7 @@
     const {width = "100px", height = "100px"}: Props = $props();
 </script>
 
-<div class="icon-shell" aria-label="Ghostty icon preview" style:width style:height style:--screen={`url(${customLayerUrls.mask})`} style:--ghost={`url(${customLayerUrls.ghost})`} style:--crt={`url(${customLayerUrls.crt})`} style:--gloss={`url(${customLayerUrls.gloss})`}>
+<div class="icon-shell" aria-label="Ghostty icon preview" style:width style:height style:--screen={`url(${customLayerUrls.mask})`} style:--ghost={`url(${customLayerUrls.ghost})`}>
     {#if isCustomStyle && !hasCdnError}
         <!-- eslint-disable-next-line svelte/no-unused-class-name -->
         <img class="layer frame" src={frameUrl} alt="" onerror={handleAssetError} />

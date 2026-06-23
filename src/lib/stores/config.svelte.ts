@@ -7,10 +7,11 @@ import themes from "$lib/data/themes";
 // Run initializers before setting up defaults to ensure that any dynamic options are populated
 void runInitializers();
 
-const defaults = Object.fromEntries(Object.entries(registry).map(([k, v]) => [k, v.default])) as SettingDefaults;
+const buildDefaults = () => Object.fromEntries(Object.entries(registry).map(([k, v]) => [k, v.default])) as SettingDefaults;
+const defaults = buildDefaults();
 if (dev) console.log(defaults); // eslint-disable-line no-console
 
-const config: SettingValues = $state(Object.assign({}, defaults));
+const config: SettingValues = $state(buildDefaults());
 
 
 export function diff() {
