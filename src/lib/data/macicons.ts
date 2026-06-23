@@ -2,30 +2,47 @@
 // Do not edit directly: changes will be overwritten by the next sync.
 // See .github/workflows/macicons.yml for the generation schedule.
 
+import official from "$lib/images/vendor/official.png";
+import blueprint from "$lib/images/vendor/blueprint.png";
+import chalkboard from "$lib/images/vendor/chalkboard.png";
+import microchip from "$lib/images/vendor/microchip.png";
+import glass from "$lib/images/vendor/glass.png";
+import holographic from "$lib/images/vendor/holographic.png";
+import paper from "$lib/images/vendor/paper.png";
+import retro from "$lib/images/vendor/retro.png";
+import xray from "$lib/images/vendor/xray.png";
+import aluminum from "$lib/images/vendor/aluminum.png";
+import beige from "$lib/images/vendor/beige.png";
+import plastic from "$lib/images/vendor/plastic.png";
+import chrome from "$lib/images/vendor/chrome.png";
+import screen from "$lib/images/vendor/screen.png";
+import crt from "$lib/images/vendor/crt.png";
+import gloss from "$lib/images/vendor/gloss.png";
 
-export const iconBase = "/macicons";
 
 export const iconUrls = {
-    official: `${iconBase}/official.png`,
-    blueprint: `${iconBase}/blueprint.png`,
-    chalkboard: `${iconBase}/chalkboard.png`,
-    microchip: `${iconBase}/microchip.png`,
-    glass: `${iconBase}/glass.png`,
-    holographic: `${iconBase}/holographic.png`,
-    paper: `${iconBase}/paper.png`,
-    retro: `${iconBase}/retro.png`,
-    xray: `${iconBase}/xray.png`,
+    official,
+    blueprint,
+    chalkboard,
+    microchip,
+    glass,
+    holographic,
+    paper,
+    retro,
+    xray,
 } as const satisfies Record<string, string>;
+
 
 export const frameUrls = {
-    aluminum: `${iconBase}/aluminum.png`,
-    beige: `${iconBase}/beige.png`,
-    plastic: `${iconBase}/plastic.png`,
-    chrome: `${iconBase}/chrome.png`,
+    aluminum,
+    beige,
+    plastic,
+    chrome,
 } as const satisfies Record<string, string>;
 
+
 export const customLayerUrls = {
-    screen: `${iconBase}/screen.png`,
-    crt: `${iconBase}/crt.png`,
-    gloss: `${iconBase}/gloss.png`,
+    screen,
+    crt,
+    gloss,
 } as const satisfies Record<string, string>;
