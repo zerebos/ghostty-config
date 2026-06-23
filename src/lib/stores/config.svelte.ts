@@ -100,6 +100,8 @@ export function setColorScheme(name: string): boolean {
     const theme = themes[name as keyof typeof themes];
     if (!theme) return false;
 
+    // Clear out any extra keys the next theme doesn't use
+    resetColorScheme();
     load(theme);
     return true;
 }

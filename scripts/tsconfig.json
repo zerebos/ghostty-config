@@ -10,6 +10,7 @@
         "skipLibCheck": true,
         "sourceMap": true,
         "strict": true,
+        "module": "esnext",
         "moduleResolution": "bundler",
         "types": ["bun"],
         "typeRoots": [],

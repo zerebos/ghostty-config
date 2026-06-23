@@ -31,7 +31,7 @@
  */
 
 import {execSync} from "node:child_process";
-import {mkdtempSync, readFileSync, copyFileSync, rmSync, writeFileSync, existsSync, mkdirSync} from "node:fs";
+import {mkdtempSync, readFileSync, copyFileSync, rmSync, writeFileSync, existsSync, mkdirSync, statSync} from "node:fs";
 import {tmpdir} from "node:os";
 import {join, basename} from "node:path";
 
@@ -143,7 +143,10 @@ function resolveImagesetFile(imagesetDir: string): string {
         // Scale metadata missing/unparsable on at least one candidate,
         // fall back to whichever file is actually largest on disk.
         best = candidates.reduce((a, b) => {
-            const sizeOf = (img: ContentsImage) => existsSync(join(imagesetDir, img.filename!)) ? readFileSync(join(imagesetDir, img.filename!)).length : -1;
+            const sizeOf = (img: ContentsImage) => {
+                const p = join(imagesetDir, img.filename!);
+                return existsSync(p) ? statSync(p).size : -1;
+            };
             return sizeOf(b) > sizeOf(a) ? b : a;
         });
     }

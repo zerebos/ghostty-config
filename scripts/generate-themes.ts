@@ -118,7 +118,7 @@ function parseThemeFile(content: string): ColorScheme {
     for (let i = 0; i < palette.length; i++) {
         if (palette[i] !== undefined) highestSet = i;
     }
-    scheme.palette = palette.slice(0, highestSet + 1).map((c) => c ?? ("#000000"));
+    scheme.palette = Array.from({length: highestSet + 1}, (_, i) => palette[i] ?? "#000000");
 
     return scheme;
 }
