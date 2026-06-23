@@ -5,6 +5,9 @@ sverdle
 notes
 *.md
 !README.md
+!AGENTS.md
+!CONTRIBUTING.md
+!.github/pull_request_template.md
 
 # Output
 .output

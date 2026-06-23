@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://zerebos.github.io/ghostty-config"><img src="./src/lib/images/icon.webp" height="128" alt="Ghostty Config"></a>
+  <a href="https://ghostty.zerebos.com"><img src="./src/lib/images/icon.webp" height="128" alt="Ghostty Config"></a>
   <h1 align="center" style="border:0;">Ghostty Config</h1>
   <p align="center">A beautiful intuitive configuration generator for <a href="https://ghostty.org/" target="_blank">Ghostty</a> terminal.</p>
 
@@ -15,7 +15,7 @@
 ## Overview
 
 > [!NOTE]
-> This tool and the list of features and future improvements is not complete--even the name is up for debate! Please give your feedback, ideas, and report bugs via the [github issue tracker](https://github.com/zerebos/ghostty-config/issues).
+> This tool is still under active development. Features may change and not everything on the roadmap is implemented yet. Feedback, ideas, and bug reports are welcome via the [GitHub issue tracker](https://github.com/zerebos/ghostty-config/issues).
 
 Ghostty Config is a beautiful web-based configuration generator designed to make customizing your [Ghostty](https://ghostty.org/) terminal effortless. Rather than manually editing text files and worrying about formatting and syntax, Ghostty Config allows you to visually adjust settings, preview changes in real time and export a ready-to-use config.
 
@@ -72,7 +72,7 @@ bun run test     # Vitest unit tests
 
 ## Deployment
 
-The only automated deployment built-in is via Cloudflare Workers which automatically deploys to [ghostty.zerebos.com](https://ghostty.zerebos.com) on every push to the `main` branch. If you want to self-host the files for a static website will be available under `build/` after following the steps above to build.
+The only automated deployment built-in is via Cloudflare Workers which automatically deploys to [ghostty.zerebos.com](https://ghostty.zerebos.com) on every push to the `main` branch. If you want to self-host, the static files will be available under `build/` after following the steps above to build.
 
 
 ## Roadmap
@@ -111,16 +111,7 @@ The only automated deployment built-in is via Cloudflare Workers which automatic
 
 ## Contributing
 
-Feedback, ideas, and bug reports are welcome!
-- Open an issue in the [GitHub tracker](https://github.com/zerebos/ghostty-config/issues)
-- Submit a pull request with improvements
-
-When contributing code, make sure these pass before opening a PR:
-```bash
-bun run check   # type errors
-bun run lint    # style violations
-bun run test    # unit tests
-```
+See the [CONTRIBUTING](./CONTRIBUTING.md) documentation for more info.
 
 
 ## License
