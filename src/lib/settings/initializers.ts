@@ -1,47 +1,11 @@
-import {frameUrls, iconUrls} from "$lib/utils/macicon";
-import {fetchThemeFiles, parseThemeFiles} from "$lib/utils/themes";
+import themes from "$lib/data/themes";
+import {frameUrls, iconUrls} from "$lib/data/macicons";
 import {registry, type SettingsSchema} from "./registry";
 
 
 type AsyncInitializer = (registry: SettingsSchema) => Promise<void>;
 
 const asyncInitializers: AsyncInitializer[] = [
-    // Theme list from iTerm2-Color-Schemes
-    async (reg: SettingsSchema) => {
-        const themeSetting = reg.theme;
-        if (themeSetting?.type !== "theme") return;
-        const files = await fetchThemeFiles();
-        const themeNames = parseThemeFiles(files);
-        themeSetting.options = themeNames;
-    },
-
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async (reg: SettingsSchema) => {
-        const iconSetting = reg.macosIcon;
-        if (iconSetting?.type !== "dropdown") return;
-        iconSetting.options = [
-            ...Object.keys(iconUrls).map(key => ({
-                value: key,
-                name: key[0].toUpperCase() + key.slice(1),
-                group: "Predefined icons",
-                icon: iconUrls[key]
-            })),
-            {value: "custom", name: "Custom Icon", description: "Use your own icon file.", group: "Custom"},
-            {value: "custom-style", name: "Custom Style", description: "Customize the icon with colors and frames.", group: "Custom"}
-        ];
-    },
-
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async (reg: SettingsSchema) => {
-        const frameSetting = reg.macosIconFrame;
-        if (frameSetting?.type !== "dropdown") return;
-        frameSetting.options = Object.keys(frameUrls).map(key => ({
-            value: key,
-            name: key[0].toUpperCase() + key.slice(1),
-            icon: frameUrls[key]
-        }));
-    },
-
     // Font list... web: skip or no-op; desktop: shell out to `ghostty +list-fonts`
     async (_: SettingsSchema) => {
         // The following TODO was written by a clanker.
@@ -76,6 +40,40 @@ const syncInitializers: Initializer[] = [
         // Leaving this here as an example for the future
         // Apparently Ghostty now sets this to "true" for both mac and linux
         // reg.copyOnSelect.default = getOS() === "linux" ? "true" : "false";
+    },
+
+    // Theme list from iTerm2-Color-Schemes
+    (reg: SettingsSchema) => {
+        const themeSetting = reg.theme;
+        if (themeSetting?.type !== "theme") return;
+        themeSetting.options = Object.keys(themes);
+    },
+
+    // MacOS icon options
+    (reg: SettingsSchema) => {
+        const iconSetting = reg.macosIcon;
+        if (iconSetting?.type !== "dropdown") return;
+        iconSetting.options = [
+            ...Object.keys(iconUrls).map(key => ({
+                value: key,
+                name: key[0].toUpperCase() + key.slice(1),
+                group: "Predefined icons",
+                icon: iconUrls[key as keyof typeof iconUrls]
+            })),
+            {value: "custom", name: "Custom Icon", description: "Use your own icon file.", group: "Custom"},
+            {value: "custom-style", name: "Custom Style", description: "Customize the icon with colors and frames.", group: "Custom"}
+        ];
+    },
+
+    // MacOS icon frame options
+    (reg: SettingsSchema) => {
+        const frameSetting = reg.macosIconFrame;
+        if (frameSetting?.type !== "dropdown") return;
+        frameSetting.options = Object.keys(frameUrls).map(key => ({
+            value: key,
+            name: key[0].toUpperCase() + key.slice(1),
+            icon: frameUrls[key as keyof typeof frameUrls]
+        }));
     },
 
     (reg: SettingsSchema) => reg.quitAfterLastWindowClosed.default = getOS() !== "macos",

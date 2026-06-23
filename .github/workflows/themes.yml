@@ -1,0 +1,62 @@
+name: Sync Ghostty Themes
+
+on:
+  schedule:
+    # Weekly at 00:00 UTC on Saturdays https://crontab.guru/#0_0_*_*_6
+    - cron: "0 0 * * 6"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-themes:
+    name: 🔄️ Sync Themes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.13.13 # Locking to 1.13 to avoid potential issues with the 1.14 rust rewrite
+
+      - name: Generate themes.ts
+        run: bun run scripts/generate-themes.ts
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if git diff --quiet -- src/lib/data/themes.ts; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Read summary
+        id: summary
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          {
+            echo "body<<EOF"
+            cat theme-diff-summary.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: sync ghostty themes from upstream"
+          branch: workflows/sync-themes
+          delete-branch: true
+          title: "Sync Ghostty themes from upstream"
+          body: ${{ steps.summary.outputs.body }}
+          sign-commits: true
+          add-paths: |
+            src/lib/data/themes.ts
+          labels: |
+            workflow

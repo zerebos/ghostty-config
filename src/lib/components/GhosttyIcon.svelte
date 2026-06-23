@@ -1,6 +1,6 @@
 <script lang="ts">
     import config from "$lib/stores/config.svelte";
-    import {iconUrls, frameUrls, customLayerUrls} from "$lib/utils/macicon";
+    import {iconUrls, frameUrls, customLayerUrls} from "$lib/data/macicons";
 
     let hasCdnError = $state(false);
 
@@ -16,8 +16,8 @@
     }
 
     const iconLabel = $derived(config.macosIcon === "custom-style" ? "Custom style" : config.macosIcon === "custom" ? "Custom file" : config.macosIcon);
-    const iconUrl = $derived(iconUrls[config.macosIcon] ?? iconUrls.official);
-    const frameUrl = $derived(frameUrls[config.macosIconFrame] ?? frameUrls.aluminum);
+    const iconUrl = $derived(iconUrls[config.macosIcon as keyof typeof iconUrls] ?? iconUrls.official);
+    const frameUrl = $derived(frameUrls[config.macosIconFrame as keyof typeof frameUrls] ?? frameUrls.aluminum);
     const isCustomStyle = $derived(config.macosIcon === "custom-style");
     const isCustomFile = $derived(config.macosIcon === "custom");
     const ghostColor = $derived(config.macosIconGhostColor || "#f6f7fb");
@@ -31,7 +31,7 @@
     const {width = "100px", height = "100px"}: Props = $props();
 </script>
 
-<div class="icon-shell" aria-label="Ghostty icon preview" style:width style:height>
+<div class="icon-shell" aria-label="Ghostty icon preview" style:width style:height style:--screen={`url(${customLayerUrls.mask})`} style:--ghost={`url(${customLayerUrls.ghost})`}>
     {#if isCustomStyle && !hasCdnError}
         <!-- eslint-disable-next-line svelte/no-unused-class-name -->
         <img class="layer frame" src={frameUrl} alt="" onerror={handleAssetError} />
@@ -84,13 +84,13 @@
     }
 
     .screen-mask {
-        mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconScreenMask.imageset/screen-mask.png");
-        -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconScreenMask.imageset/screen-mask.png");
+        mask-image: var(--screen);
+        -webkit-mask-image: var(--screen);
     }
 
     .ghost-mask {
-        mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconGhost.imageset/ghosty.png");
-        -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconGhost.imageset/ghosty.png");
+        mask-image: var(--ghost);
+        -webkit-mask-image: var(--ghost);
     }
 
     .custom-badge {

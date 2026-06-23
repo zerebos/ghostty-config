@@ -1,14 +1,26 @@
 {
     "compilerOptions": {
-        "target": "esnext",
-        "module": "nodenext",
-        "moduleResolution": "nodenext",
-        "declaration": true,
-        "strict": true,
+        "allowJs": true,
+        "checkJs": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
         "esModuleInterop": true,
-        "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true,
+        "module": "esnext",
+        "moduleResolution": "bundler",
         "types": ["bun"],
-        "checkJs": true
+        "typeRoots": [],
+        "paths": {
+            "$lib": [
+                "../src/lib"
+            ],
+            "$lib/*": [
+                "../src/lib/*"
+            ]
+        }
     }
 }
