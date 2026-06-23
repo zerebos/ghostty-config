@@ -18,6 +18,8 @@ import chrome from "$lib/images/vendor/chrome.png";
 import screen from "$lib/images/vendor/screen.png";
 import crt from "$lib/images/vendor/crt.png";
 import gloss from "$lib/images/vendor/gloss.png";
+import ghost from "$lib/images/vendor/ghost.png";
+import mask from "$lib/images/vendor/mask.png";
 
 
 export const iconUrls = {
@@ -45,4 +47,6 @@ export const customLayerUrls = {
     screen,
     crt,
     gloss,
+    ghost,
+    mask,
 } as const satisfies Record<string, string>;

@@ -31,7 +31,7 @@
     const {width = "100px", height = "100px"}: Props = $props();
 </script>
 
-<div class="icon-shell" aria-label="Ghostty icon preview" style:width style:height>
+<div class="icon-shell" aria-label="Ghostty icon preview" style:width style:height style:--screen={`url(${customLayerUrls.mask})`} style:--ghost={`url(${customLayerUrls.ghost})`} style:--crt={`url(${customLayerUrls.crt})`} style:--gloss={`url(${customLayerUrls.gloss})`}>
     {#if isCustomStyle && !hasCdnError}
         <!-- eslint-disable-next-line svelte/no-unused-class-name -->
         <img class="layer frame" src={frameUrl} alt="" onerror={handleAssetError} />
@@ -84,13 +84,13 @@
     }
 
     .screen-mask {
-        mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconScreenMask.imageset/screen-mask.png");
-        -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconScreenMask.imageset/screen-mask.png");
+        mask-image: var(--screen);
+        -webkit-mask-image: var(--screen);
     }
 
     .ghost-mask {
-        mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconGhost.imageset/ghosty.png");
-        -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/ghostty-org/ghostty@main/macos/Assets.xcassets/Custom%20Icon/CustomIconGhost.imageset/ghosty.png");
+        mask-image: var(--ghost);
+        -webkit-mask-image: var(--ghost);
     }
 
     .custom-badge {

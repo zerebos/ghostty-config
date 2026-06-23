@@ -74,6 +74,8 @@ const ASSET_ENTRIES: AssetEntry[] = [
     {key: "screen", imagesetPath: "Custom Icon/CustomIconScreen.imageset", record: "customLayerUrls"},
     {key: "crt", imagesetPath: "Custom Icon/CustomIconCRT.imageset", record: "customLayerUrls"},
     {key: "gloss", imagesetPath: "Custom Icon/CustomIconGloss.imageset", record: "customLayerUrls"},
+    {key: "ghost", imagesetPath: "Custom Icon/CustomIconGhost.imageset", record: "customLayerUrls"},
+    {key: "mask", imagesetPath: "Custom Icon/CustomIconScreenMask.imageset", record: "customLayerUrls"},
 ];
 
 interface ContentsImage {
