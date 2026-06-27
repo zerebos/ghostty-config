@@ -11,7 +11,7 @@ bun install
 bun run dev
 ```
 
-Requires [Bun](https://bun.sh) ≥ 1.13. Open `http://localhost:5173` when prompted.
+Requires [Bun](https://bun.sh) ≥ 1.3. Open `http://localhost:5173` when prompted.
 
 ## Before opening a PR
 

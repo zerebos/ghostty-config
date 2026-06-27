@@ -4,7 +4,7 @@ Operating guide for automated agents working in this repository. Read this befor
 
 ## Quick orientation
 
-- **Runtime**: Bun ≥ 1.13 required. All commands run from the repo root.
+- **Runtime**: Bun ≥ 1.3 required. All commands run from the repo root.
 - **Module system**: `"type": "module"` ES imports only, no `require`.
 - **Framework**: Svelte 5 with runes. This is **not** Svelte 3/4. Do not use `writable`, `derived`, `readable`, or any legacy store primitives. See the Svelte 5 section below.
 
