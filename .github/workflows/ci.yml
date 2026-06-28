@@ -33,14 +33,16 @@ jobs:
       - name: 📦 Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: 📋 Run unit tests
-        run: bun run test
+      - parallel:
+        - name: 📋 Run unit tests
+          run: bun run test
 
-      - name: 🔎 Svelte type check
-        run: bun run check
+        - name: 🔎 Svelte type check
+          run: bun run check
 
-      - name: 🧹 Lint
-        run: bun run lint
+          # Lint just the `src` folder... `scripts` can be a bit more freeform and we don't want to block PRs for that.
+        - name: 🧹 Lint
+          run: bun run lint:ci
 
-      - name: 🔨 Build
-        run: bun run build
+        - name: 🔨 Build
+          run: bun run build
