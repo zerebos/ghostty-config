@@ -40,8 +40,9 @@ jobs:
         - name: 🔎 Svelte type check
           run: bun run check
 
+          # Lint just the `src` folder... `scripts` can be a bit more freeform and we don't want to block PRs for that.
         - name: 🧹 Lint
-          run: bun run lint
+          run: bun run lint:ci
 
         - name: 🔨 Build
           run: bun run build
