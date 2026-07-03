@@ -15,6 +15,15 @@ notes
 /.svelte-kit
 /build
 
+# Desktop (Wails) build artifacts
+/desktop/frontend/dist
+/desktop/build/bin
+/desktop/ghostty-config
+/desktop/ghostty-config-desktop
+# Wails auto-generates JS bindings here (frontend:dir is the repo root); we hand-maintain
+# the typed bridge in src/lib/platform instead, so the generated copy is disposable.
+/wailsjs
+
 # OS
 .DS_Store
 Thumbs.db

@@ -111,6 +111,12 @@ body {
 	align-items: center;
 }
 
+/* Desktop (Wails) build fills the native window, so there is no faux macOS wallpaper. */
+html.desktop body {
+    background-image: none;
+    background-color: var(--bg-level-1);
+}
+
 a {
     color: var(--font-color-accent);
     text-decoration: dotted underline;

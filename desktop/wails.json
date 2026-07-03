@@ -1,0 +1,18 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "ghostty-config",
+  "outputfilename": "ghostty-config",
+  "frontend:dir": "..",
+  "frontend:install": "bun install",
+  "frontend:build": "bun run build:desktop",
+  "frontend:dev:build": "bun run build:desktop",
+  "frontend:dist": "desktop/frontend/dist",
+  "author": {
+    "name": "Zerebos"
+  },
+  "info": {
+    "productName": "Ghostty Config",
+    "productVersion": "0.3.0",
+    "copyright": "Zerebos"
+  }
+}

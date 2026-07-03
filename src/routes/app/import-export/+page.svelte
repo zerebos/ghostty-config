@@ -17,6 +17,8 @@
     import ShareIcon from "$lib/components/icons/ShareIcon.svelte";
     import ImportIcon from "$lib/components/icons/ImportIcon.svelte";
     import ConfigPreview from "$lib/components/ConfigPreview.svelte";
+    import {desktop, isDesktop, shareOrigin, sharePathname} from "$lib/platform";
+    import {confirm} from "$lib/stores/modals.svelte";
 
     // Handling for share urls
     onMount(() => {
@@ -83,6 +85,47 @@
     }, 300);
 
 
+    // Desktop-only: read/write the real Ghostty config file directly through the Wails bridge.
+    let configPath = $state<string | null>(null);
+    if (isDesktop) {
+        void desktop.configPath().then((path) => (configPath = path)).catch(() => (configPath = null));
+    }
+
+    const loadFromGhostty = withPendingGuard(async () => {
+        try {
+            const text = await desktop.readConfig();
+            if (!text.trim()) {
+                error("Your Ghostty config file is empty or doesn't exist yet.");
+                return;
+            }
+            checkTextForImport("file", text);
+        }
+        catch {
+            error("Couldn't read your Ghostty config file.");
+        }
+    });
+
+    const saveToGhostty = withPendingGuard(async () => {
+        if (!hasExportableConfig) return;
+
+        const confirmed = await confirm({
+            title: "Overwrite Ghostty config?",
+            message: `This replaces the contents of ${configPath ?? "your Ghostty config file"} with the config generated here. Any settings not managed by this app will be removed.`,
+            confirmText: "Overwrite",
+            cancelText: "Cancel"
+        });
+        if (!confirmed) return;
+
+        try {
+            await desktop.writeConfig(serialize(currentConfigDiff));
+            success("Saved to your Ghostty config file");
+        }
+        catch {
+            error("Couldn't write to your Ghostty config file.");
+        }
+    });
+
+
     // Share Composer Modal Logic
     let showShareComposer = $state(false);
     let shareUrl = $state<string | null>(null);
@@ -93,7 +136,7 @@
 
         const config = serialize(currentConfigDiff, false);
         const encoded = encodeConfig(config);
-        const nextShareUrl = buildShareUrl(window.location.origin, window.location.pathname, encoded);
+        const nextShareUrl = buildShareUrl(shareOrigin(), sharePathname(), encoded);
 
         isShareTooLong = nextShareUrl.length > MAX_SHARE_URL_LENGTH;
         shareUrl = isShareTooLong ? null : nextShareUrl;
@@ -119,6 +162,27 @@
 
 <Page title="Import & Export">
     <ConfigPreview parsed={currentConfigDiff} parsedDiff={currentConfigDiff} />
+
+    {#if isDesktop}
+    <Group title="Ghostty Config File">
+        <Item name="Load from Ghostty" note={configPath ? `Read directly from <code>${configPath}</code>` : "Read your live Ghostty config file"}>
+            <div class="button-group">
+                <Button onclick={loadFromGhostty} title="Load from Ghostty">Load</Button>
+            </div>
+        </Item>
+        <Separator />
+        <Item name="Save to Ghostty" note="Write your config straight to Ghostty's config file">
+            <div class="button-group">
+                <Button
+                    primary
+                    onclick={saveToGhostty}
+                    title={hasExportableConfig ? "Save to Ghostty" : "No changes yet!"}
+                    disabled={!hasExportableConfig}
+                >Save</Button>
+            </div>
+        </Item>
+    </Group>
+    {/if}
 
     <Group title="Import">
         <Item name="From Clipboard" note="Paste a config copied to your clipboard">

@@ -61,6 +61,12 @@ Live config state as a Svelte 5 `$state` object. Key exports:
 - `setColorScheme(name)` / `resetColorScheme()` - applies/clears a theme without leaking theme colors into serialized output
 - `resetSetting(key)` / `isNonDefault(key)` - per-setting utilities
 
+### `src/lib/platform/index.ts`
+
+The app ships to two targets from one codebase: the **web** build (adapter-static → Cloudflare) and the **desktop** build (the same assets embedded in a [Wails](https://wails.io/) shell under `desktop/`). `isDesktop` is a build-time constant (`VITE_DESKTOP`, set by `bun run build:desktop`) so target-specific branches tree-shake out. The `desktop` bridge wraps the Go methods Wails binds onto `window.go.main.App` — its TypeScript signatures must stay in sync with the exported methods on `App` in `desktop/app.go`. Never call `window.location`/`window.go` for share URLs or file access directly; go through the platform helpers so both targets behave.
+
+The web output dir stays `build/` (do not change it — Wrangler and CI depend on it). The desktop build writes to `desktop/frontend/dist` via the `DESKTOP_BUILD` branch in `svelte.config.js`.
+
 ## Generated files: never hand-edit
 
 | File | Generator |

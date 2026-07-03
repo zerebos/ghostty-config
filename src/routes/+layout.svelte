@@ -11,6 +11,7 @@
     import ToastStack from "$lib/components/ToastStack.svelte";
     import SettingsSearch from "$lib/components/SettingsSearch.svelte";
     import MacDock from "$lib/components/MacDock.svelte";
+    import DesktopLauncher from "$lib/components/DesktopLauncher.svelte";
 
     import github from "$lib/images/tabs/github.svg";
     import ghostty from "$lib/images/tabs/ghostty.webp";
@@ -21,6 +22,27 @@
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
     import navigation, {tabGroups} from "$lib/settings/navigation";
+    import {isDesktop} from "$lib/platform";
+    import type {HexColor} from "$lib/utils/colors";
+    import {deriveSurfaces, surfacesToCss, WALLPAPER_SAMPLE} from "$lib/utils/surfaces";
+
+
+    // Surface tint: blend the neutral gray ramp toward a sample color so the app's chrome
+    // feels cohesive with its backdrop. On the web the sample is the wallpaper the grays were
+    // originally tuned against (a barely-there nudge); on desktop there is no wallpaper, so we
+    // sample the user's own terminal background and tint a little harder to match their theme.
+    const HEX6 = /^#[0-9a-fA-F]{6}$/;
+    const SURFACE_AMOUNT = isDesktop ? 0.16 : 0.05;
+    const surfaceSample = $derived<HexColor>(
+        isDesktop && HEX6.test(config.background) ? config.background as HexColor : WALLPAPER_SAMPLE
+    );
+    const surfaceVars = $derived(surfacesToCss(deriveSurfaces(surfaceSample, SURFACE_AMOUNT)));
+
+    // Strip the fake-desktop wallpaper on the native build; the app window fills the OS window.
+    $effect(() => {
+        if (typeof document === "undefined") return;
+        document.documentElement.classList.toggle("desktop", isDesktop);
+    });
 
 
     const cssConfigVars = $derived.by(() => {
@@ -66,9 +88,10 @@
 </svelte:head>
 
 <!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
-<div class="app-window" style={cssConfigVars}>
+<div class="app-window" class:desktop={isDesktop} style={`${cssConfigVars}${surfaceVars}`}>
     <div id="sidebar">
         <div class="sidebar-header">
+            {#if !isDesktop}
             <div class="window-actions-container">
                 <div class="window-actions">
                     <div class="window-dot"><span>&times;</span></div>
@@ -76,6 +99,7 @@
                     <div class="window-dot"><span>&plus;</span></div>
                 </div>
             </div>
+            {/if}
         </div>
         <SettingsSearch>
             <User route="/" />
@@ -181,7 +205,11 @@
     <div id="content-view">
         {@render children()}
     </div>
-    <MacDock />
+    {#if isDesktop}
+        <DesktopLauncher />
+    {:else}
+        <MacDock />
+    {/if}
     <ModalStack />
     <ToastStack />
 </div>
@@ -205,6 +233,21 @@
     box-shadow: 0 0 20px -1px rgba(0,0,0,0.7);
     border-radius: var(--radius-level-1);
     overflow: hidden;
+}
+
+/* Desktop (Wails) build: the OS already provides the window chrome, so the app fills the
+   native window edge-to-edge with no faux macOS framing, drop shadow, or rounded corners. */
+.app-window.desktop {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.app-window.desktop::before {
+    box-shadow: none;
 }
 
 /* .app-window .draggable {
@@ -234,7 +277,7 @@
 #sidebar {
     width: var(--sidebar-width);
     /* black: #272329; white: #544F57; */
-    background: rgba(50, 46, 52, 0.7);
+    background: var(--sidebar-bg-translucent, rgba(50, 46, 52, 0.7));
     backdrop-filter: blur(10px);
     padding: 5px;
     border-right: 2px solid var(--border-level-1);

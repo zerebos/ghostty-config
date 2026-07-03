@@ -75,6 +75,37 @@ bun run test     # Vitest unit tests
 The only automated deployment built-in is via Cloudflare Workers which automatically deploys to [ghostty.zerebos.com](https://ghostty.zerebos.com) on every push to the `main` branch. If you want to self-host, the static files will be available under `build/` after following the steps above to build.
 
 
+## Desktop Build (Wails)
+
+The same app can be built as a fully-offline native desktop application using [Wails](https://wails.io/). The desktop variant embeds the exact SvelteKit frontend inside a native window and unlocks features that only make sense on a real machine:
+
+- **Native chrome:** the faux macOS window frame, wallpaper, and dock are hidden; the app fills the OS window.
+- **Direct config integration:** the Import & Export page can read from and write to your real Ghostty config file (`$XDG_CONFIG_HOME/ghostty/config`, or the platform equivalent).
+- **Launch Ghostty:** a launcher opens a real Ghostty window instead of the in-browser preview.
+- **Theme-aware surfaces:** the app's grays tint toward your chosen terminal background so the UI matches your theme.
+
+### Prerequisites
+
+- [Go](https://go.dev/) 1.24+
+- The [Wails CLI](https://wails.io/docs/gettingstarted/installation): `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
+- Platform WebView dependencies (see `wails doctor`) — e.g. `libwebkit2gtk` on Linux, WebView2 on Windows, nothing extra on macOS.
+
+### Building
+
+All Wails project files live under [`desktop/`](./desktop). From the repo root:
+
+```bash
+cd desktop
+wails build          # produces a native binary under desktop/build/bin
+# or, for a live-reloading dev window:
+wails dev
+```
+
+Wails runs `bun run build:desktop` to produce the frontend (a separate `DESKTOP_BUILD` output under `desktop/frontend/dist`, so the web `build/` is never touched) and embeds it into the Go binary. The web build and its Cloudflare deployment are completely unaffected.
+
+The share links generated on desktop point at a canonical URL (default `https://ghostty.zerebos.com`), configurable at build time via the `VITE_CANONICAL_URL` env var.
+
+
 ## Roadmap
 
 - [x] Custom settings support
@@ -105,7 +136,7 @@ The only automated deployment built-in is via Cloudflare Workers which automatic
 
 **Long-term**
 - [ ] Rich interactive terminal playground
-- [ ] Desktop version for direct config file integration
+- [x] Desktop version for direct config file integration (see [Desktop Build](#desktop-build-wails))
 
 
 
