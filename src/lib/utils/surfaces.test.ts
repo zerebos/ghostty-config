@@ -1,69 +1,98 @@
 import {describe, expect, it} from "vitest";
+import {hexToRgb, rgbToHsv, type HexColor, type HsvObj} from "./colors";
 import {
     BASE_SURFACES,
+    brightnessOf,
     deriveSurfaces,
-    mixHex,
+    MAX_TINT_SATURATION,
+    neutralSurface,
     surfacesToCss,
-    WALLPAPER_SAMPLE
+    tintSurface
 } from "./surfaces";
 
-describe("mixHex", () => {
-    it("returns the first color at t=0", () => {
-        expect(mixHex("#000000", "#FFFFFF", 0)).toBe("#000000");
+const WALLPAPER: HsvObj = {hue: 0.72, saturation: 0.6, value: 0.5};
+
+function isGray(hex: HexColor): boolean {
+    const [r, g, b] = hexToRgb(hex);
+    return r === g && g === b;
+}
+
+describe("brightnessOf", () => {
+    it("reports 0 for black and 1 for white", () => {
+        expect(brightnessOf("#000000")).toBe(0);
+        expect(brightnessOf("#FFFFFF")).toBe(1);
     });
 
-    it("returns the second color at t=1", () => {
-        expect(mixHex("#000000", "#FFFFFF", 1)).toBe("#FFFFFF");
+    it("uses the brightest channel", () => {
+        expect(brightnessOf("#804010")).toBeCloseTo(128 / 255, 5);
+    });
+});
+
+describe("neutralSurface", () => {
+    it("produces a pure gray", () => {
+        for (const base of Object.values(BASE_SURFACES)) {
+            expect(isGray(neutralSurface(base))).toBe(true);
+        }
     });
 
-    it("returns the midpoint at t=0.5", () => {
-        expect(mixHex("#000000", "#FFFFFF", 0.5)).toBe("#808080");
+    it("preserves the original brightness", () => {
+        for (const base of Object.values(BASE_SURFACES)) {
+            expect(brightnessOf(neutralSurface(base))).toBeCloseTo(brightnessOf(base), 2);
+        }
+    });
+});
+
+describe("tintSurface", () => {
+    it("preserves brightness while adopting the wallpaper hue", () => {
+        for (const base of Object.values(BASE_SURFACES)) {
+            const tinted = tintSurface(base, WALLPAPER, 1);
+            expect(brightnessOf(tinted)).toBeCloseTo(brightnessOf(base), 2);
+            expect(isGray(tinted)).toBe(false);
+        }
     });
 
-    it("blends per channel", () => {
-        expect(mixHex("#204060", "#60A0E0", 0.5)).toBe("#4070A0");
+    it("never exceeds the saturation ceiling", () => {
+        // Allow a little slack: recovering saturation after quantizing to 8-bit RGB drifts a
+        // few thousandths for very dark surfaces (a 1/255 step is a larger fraction of a small
+        // max channel), but never enough to read as a real color cast.
+        for (const base of Object.values(BASE_SURFACES)) {
+            const tinted = tintSurface(base, WALLPAPER, 1);
+            expect(rgbToHsv(...hexToRgb(tinted)).saturation).toBeLessThanOrEqual(MAX_TINT_SATURATION + 0.03);
+        }
     });
 
-    it("clamps amounts outside [0, 1]", () => {
-        expect(mixHex("#102030", "#405060", -1)).toBe("#102030");
-        expect(mixHex("#102030", "#405060", 2)).toBe("#405060");
+    it("is neutral at strength 0", () => {
+        expect(tintSurface("#2C2733", WALLPAPER, 0)).toBe(neutralSurface("#2C2733"));
     });
 });
 
 describe("deriveSurfaces", () => {
-    it("is the identity transform at amount 0", () => {
-        const surfaces = deriveSurfaces(WALLPAPER_SAMPLE, 0);
+    it("tints every surface when given a wallpaper", () => {
+        const surfaces = deriveSurfaces(WALLPAPER, 1);
         for (const key of Object.keys(BASE_SURFACES) as Array<keyof typeof BASE_SURFACES>) {
-            expect(surfaces[key]).toBe(BASE_SURFACES[key]);
+            expect(brightnessOf(surfaces[key])).toBeCloseTo(brightnessOf(BASE_SURFACES[key]), 2);
+            expect(isGray(surfaces[key])).toBe(false);
         }
     });
 
-    it("collapses every surface onto the sample at amount 1", () => {
-        const surfaces = deriveSurfaces("#123456", 1);
+    it("falls back to neutral grays when given null", () => {
+        const surfaces = deriveSurfaces(null);
         for (const value of Object.values(surfaces)) {
-            expect(value).toBe("#123456");
-        }
-    });
-
-    it("nudges surfaces toward the sample for intermediate amounts", () => {
-        const surfaces = deriveSurfaces("#FFFFFF", 0.5);
-        // Every derived surface should be lighter than its base when mixing toward white.
-        for (const key of Object.keys(BASE_SURFACES) as Array<keyof typeof BASE_SURFACES>) {
-            expect(surfaces[key]).not.toBe(BASE_SURFACES[key]);
+            expect(isGray(value)).toBe(true);
         }
     });
 });
 
 describe("surfacesToCss", () => {
     it("emits a custom property for every surface", () => {
-        const css = surfacesToCss(deriveSurfaces(WALLPAPER_SAMPLE, 0));
+        const css = surfacesToCss(deriveSurfaces(WALLPAPER, 1));
         for (const key of Object.keys(BASE_SURFACES)) {
             expect(css).toContain(`--${key}: `);
         }
     });
 
-    it("emits a translucent sidebar variant derived from the sidebar surface", () => {
-        const css = surfacesToCss(deriveSurfaces("#000000", 1));
-        expect(css).toContain("--sidebar-bg-translucent: rgba(0, 0, 0, 0.7);");
+    it("emits a translucent sidebar variant", () => {
+        const css = surfacesToCss(deriveSurfaces(null));
+        expect(css).toMatch(/--sidebar-bg-translucent: rgba\(\d+, \d+, \d+, 0\.7\);/);
     });
 });

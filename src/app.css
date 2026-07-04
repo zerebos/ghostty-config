@@ -111,10 +111,11 @@ body {
 	align-items: center;
 }
 
-/* Desktop (Wails) build fills the native window, so there is no faux macOS wallpaper. */
+/* Desktop (Wails) build fills the native window with no faux macOS wallpaper. The body is
+   transparent so the frameless window's rounded corners show through to the real desktop. */
 html.desktop body {
     background-image: none;
-    background-color: var(--bg-level-1);
+    background-color: transparent;
 }
 
 a {

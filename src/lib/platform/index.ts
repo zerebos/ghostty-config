@@ -41,11 +41,19 @@ interface WailsAppBindings {
     ReadGhosttyConfig(): Promise<string>;
     WriteGhosttyConfig(content: string): Promise<void>;
     LaunchTerminal(): Promise<void>;
+    GetWallpaperColor(): Promise<string>;
+}
+
+/** Subset of the runtime Wails injects at `window.runtime` for native window control. */
+interface WailsRuntime {
+    Quit(): void;
+    WindowMinimise(): void;
+    WindowToggleMaximise(): void;
 }
 
 interface WailsWindow extends Window {
     go?: {main?: {App?: WailsAppBindings}};
-    runtime?: unknown;
+    runtime?: WailsRuntime;
 }
 
 /* eslint-disable new-cap -- the Go methods Wails binds are exported (PascalCase) by language rule */
@@ -53,6 +61,11 @@ interface WailsWindow extends Window {
 function bindings(): WailsAppBindings | null {
     if (typeof window === "undefined") return null;
     return (window as WailsWindow).go?.main?.App ?? null;
+}
+
+function runtime(): WailsRuntime | null {
+    if (typeof window === "undefined") return null;
+    return (window as WailsWindow).runtime ?? null;
 }
 
 /**
@@ -91,6 +104,32 @@ export const desktop = {
         const app = bindings();
         if (!app) throw new Error("Desktop bridge unavailable");
         await app.LaunchTerminal();
+    },
+
+    /**
+     * Best-effort average color of the OS desktop wallpaper as a `#rrggbb` string, or an empty
+     * string if it can't be determined (unsupported format, no desktop environment, etc.). Used
+     * to hue-tint the app's surfaces the way macOS tints its own chrome.
+     */
+    async wallpaperColor(): Promise<string> {
+        const app = bindings();
+        if (!app) throw new Error("Desktop bridge unavailable");
+        return app.GetWallpaperColor();
+    },
+
+    /** Close the native window (quits the app). */
+    quit(): void {
+        runtime()?.Quit();
+    },
+
+    /** Minimize the native window to the taskbar/dock. */
+    minimize(): void {
+        runtime()?.WindowMinimise();
+    },
+
+    /** Toggle the native window between maximized and its previous size. */
+    toggleMaximize(): void {
+        runtime()?.WindowToggleMaximise();
     }
 };
 

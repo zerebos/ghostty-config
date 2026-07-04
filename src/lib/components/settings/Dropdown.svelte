@@ -68,7 +68,7 @@
     let isOpen = $state(false);
     let query = $state("");
     let highlightedValue = $state<string | null>(null);
-    let menuPosition = $state({top: 0, right: 0, minWidth: 230});
+    let menuPosition = $state({top: 0, right: 0, minWidth: 230, maxHeight: 340});
 
     let rootEl = $state<HTMLDivElement>();
     let triggerEl = $state<HTMLButtonElement>();
@@ -236,17 +236,34 @@
         });
     });
 
-    // Positioning logic
+    // Positioning logic. The menu is portaled to <body> and fixed-positioned, so near a window
+    // edge it can be clipped. Reading `menuEl` here makes this effect re-run once the menu has
+    // rendered, at which point we know its height and can flip it above the trigger and/or cap
+    // its height to whatever space is available. This matters on the desktop build where the
+    // app fills the OS window and there is no slack around it (unlike the centered web layout).
     $effect(() => {
         if (!isOpen || !triggerEl) return;
+        const menu = menuEl; // dependency: recompute when the menu mounts and its size is known
 
         const updatePosition = () => {
             if (!triggerEl) return;
             const rect = triggerEl.getBoundingClientRect();
+            const margin = 8;
+            const gap = 6;
+            const menuHeight = menu?.offsetHeight ?? 0;
+            const spaceBelow = window.innerHeight - rect.bottom - margin;
+            const spaceAbove = rect.top - margin;
+            const openUp = menuHeight > spaceBelow && spaceAbove > spaceBelow;
+            const available = Math.max(120, openUp ? spaceAbove : spaceBelow);
+            const maxHeight = Math.min(available, 340);
+
             menuPosition = {
-                top: rect.bottom + 6,
-                right: window.innerWidth - rect.right,
-                minWidth: Math.max(230, rect.width)
+                top: openUp
+                    ? Math.max(margin, rect.top - gap - Math.min(menuHeight || maxHeight, maxHeight))
+                    : rect.bottom + gap,
+                right: Math.max(margin, window.innerWidth - rect.right),
+                minWidth: Math.max(230, rect.width),
+                maxHeight
             };
         };
 
@@ -402,6 +419,7 @@
             style:top="{menuPosition.top}px"
             style:right="{menuPosition.right}px"
             style:min-width="{menuPosition.minWidth}px"
+            style:max-height="{menuPosition.maxHeight}px"
             onkeydown={handleMenuKeydown}
             transition:fly={{y: -6, duration: 120}}
             {@attach toRoot}
@@ -569,10 +587,15 @@
             0 8px 20px rgba(0, 0, 0, 0.45),
             0 0 0 1px rgba(255, 255, 255, 0.06) inset;
         padding: 8px;
+        /* Flex column so the options list scrolls within whatever max-height positioning sets. */
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
     }
 
     .search-row {
         margin-bottom: 8px;
+        flex-shrink: 0;
     }
 
     .search-row input {
@@ -600,6 +623,7 @@
         padding: 5px 8px;
         margin-bottom: 8px;
         cursor: pointer;
+        flex-shrink: 0;
     }
 
     .clear:disabled {
@@ -608,7 +632,8 @@
     }
 
     .options {
-        max-height: 280px;
+        flex: 1 1 auto;
+        min-height: 0;
         overflow-y: auto;
         display: flex;
         flex-direction: column;

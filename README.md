@@ -79,10 +79,12 @@ The only automated deployment built-in is via Cloudflare Workers which automatic
 
 The same app can be built as a fully-offline native desktop application using [Wails](https://wails.io/). The desktop variant embeds the exact SvelteKit frontend inside a native window and unlocks features that only make sense on a real machine:
 
-- **Native chrome:** the faux macOS window frame, wallpaper, and dock are hidden; the app fills the OS window.
-- **Direct config integration:** the Import & Export page can read from and write to your real Ghostty config file (`$XDG_CONFIG_HOME/ghostty/config`, or the platform equivalent).
+- **Frameless window:** the app's own macOS-style traffic lights become functional (close / minimize / zoom), the header doubles as a drag handle, and the window keeps rounded corners via a transparent frame.
+- **Direct config integration:** the Import & Export page can read from and write to your real Ghostty config file — `$XDG_CONFIG_HOME/ghostty/config` on Linux, `~/Library/Application Support/com.mitchellh.ghostty/config` on macOS, and `~/.config/ghostty/config` on Windows (for terminals that embed Ghostty's renderer).
 - **Launch Ghostty:** a launcher opens a real Ghostty window instead of the in-browser preview.
-- **Theme-aware surfaces:** the app's grays tint toward your chosen terminal background so the UI matches your theme.
+- **Wallpaper-tinted surfaces:** the app's grays hue-tint toward your desktop wallpaper the way macOS tints its chrome, falling back to translucent neutral grays when the wallpaper can't be sampled.
+
+The window opens at the same default size as the web layout and can be resized vertically (its width is locked to match the fixed-width design).
 
 ### Prerequisites
 

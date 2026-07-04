@@ -1,6 +1,6 @@
 <script lang="ts">
     // import {dev} from "$app/environment";
-    import {type Snippet} from "svelte";
+    import {onMount, type Snippet} from "svelte";
 
     import "../app.css";
 
@@ -22,27 +22,31 @@
     import config from "$lib/stores/config.svelte";
     import app from "$lib/stores/state.svelte";
     import navigation, {tabGroups} from "$lib/settings/navigation";
-    import {isDesktop} from "$lib/platform";
-    import type {HexColor} from "$lib/utils/colors";
-    import {deriveSurfaces, surfacesToCss, WALLPAPER_SAMPLE} from "$lib/utils/surfaces";
+    import {desktop, isDesktop} from "$lib/platform";
+    import {initSurfaceTint, isNeutralSurface, surfaceStyle} from "$lib/stores/theme.svelte";
 
 
-    // Surface tint: blend the neutral gray ramp toward a sample color so the app's chrome
-    // feels cohesive with its backdrop. On the web the sample is the wallpaper the grays were
-    // originally tuned against (a barely-there nudge); on desktop there is no wallpaper, so we
-    // sample the user's own terminal background and tint a little harder to match their theme.
-    const HEX6 = /^#[0-9a-fA-F]{6}$/;
-    const SURFACE_AMOUNT = isDesktop ? 0.16 : 0.05;
-    const surfaceSample = $derived<HexColor>(
-        isDesktop && HEX6.test(config.background) ? config.background as HexColor : WALLPAPER_SAMPLE
-    );
-    const surfaceVars = $derived(surfacesToCss(deriveSurfaces(surfaceSample, SURFACE_AMOUNT)));
+    // Hue-tint the app's gray surfaces toward the wallpaper (macOS-style). surfaceStyle() emits
+    // the CSS custom properties; initSurfaceTint() resolves the wallpaper sample per platform.
+    onMount(() => void initSurfaceTint());
 
-    // Strip the fake-desktop wallpaper on the native build; the app window fills the OS window.
+    // Mark the document for desktop-only styling (frameless chrome, transparent corners, etc.).
     $effect(() => {
         if (typeof document === "undefined") return;
         document.documentElement.classList.toggle("desktop", isDesktop);
+        document.documentElement.classList.toggle("neutral-surface", isDesktop && isNeutralSurface());
     });
+
+    // Native window controls wired to the fake macOS traffic lights (desktop only).
+    function onClose() {
+        if (isDesktop) desktop.quit();
+    }
+    function onMinimize() {
+        if (isDesktop) desktop.minimize();
+    }
+    function onZoom() {
+        if (isDesktop) desktop.toggleMaximize();
+    }
 
 
     const cssConfigVars = $derived.by(() => {
@@ -88,18 +92,17 @@
 </svelte:head>
 
 <!-- eslint-disable-next-line svelte/require-optimized-style-attribute -->
-<div class="app-window" class:desktop={isDesktop} style={`${cssConfigVars}${surfaceVars}`}>
+<div class="app-window" class:desktop={isDesktop} style={`${cssConfigVars}${surfaceStyle()}`}>
     <div id="sidebar">
-        <div class="sidebar-header">
-            {#if !isDesktop}
+        <!-- On desktop this header is the frameless-window drag handle (Wails --wails-draggable). -->
+        <div class="sidebar-header" class:draggable={isDesktop}>
             <div class="window-actions-container">
-                <div class="window-actions">
-                    <div class="window-dot"><span>&times;</span></div>
-                    <div class="window-dot"><span>&ndash;</span></div>
-                    <div class="window-dot"><span>&plus;</span></div>
+                <div class="window-actions" class:interactive={isDesktop}>
+                    <button type="button" class="window-dot" onclick={onClose} aria-label="Close" tabindex={isDesktop ? 0 : -1}><span>&times;</span></button>
+                    <button type="button" class="window-dot" onclick={onMinimize} aria-label="Minimize" tabindex={isDesktop ? 0 : -1}><span>&ndash;</span></button>
+                    <button type="button" class="window-dot" onclick={onZoom} aria-label="Zoom" tabindex={isDesktop ? 0 : -1}><span>&plus;</span></button>
                 </div>
             </div>
-            {/if}
         </div>
         <SettingsSearch>
             <User route="/" />
@@ -241,13 +244,9 @@
     width: 100vw;
     height: 100vh;
     max-width: none;
-    border: 0;
-    border-radius: 0;
     box-shadow: none;
-}
-
-.app-window.desktop::before {
-    box-shadow: none;
+    /* Border + radius are kept: the Wails window is frameless and transparent, so the rounded
+       corners of the app window become the rounded corners of the OS window. */
 }
 
 /* .app-window .draggable {
@@ -290,6 +289,11 @@
     flex-direction: column;
 }
 
+/* Frameless drag handle for the desktop build (Wails reads this CSS custom property). */
+.sidebar-header.draggable {
+    --wails-draggable: drag;
+}
+
 .sidebar-header .window-actions-container {
     display: flex;
     padding: 15px 0 0 15px;
@@ -309,10 +313,22 @@
     /* margin-top: 4px; */
     width: 12px;
     border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: default;
+    /* Keep the traffic lights clickable inside the frameless drag region. */
+    --wails-draggable: no-drag;
     display: inline-flex;
     justify-content: center;
     align-items: center;
     color: rgba(0, 0, 0, 0);
+}
+
+.app-window .window-actions.interactive .window-dot {
+    cursor: pointer;
 }
 
 .window-dot span {
@@ -346,6 +362,13 @@
     flex: 1;
     display: flex;
     min-width: 0;
+}
+
+/* Desktop with no readable wallpaper: fall back to translucent, blurred surfaces (macOS-style
+   vibrancy) so the real desktop shows through instead of a flat neutral gray. */
+:global(html.neutral-surface) #content-view {
+    background: color-mix(in srgb, var(--bg-level-1) 82%, transparent);
+    backdrop-filter: blur(30px) saturate(160%);
 }
 
 

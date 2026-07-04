@@ -33,13 +33,19 @@ func (a *App) startup(ctx context.Context) {
 // set. Otherwise it is ~/Library/Application Support/com.mitchellh.ghostty/config on macOS and
 // ~/.config/ghostty/config everywhere else.
 func (a *App) GetConfigPath() string {
-	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
-		return filepath.Join(xdg, "ghostty", "config")
-	}
-
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return ""
+	}
+
+	// Ghostty isn't on Windows yet, but terminals that embed its renderer use the same config
+	// format; default to ~/.config/ghostty there rather than following XDG to %APPDATA%.
+	if runtime.GOOS == "windows" {
+		return filepath.Join(home, ".config", "ghostty", "config")
+	}
+
+	if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
+		return filepath.Join(xdg, "ghostty", "config")
 	}
 
 	if runtime.GOOS == "darwin" {
