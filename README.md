@@ -29,8 +29,12 @@ This project is built with [Svelte](https://svelte.dev) + [TypeScript](https://w
 ## Features
 
 - **Interactive settings editor:** Tweak fonts, colors, cursor styles, transparency, blur, and much more across organized, categorized setting pages.
+- **Rich setting inputs:** Purpose-built controls for every setting type, including sliders, linked number inputs, color pickers, and duration fields.
+- **Repeatable settings:** Manage multi-value settings like font features with a dedicated list editor.
+- **Built-in themes:** Hundreds of Ghostty color themes, automatically kept in sync with upstream.
 - **Font playground:** Experiment with JetBrains Mono, Nerd Fonts, or any custom font and see the result live.
 - **Live previews:** Instant visual demos for cursors, text selections, app icons, and color palettes as you edit.
+- **Interactive terminal preview:** A DOM-based terminal you can type in that re-themes live as you tweak settings, so existing output (colors, prompt, `ls` results) updates in place without being torn down.
 - **Keybinding builder:** Build and validate keybindings with an interactive trigger/action editor, including sequence, prefix, and chained-action support.
 - **Import & export:** Paste, upload, copy, or download configs; only settings that differ from defaults are included in the output.
 - **Config sharing:** Share configs with others via a shareable URL (falls back to clipboard copy for large configs).
@@ -95,16 +99,19 @@ The only automated deployment built-in is via Cloudflare Workers which automatic
 - [x] Platform indicators
 - [x] Version indicators
 - [x] Shareable URLs
+- [x] Multi-entry setting support (settings like `font-feature` that repeat in the config)
+- [x] Custom schema-driven setting inputs (sliders, color pickers, durations, and more)
+- [x] Automatic theme sync from upstream [iTerm2 Color Schemes](https://github.com/mbadolato/iTerm2-Color-Schemes/)
+- [x] Unified typed settings registry
+- [x] Interactive terminal preview with live re-theming
 
 **Near-term**
 - [ ] Command palette builder (guided UI for `command-palette-entry` settings)
-- [ ] Multi-entry setting support (settings like `font-feature` that repeat in the config)
-- [ ] Full schema-driven custom setting types matching Ghostty's type system
 - [ ] Community presets for quick theme/workflow setup
 - [ ] Unit tests for import/export flows
+- [ ] Unified color scheme across the app
 
 **Long-term**
-- [ ] Rich interactive terminal playground
 - [ ] Desktop version for direct config file integration
 
 

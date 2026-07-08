@@ -24,15 +24,14 @@
         </Admonition>
         <Group title="Recent Changes">
             <ul>
-                <li><Checkbox checked />Updated settings to match Ghostty 1.3 (and 1.4-nightly)</li>
-                <li><Checkbox checked />Settings can now be searched in the sidebar like on macOS</li>
-                <li><Checkbox checked />Help documentation for individual settings</li>
-                <li><Checkbox checked />Individual settings can now be reset to default</li>
-                <li><Checkbox checked />New version badges showing when a setting was added</li>
-                <li><Checkbox checked />New platform badges, showing which platforms are valid</li>
-                <li><Checkbox checked />New keybind builder with sequence support</li>
-                <li><Checkbox checked /><span>Designed a brand new logo by hand using <a href="https://www.photopea.com/" target="_blank" rel="noopener noreferrer">Photopea</a></span></li>
-                <li><Checkbox checked /><span>Added new custom app icon preview on the <a href={resolve("/settings/macos")}>macOS page</a></span></li>
+                <li><Checkbox checked />New custom inputs for settings: sliders, number, color, and duration pickers</li>
+                <li><Checkbox checked />Repeatable settings like font features now have a dedicated list editor</li>
+                <li><Checkbox checked />Reworked import, export, and config sharing flow</li>
+                <li><Checkbox checked /><span>Themes now automatically sync from upstream <a href="https://github.com/mbadolato/iTerm2-Color-Schemes/" target="_blank" rel="noopener noreferrer">iTerm2 Color Schemes</a></span></li>
+                <li><Checkbox checked /><span>More accurate custom app icon preview on the <a href={resolve("/settings/macos")}>macOS page</a></span></li>
+                <li><Checkbox checked />Settings rebuilt on a single unified, typed schema</li>
+                <li><Checkbox checked />Interactive terminal preview that re-themes live as you edit</li>
+                <li><Checkbox checked />Added a scroll multiplier setting</li>
             </ul>
         </Group>
         <Group title="Roadmap">
@@ -40,9 +39,7 @@
                 <li><Checkbox />Command palette builder</li>
                 <li><Checkbox />Unit testing import/export</li>
                 <li><Checkbox />Unify color scheme</li>
-                <li><Checkbox />Refactor & cleanup code</li>
-                <li><Checkbox />Custom setting types to match Ghostty's config</li>
-                <li><Checkbox />A ghostty-web terminal preview and playground</li>
+                <li><Checkbox />Community presets for quick setup</li>
                 <li><Checkbox />Desktop build of Ghostty Config for direct config integration</li>
             </ul>
         </Group>
