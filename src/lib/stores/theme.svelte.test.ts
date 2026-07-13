@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it} from "vitest";
 import themes from "$lib/data/themes";
 import config, {defaults, diff, resetSetting} from "./config.svelte";
-import {activeThemeName, colorTier, effectiveColors, paletteTier, preview, themeSelection} from "./theme.svelte";
+import {activeThemeName, colorTier, effectiveColors, paletteTier, preview, resolveEffective, themeSelection} from "./theme.svelte";
 
 // Two real themes with distinct, defined backgrounds, picked dynamically so the tests don't
 // break when the generated themes data is re-synced.
@@ -70,6 +70,41 @@ describe("effectiveColors", () => {
         config.theme = partialEntry![0];
         expect(effectiveColors().selectionBackground).toBe(defaults.selectionBackground);
         expect(effectiveColors().background).toBe(partialEntry![1].background);
+    });
+});
+
+describe("resolveEffective (per-preview mode)", () => {
+    it("resolves each half of a dual theme independently of the global preview mode", () => {
+        config.theme = `light:${nameA},dark:${nameB}`;
+        // Global mode stays dark; resolveEffective must answer for whichever mode is asked.
+        expect(preview.mode).toBe("dark");
+        expect(resolveEffective("light").background).toBe(schemeA.background);
+        expect(resolveEffective("dark").background).toBe(schemeB.background);
+        expect(effectiveColors().background).toBe(schemeB.background); // global unchanged
+    });
+
+    it("applies the same override precedence (override > theme > default) in either mode", () => {
+        config.theme = `light:${nameA},dark:${nameB}`;
+        config.background = "#123456";
+        expect(resolveEffective("light").background).toBe("#123456");
+        expect(resolveEffective("dark").background).toBe("#123456");
+        resetSetting("background");
+        expect(resolveEffective("light").background).toBe(schemeA.background);
+        expect(resolveEffective("dark").background).toBe(schemeB.background);
+    });
+
+    it("overrides the palette element-wise per mode", () => {
+        config.theme = `light:${nameA},dark:${nameB}`;
+        config.palette[3] = "#ff00ff";
+        expect(resolveEffective("light").palette[3]).toBe("#ff00ff");
+        expect(resolveEffective("dark").palette[3]).toBe("#ff00ff");
+        expect(resolveEffective("light").palette[0]).toBe(schemeA.palette[0]);
+        expect(resolveEffective("dark").palette[0]).toBe(schemeB.palette[0]);
+    });
+
+    it("falls back to app defaults when no theme is set, regardless of mode", () => {
+        expect(resolveEffective("light").background).toBe(defaults.background);
+        expect(resolveEffective("dark").background).toBe(defaults.background);
     });
 });
 

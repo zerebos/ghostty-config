@@ -20,8 +20,7 @@
 
     import config from "$lib/stores/config.svelte";
     import {numberCodec} from "$lib/settings/codecs";
-    import {effectiveColors} from "$lib/stores/theme.svelte";
-    import {resolveCellColor} from "$lib/utils/colors";
+    import {colorVarsFrom, effectiveColors} from "$lib/stores/theme.svelte";
     import app from "$lib/stores/state.svelte";
     import navigation, {tabGroups} from "$lib/settings/navigation";
 
@@ -30,27 +29,17 @@
     // (override > theme > default, see stores/theme.svelte.ts) and every other surface reads
     // the resulting --config-* CSS vars, inheriting the layered colors for free.
     const cssConfigVars = $derived.by(() => {
-        let str = "";
+        // The color half (bg/fg/selection/cursor/palette) from the memoized effectiveColors() at
+        // the global preview mode. colorVarsFrom() is the same builder per-preview overrides use,
+        // so scoped previews render identically — but reusing effectiveColors() here avoids
+        // re-resolving the colors a second time on pages that also read effectiveColors().
+        let str = colorVarsFrom(effectiveColors());
 
         const add = (key: string, val: string) => str += `--config-${key}: ${val};`;
 
-        // Add the base colors. Cursor/selection colors may hold `cell-foreground`/`cell-background`
-        // keywords, so resolve those against fg/bg before emitting them as CSS colors.
-        const colors = effectiveColors();
-        const fg = colors.foreground;
-        const bg = colors.background;
-        add("bg", bg);
-        add("fg", fg);
-        add("selection-bg", resolveCellColor(colors.selectionBackground, fg, bg) || fg);
-        add("selection-fg", resolveCellColor(colors.selectionForeground, fg, bg) || bg);
-        add("cursor-color", resolveCellColor(colors.cursorColor, fg, bg) || fg);
-        add("cursor-text", resolveCellColor(colors.cursorText, fg, bg) || bg);
-        // Coerced here so downstream CSS (color-mix in CursorPreview) always gets a number.
+        // Coerced here so downstream CSS (color-mix in CursorPreview) always gets a number. Mode-
+        // independent, so scoped per-preview overrides inherit it from here unchanged.
         add("cursor-opacity", String(numberCodec.parse(config.cursorOpacity) ?? 1));
-
-        // Add the palette colors
-        const paletteSize = 16; // colors.palette.length;
-        for (let c = 0; c < paletteSize; c++) add(`palette-${c}`, colors.palette[c]);
 
         // TODO: consider honoring separate fonts for bold/italic and such in previews
         // Add font settings
