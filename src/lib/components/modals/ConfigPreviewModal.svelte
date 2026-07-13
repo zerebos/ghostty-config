@@ -3,6 +3,7 @@
     import Button from "$lib/components/Button.svelte";
     import type {Snippet} from "svelte";
     import ConfigPreview from "../ConfigPreview.svelte";
+    import PreviewSurface from "../PreviewSurface.svelte";
 
     type ConfigValue = string | string[];
 
@@ -22,7 +23,10 @@
 
 <DialogModal {title} {onclose} {icon}>
     <p class="modal-desc">{description}</p>
-    <ConfigPreview parsed={parsedConfig} parsedDiff={parsedConfig} text={previewText} {parseError} showEmptyState={false} clampHeight />
+    <!-- Bare surface (no light/dark toggle), the toggle is import/export-page-only. -->
+    <PreviewSurface minHeight="80px" maxHeight="280px" selectable>
+        <ConfigPreview parsed={parsedConfig} parsedDiff={parsedConfig} text={previewText} {parseError} showEmptyState={false} />
+    </PreviewSurface>
     {#snippet footer()}
         <Button onclick={onclose}>Dismiss</Button>
         <Button primary onclick={onimport} disabled={!parsedConfig}>Import Config</Button>

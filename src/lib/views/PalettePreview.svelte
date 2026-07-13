@@ -4,15 +4,11 @@
     // ideally add checkboxes underneath the preview letting
     // users hide parts of the preview
 
-    // TODO: also extract out the preview window generally
-    // I've used it like 4 times now
-
     import PreviewFrame from "$lib/components/PreviewFrame.svelte";
 </script>
 
 
-<PreviewFrame>
-<div class="preview">
+<PreviewFrame maxHeight="200px">
     <div class="row prompt">
         <span class="p2 bold">ghostty@macos</span>
         <span class="fg">:</span>
@@ -119,24 +115,10 @@
         <span>&nbsp;</span>
         <span class="p10"> lsix</span>
     </div>
-</div>
 </PreviewFrame>
 
 <style>
-.preview {
-    background: var(--config-bg);
-    font-family: var(--config-font-family);
-    font-size: var(--config-font-size);
-    color: var(--config-fg);
-    max-height: 200px;
-    overflow-y: auto;
-    padding: 8px;
-    border-radius: var(--radius-level-3);
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
-}
-
-.preview .row,
+.row,
 .prompt,
 .date {
     display: flex;

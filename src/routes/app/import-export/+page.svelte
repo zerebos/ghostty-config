@@ -119,7 +119,7 @@
 <svelte:window onkeydown={handleWindowKeydown} />
 
 <Page title="Import & Export">
-    <PreviewFrame fill>
+    <PreviewFrame fill selectable>
         <ConfigPreview parsed={currentConfigDiff} parsedDiff={currentConfigDiff} />
     </PreviewFrame>
 

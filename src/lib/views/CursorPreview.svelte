@@ -14,8 +14,7 @@
     });
 </script>
 
-<PreviewFrame>
-<div class="preview">
+<PreviewFrame maxHeight="60px">
     <div class="row prompt">
         <span style:color="var(--config-palette-2)">john</span>
         <span style:color="var(--config-palette-6)">@</span>
@@ -23,24 +22,10 @@
         <span style:color="var(--config-palette-1)" style:font-weight="700">$</span>
         git commit -m "<span class="cursor {config.cursorStyle}" class:blink-hidden={!isCursorVisible}>"</span>
     </div>
-</div>
 </PreviewFrame>
 
 <style>
-.preview {
-    background: var(--config-bg);
-    font-family: var(--config-font-family);
-    font-size: var(--config-font-size);
-    color: var(--config-fg);
-    max-height: 60px;
-    overflow-y: auto;
-    padding: 8px;
-    border-radius: var(--radius-level-3);
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5) inset;
-}
-
-.preview .row,
+.row,
 .prompt {
     display: flex;
     white-space: pre;
