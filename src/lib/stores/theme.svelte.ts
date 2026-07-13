@@ -108,6 +108,50 @@ export function previewColorVars(mode: PreviewMode): string {
     return colorVarsFrom(resolveEffective(mode));
 }
 
+/**
+ * Reusable per-instance light/dark state for one preview surface. A preview showing a dual theme
+ * can diverge from the global toggle (`preview.mode`) locally; this owns that override plus the
+ * reactive values a component needs to render it. Call it once from a component's `<script>` — the
+ * internal `$effect` is then owned by that component and torn down with it.
+ *
+ * The override CLEARS whenever it stops being meaningful — a global-toggle flip, or the theme
+ * ceasing to be dual — so the global toggle never looks stuck and returning to a dual theme starts
+ * fresh following the global. Clearing (rather than masking a captured value) is deliberate: masking
+ * would revive a stale override on a dark→light→dark round-trip.
+ */
+export function createPreviewMode() {
+    let localMode = $state<PreviewMode | null>(null);
+
+    const isDual = $derived(themeSelection().kind === "dual");
+
+    // Changes exactly when the override should reset: the global mode while dual, or a sentinel once
+    // the theme is no longer dual (so leaving dual flips it too). Switching between two dual themes
+    // keeps it stable, so an override survives that — it only dies on a global flip or leaving dual.
+    const resetKey = $derived(isDual ? `dual:${preview.mode}` : "single");
+
+    $effect(() => {
+        // Reading resetKey (the sole dependency) makes any of those transitions re-run this and drop
+        // the override. localMode is deliberately NOT read here — otherwise setting an override would
+        // re-run this effect and immediately clear it.
+        const _key = resetKey;
+        localMode = null;
+    });
+
+    const effectiveMode = $derived(localMode ?? preview.mode);
+    // Diverge (emit scoped vars) only when this preview's mode differs from the global one; otherwise
+    // emit nothing and inherit the global --config-* funnel unchanged (zero cost, pixel-identical).
+    const scopedVars = $derived(isDual && effectiveMode !== preview.mode ? previewColorVars(effectiveMode) : "");
+
+    return {
+        get isDual() {return isDual;},
+        get effectiveMode() {return effectiveMode;},
+        get scopedVars() {return scopedVars;},
+        // Arrow (not a method) so consumers can pass `mode.setMode` as a callback without tripping
+        // the unbound-method lint — it doesn't use `this`.
+        setMode: (mode: PreviewMode) => {localMode = mode;},
+    };
+}
+
 // $derived bindings can't be exported from a module directly; expose them through getters.
 export function themeSelection() {
     return selection;

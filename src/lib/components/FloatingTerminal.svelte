@@ -4,7 +4,7 @@
     import PreviewModeToggle from "$lib/components/PreviewModeToggle.svelte";
     import app from "$lib/stores/state.svelte";
     import config from "$lib/stores/config.svelte";
-    import {preview, previewColorVars, themeSelection, type PreviewMode} from "$lib/stores/theme.svelte";
+    import {createPreviewMode} from "$lib/stores/theme.svelte";
 
     const DEFAULT_WIDTH = 680;
     const DEFAULT_HEIGHT = 480;
@@ -271,29 +271,15 @@
         title = `${cwd}`;
     }
 
-    // Per-instance light/dark override, defaulting to the global contextual toggle. Same mechanism
-    // as PreviewFrame: flipping the global toggle clears this preview's override so it snaps back
-    // to following the global. Only relevant for a dual theme.
-    let localMode = $state<PreviewMode | null>(null);
-
-    $effect(() => {
-        // Reading preview.mode registers the dependency; it's always truthy ("light"/"dark"), so
-        // any change to the global toggle re-runs this and drops this preview's local override.
-        if (preview.mode) localMode = null;
-    });
-
-    const isDual = $derived(themeSelection().kind === "dual");
-    const effectiveMode = $derived(localMode ?? preview.mode);
-    const scopedVars = $derived(isDual && effectiveMode !== preview.mode ? previewColorVars(effectiveMode) : "");
-
-    function setMode(mode: PreviewMode) {
-        localMode = mode;
-    }
+    // Per-instance light/dark override for this floating preview (see createPreviewMode). Same
+    // mechanism PreviewFrame uses; the toggle lives in the titlebar and scoped vars re-theme the
+    // whole window. Only relevant for a dual theme.
+    const previewMode = createPreviewMode();
 </script>
 
 {#if app.floatingTerminalRunning}
     <!-- eslint-disable-next-line svelte/require-optimized-style-attribute, svelte/first-attribute-linebreak -->
-    <div bind:this={windowElement} class="ghostty-window" style={scopedVars}
+    <div bind:this={windowElement} class="ghostty-window" style={previewMode.scopedVars}
         class:minimized={!app.floatingTerminalVisible && !animating}
         style:left={`${x}px`}
         style:top={`${y}px`}
@@ -318,9 +304,9 @@
                 </button>
             </div>
             <span class="window-title">{title}</span>
-            {#if isDual}
+            {#if previewMode.isDual}
                 <div class="titlebar-toggle" role="presentation" onmousedown={(e) => e.stopPropagation()}>
-                    <PreviewModeToggle value={effectiveMode} onchange={setMode} />
+                    <PreviewModeToggle value={previewMode.effectiveMode} onchange={previewMode.setMode} />
                 </div>
             {:else}
                 <div class="titlebar-end"></div>
