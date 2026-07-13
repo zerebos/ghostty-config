@@ -1,8 +1,10 @@
 <script lang="ts">
+    import PreviewFrame from "$lib/components/PreviewFrame.svelte";
     /* eslint-disable svelte/prefer-style-directive */
     // TODO: fix above with preview component
 </script>
 
+<PreviewFrame>
 <div class="preview">
     <div class="row prompt">
         <span style="color: var(--config-palette-2)">John</span>
@@ -18,6 +20,7 @@
     <div class="row">blandit diam vestibulum.</div>
 
 </div>
+</PreviewFrame>
 
 <style>
 .preview {

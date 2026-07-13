@@ -1,8 +1,10 @@
 <script lang="ts">
     import {onMount, untrack} from "svelte";
     import InteractiveTerminalDom from "$lib/views/InteractiveTerminalDom.svelte";
+    import PreviewModeToggle from "$lib/components/PreviewModeToggle.svelte";
     import app from "$lib/stores/state.svelte";
     import config from "$lib/stores/config.svelte";
+    import {preview, previewColorVars, themeSelection, type PreviewMode} from "$lib/stores/theme.svelte";
 
     const DEFAULT_WIDTH = 680;
     const DEFAULT_HEIGHT = 480;
@@ -268,12 +270,30 @@
     function onCwdChange(cwd: string) {
         title = `${cwd}`;
     }
+
+    // Per-instance light/dark override, defaulting to the global contextual toggle. Same mechanism
+    // as PreviewFrame: flipping the global toggle clears this preview's override so it snaps back
+    // to following the global. Only relevant for a dual theme.
+    let localMode = $state<PreviewMode | null>(null);
+
+    $effect(() => {
+        // Reading preview.mode registers the dependency; it's always truthy ("light"/"dark"), so
+        // any change to the global toggle re-runs this and drops this preview's local override.
+        if (preview.mode) localMode = null;
+    });
+
+    const isDual = $derived(themeSelection().kind === "dual");
+    const effectiveMode = $derived(localMode ?? preview.mode);
+    const scopedVars = $derived(isDual && effectiveMode !== preview.mode ? previewColorVars(effectiveMode) : "");
+
+    function setMode(mode: PreviewMode) {
+        localMode = mode;
+    }
 </script>
 
 {#if app.floatingTerminalRunning}
-    <div
-        bind:this={windowElement}
-        class="ghostty-window"
+    <!-- eslint-disable-next-line svelte/require-optimized-style-attribute, svelte/first-attribute-linebreak -->
+    <div bind:this={windowElement} class="ghostty-window" style={scopedVars}
         class:minimized={!app.floatingTerminalVisible && !animating}
         style:left={`${x}px`}
         style:top={`${y}px`}
@@ -298,7 +318,13 @@
                 </button>
             </div>
             <span class="window-title">{title}</span>
-            <div class="titlebar-end"></div>
+            {#if isDual}
+                <div class="titlebar-toggle" role="presentation" onmousedown={(e) => e.stopPropagation()}>
+                    <PreviewModeToggle value={effectiveMode} onchange={setMode} />
+                </div>
+            {:else}
+                <div class="titlebar-end"></div>
+            {/if}
         </div>
         <div class="terminal-body">
             <!-- Each comparison hard-codes what ""/unset means for that setting: the
@@ -424,6 +450,13 @@
 .titlebar-end {
     width: 52px;
     flex-shrink: 0;
+}
+
+.titlebar-toggle {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    cursor: default;
 }
 
 .terminal-body {

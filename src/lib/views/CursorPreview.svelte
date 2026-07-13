@@ -1,4 +1,5 @@
 <script lang="ts">
+    import PreviewFrame from "$lib/components/PreviewFrame.svelte";
     import config from "$lib/stores/config.svelte";
     import {onMount} from "svelte";
 
@@ -13,6 +14,7 @@
     });
 </script>
 
+<PreviewFrame>
 <div class="preview">
     <div class="row prompt">
         <span style:color="var(--config-palette-2)">john</span>
@@ -22,6 +24,7 @@
         git commit -m "<span class="cursor {config.cursorStyle}" class:blink-hidden={!isCursorVisible}>"</span>
     </div>
 </div>
+</PreviewFrame>
 
 <style>
 .preview {

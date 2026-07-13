@@ -5,6 +5,7 @@
     import Switch from "$lib/components/settings/Switch.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Range from "$lib/components/settings/Range.svelte";
+    import PreviewFrame from "$lib/components/PreviewFrame.svelte";
 
     let fontFamily = $state("JetBrainsMono Nerd Font");
     // Range/Switch bind flat-store strings; keep this local preview state in the same shape.
@@ -19,6 +20,7 @@
 
 <!-- eslint-disable-next-line svelte/no-useless-mustaches -->
 <Group title="" note={"Use this page to test your locally installed fonts as they may look in the terminal along with colors and glyphs.\n\nNote: this playground does not set any actual settings."}>
+    <PreviewFrame>
     <div class="preview" style="font-family: {fontFamily}; font-size: {fontSize}px; font-style: {italic === "true" ? "italic" : "normal"}; font-weight: {bold === "true" ? 700 : 400};">
     <div class="row prompt">
         <span style="color: var(--config-palette-2);">john</span>
@@ -36,6 +38,7 @@
     <div class="row">&nbsp;</div>
     <div class="row">Icons:     <span style="background-color: var(--config-palette-1); color: var(--config-bg);"> Powerline</span><span style="color: var(--config-palette-1);"></span></div>
     </div>
+    </PreviewFrame>
     <Separator />
     <Item name="Font family" note="Due to cross-browser limitations, you'll need to manually type in a font-face currently on your system that you want to try out."><Text bind:value={fontFamily} /></Item>
     <Separator />

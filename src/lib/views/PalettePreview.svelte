@@ -6,9 +6,12 @@
 
     // TODO: also extract out the preview window generally
     // I've used it like 4 times now
+
+    import PreviewFrame from "$lib/components/PreviewFrame.svelte";
 </script>
 
 
+<PreviewFrame>
 <div class="preview">
     <div class="row prompt">
         <span class="p2 bold">ghostty@macos</span>
@@ -117,6 +120,7 @@
         <span class="p10"> lsix</span>
     </div>
 </div>
+</PreviewFrame>
 
 <style>
 .preview {

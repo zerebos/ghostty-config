@@ -17,6 +17,7 @@
     import ShareIcon from "$lib/components/icons/ShareIcon.svelte";
     import ImportIcon from "$lib/components/icons/ImportIcon.svelte";
     import ConfigPreview from "$lib/components/ConfigPreview.svelte";
+    import PreviewFrame from "$lib/components/PreviewFrame.svelte";
 
     // Handling for share urls
     onMount(() => {
@@ -118,7 +119,9 @@
 <svelte:window onkeydown={handleWindowKeydown} />
 
 <Page title="Import & Export">
-    <ConfigPreview parsed={currentConfigDiff} parsedDiff={currentConfigDiff} />
+    <PreviewFrame fill>
+        <ConfigPreview parsed={currentConfigDiff} parsedDiff={currentConfigDiff} />
+    </PreviewFrame>
 
     <Group title="Import">
         <Item name="From Clipboard" note="Paste a config copied to your clipboard">

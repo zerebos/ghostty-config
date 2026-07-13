@@ -37,8 +37,8 @@
 
         const add = (key: string, val: string) => str += `--config-${key}: ${val};`;
 
-        // Coerced here so downstream CSS (color-mix in CursorPreview) always gets a number. Mode-
-        // independent, so scoped per-preview overrides inherit it from here unchanged.
+        // Coerced here so downstream CSS (color-mix in CursorPreview) always gets a number.
+        // Mode-independent, so scoped per-preview overrides inherit it from here unchanged.
         add("cursor-opacity", String(numberCodec.parse(config.cursorOpacity) ?? 1));
 
         // TODO: consider honoring separate fonts for bold/italic and such in previews
