@@ -24,6 +24,16 @@
     import {resolveCellColor} from "$lib/utils/colors";
     import app from "$lib/stores/state.svelte";
     import navigation, {tabGroups} from "$lib/settings/navigation";
+    import {restorePersistedSession, startPersisting} from "$lib/stores/persistence.svelte";
+
+
+    // Session refresh-protection. Run synchronously during layout init (the root component)
+    // so restore completes before any page's onMount fires — in particular before the
+    // import-export page's checkHashForShare() builds a share-import preview, keeping that
+    // modal's "will overwrite your changes" framing truthful against the restored state.
+    // No-op on the server (prerender); config's sync initializers have already run by import.
+    restorePersistedSession();
+    startPersisting();
 
 
     // The single funnel for the color keys: everything below reads the *effective* colors
