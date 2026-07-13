@@ -14,7 +14,7 @@
         <span class="fg">:</span>
         <span class="p6">~</span>
         <span class="fg">$</span>
-        eza -la --color=always --icons
+        eza -la --color --icons
     </div>
     <div class="row">&nbsp;</div>
     <div class="row">
