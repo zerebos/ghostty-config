@@ -25,7 +25,7 @@
 
     // The menu is portaled into `.app-window` (via toAppWindow) to escape the sidebar's bounds,
     // so it's positioned off the trigger's rect, right-aligned under it. Both the trigger and the
-    // menu share `.app-window` as their offset parent, so these coordinates stay valid — the
+    // menu share `.app-window` as their offset parent, so these coordinates stay valid and the
     // left-anchored, fixed-width sidebar keeps the trigger's offset constant across resizes.
     $effect(() => {
         if (!isOpen || !triggerEl) return;
@@ -95,7 +95,9 @@
                     <button class="clear-button" type="button" onclick={clearFilter}>Show all</button>
                 {/if}
             </div>
-            <p class="popover-hint">Hide settings that don't apply to you. This only changes what's shown — your exported config is unchanged.</p>
+            <p class="popover-hint">Hide settings that don't apply to you. This only changes what's shown, your exported config is unchanged.</p>
+
+            <div class="popover-divider" aria-hidden="true"></div>
 
             <div class="filter-section">
                 <span class="section-label">Platform</span>
@@ -166,18 +168,22 @@
     box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.35);
 }
 
-/* Positioned relative to `.app-window` (the portal target); top/left/width come from inline style. */
+/* Clanker comment below */
+/* Positioned relative to `.app-window` (the portal target); top/left/width come from inline style.
+   Surface borrowed from the tooltip (frosted glass + soft outer glow + white inset hairline — the
+   same signature the app-window uses), with modal-style internal structure (header + divider). */
 .popover {
     position: absolute;
     z-index: 9999;
-    padding: 12px;
+    padding: 16px;
     border-radius: var(--radius-level-3);
-    border: 1px solid var(--border-level-2);
-    background: color-mix(in srgb, var(--bg-level-2) 85%, black);
-    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-level-1);
+    /* Firmer than the tooltip's 0.6 glass and mixed toward black, so the panel clears the translucent sidebar it partly overlaps instead of dissolving into it. */
+    background: rgba(from color-mix(in srgb, var(--bg-level-2) 85%, black) r g b / 0.85);
+    backdrop-filter: blur(20px);
     box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.45),
-        0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+        0 0 20px -1px rgba(0, 0, 0, 0.7),
+        0 0 1px white inset;
 }
 
 .popover-header {
@@ -188,7 +194,7 @@
 }
 
 .popover-title {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--font-color);
 }
@@ -207,14 +213,20 @@
 }
 
 .popover-hint {
-    margin: 4px 0 12px;
+    margin: 6px 0 0;
     font-size: 0.75rem;
     line-height: 1.35;
     color: var(--font-color-muted);
 }
 
-/* Each filter dimension is its own labelled section; add siblings (e.g. Ghostty version) here.
-   A second section wants `margin-top` for separation — add that rule alongside it. */
+/* Modal-inspired hairline (cf. DialogModal's footer separator); a light-on-glass tint reads more reliably over the translucent surface than --border-separator. */
+.popover-divider {
+    height: 1px;
+    margin: 12px 0;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Each filter dimension is its own labelled section; add siblings (e.g. Ghostty version) here. A second section wants `margin-top` for separation (would need to add that rule alongside it). */
 .filter-section {
     display: flex;
     flex-direction: column;
