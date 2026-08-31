@@ -7,7 +7,7 @@
 
 <div class="toast-stack">
     {#each toasts as toast (toast.id)}
-        <Toast id={toast.id} type={toast.type} message={toast.message} />
+        <Toast id={toast.id} type={toast.type} message={toast.message} action={toast.action} />
     {/each}
 </div>
 

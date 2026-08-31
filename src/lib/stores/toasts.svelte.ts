@@ -1,15 +1,22 @@
 type ToastType = "success" | "error";
 
+export interface ToastAction {
+    label: string;
+    onClick: () => void;
+}
+
 type ToastRequest = {
     id: string;
     type: ToastType;
     message: string;
     duration: number;
+    action?: ToastAction;
 };
 
 interface ToastOptions {
     message: string;
     duration?: number;
+    action?: ToastAction;
 }
 
 const DEFAULT_DURATION = 3000;
@@ -33,12 +40,14 @@ export function getToasts() {
 function addToast(options: ToastOptions | string, type: ToastType) {
     const message = typeof options === "string" ? options : options.message;
     const duration = typeof options === "string" ? DEFAULT_DURATION : options.duration ?? DEFAULT_DURATION;
+    const action = typeof options === "string" ? undefined : options.action;
 
     const toast: ToastRequest = {
         id: getNextId(),
         type,
         message,
-        duration
+        duration,
+        action
     };
 
     toastStack = [toast, ...toastStack];
