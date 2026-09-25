@@ -87,6 +87,32 @@ describe("load()", () => {
     });
 });
 
+describe("load() idempotency (session-restore cycle)", () => {
+    // The persisted diff carries only non-default keybinds; restoring it re-runs load(), which
+    // appends. Two loads of the same additions (a double restore, or restore-then-persist-restore)
+    // must not duplicate — otherwise every refresh grows the keybind list. Palette merges
+    // per-index and is idempotent by construction; covered here in the same cycle.
+    const sparsePalette = (index: number, color: string) => {
+        const arr = Array.from<string>({length: 256}).fill("");
+        arr[index] = color;
+        return arr;
+    };
+
+    it("does not duplicate keybinds across repeated loads", () => {
+        const custom = "ctrl+shift+x=copy_to_clipboard" as const;
+        load({keybind: [custom]});
+        load({keybind: [custom]});
+        expect(config.keybind.filter(k => k === custom)).toHaveLength(1);
+    });
+
+    it("merges palette slots idempotently", () => {
+        load({palette: sparsePalette(5, "#ffffff")});
+        load({palette: sparsePalette(5, "#ffffff")});
+        expect(config.palette[5]).toBe("#ffffff");
+        expect(diff().palette).toEqual(["5=#ffffff"]);
+    });
+});
+
 describe("round-trip diff -> serialize", () => {
     it("renders a flat diff as Ghostty config lines", () => {
         config.fontSize = "18";
