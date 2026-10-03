@@ -1,6 +1,7 @@
 import {resolve} from "$app/paths";
 import navigation from "$lib/settings/navigation";
 import registry from "$lib/settings/registry";
+import {isVisible} from "$lib/stores/filter.svelte";
 import type {SettingsRegistry} from "$lib/settings/types";
 
 
@@ -24,10 +25,14 @@ export function setQuery(query: string) {
 }
 
 const searchTokens = $derived.by(() => searchState.query.split(/\s+/).filter(Boolean));
-const searchResults = $derived.by(() => {
+// All matches regardless of the platform filter — kept so the UI can tell "no matches at all"
+// from "matches exist but are hidden by the platform filter".
+const rawSearchResults = $derived.by(() => {
     if (!searchTokens.length) return [];
     return searchableSettings.filter(result => searchTokens.every(token => result.searchableText.includes(token)));
 });
+// Results respect the platform filter — filtered-out settings are excluded from search too.
+const searchResults = $derived.by(() => rawSearchResults.filter(result => isVisible(result.settingId)));
 
 export function getResults() {
     return searchResults;
@@ -35,6 +40,12 @@ export function getResults() {
 
 export function hasResults() {
     return searchResults.length > 0;
+}
+
+// True when the query matched settings but every match is hidden by the active platform filter,
+// so the empty state can explain the results were filtered rather than simply absent.
+export function hasFilteredResults() {
+    return searchResults.length === 0 && rawSearchResults.length > 0;
 }
 
 // TODO: this is a bit of a weird place for this, consider moving to a more appropriate utility file

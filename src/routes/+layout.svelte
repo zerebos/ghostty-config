@@ -11,6 +11,7 @@
     import ToastStack from "$lib/components/ToastStack.svelte";
     import SettingsSearch from "$lib/components/SettingsSearch.svelte";
     import MacDock from "$lib/components/MacDock.svelte";
+    import PlatformFilter from "$lib/components/PlatformFilter.svelte";
 
     import github from "$lib/images/tabs/github.svg";
     import ghostty from "$lib/images/tabs/ghostty.webp";
@@ -86,6 +87,7 @@
                     <div class="window-dot"><span>&ndash;</span></div>
                     <div class="window-dot"><span>&plus;</span></div>
                 </div>
+                <PlatformFilter />
             </div>
         </div>
         <SettingsSearch>
@@ -252,7 +254,8 @@
 
 .sidebar-header .window-actions-container {
     display: flex;
-    padding: 15px 0 0 15px;
+    align-items: center;
+    padding: 15px 12px 0 15px;
     margin-bottom: 20px;
 }
 
