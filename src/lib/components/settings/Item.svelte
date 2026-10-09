@@ -91,7 +91,7 @@
 </script>
 
 <div
-    class="setting-item"
+    class="ghostty-setting-item"
     data-setting-id={settingId || undefined}
     bind:this={itemElement}
     class:flash-highlight={shouldHighlight}
@@ -151,7 +151,7 @@
 
 
 <style>
-.setting-item {
+.ghostty-setting-item {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -162,11 +162,11 @@
     /* position: relative; */
 }
 
-.setting-item.flash-highlight {
+.ghostty-setting-item.flash-highlight {
     position: relative;
 }
 
-.setting-item:global(.flash-highlight)::before {
+.ghostty-setting-item:global(.flash-highlight)::before {
     content: "";
     position: absolute;
     /* group padding size */
@@ -178,15 +178,15 @@
     pointer-events: none;
 }
 
-.setting-item:global(.flash-highlight):first-child::before {
+.ghostty-setting-item:global(.flash-highlight):first-child::before {
     border-radius: var(--radius-level-4) var(--radius-level-4) 0 0;
 }
 
-.setting-item:global(.flash-highlight):last-child::before {
+.ghostty-setting-item:global(.flash-highlight):last-child::before {
     border-radius: 0 0 var(--radius-level-4) var(--radius-level-4);
 }
 
-.setting-item .row {
+.ghostty-setting-item .row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -285,7 +285,7 @@
 }
 
 /* When the setting is not inline, we want the description/info button to be on the same row as the name, and the setting content to be below. */
-.setting-item > .setting {
+.ghostty-setting-item > .setting {
     margin-top: 4px;
     justify-content: flex-start;
 }

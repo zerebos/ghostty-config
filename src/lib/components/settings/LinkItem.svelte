@@ -4,7 +4,7 @@
 </script>
 
 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-<a class="setting-item" {href}>
+<a class="ghostty-setting-item" {href}>
     <div class="row">
         <div class="setting-name">
             {#if icon}<img src={icon} alt={`${name} Submenu`} />{/if}
@@ -23,7 +23,7 @@
 
 
 <style>
-.setting-item {
+.ghostty-setting-item {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -31,7 +31,7 @@
     text-decoration: none!important;
 }
 
-.setting-item .row {
+.ghostty-setting-item .row {
     display: flex;
     justify-content: space-between;
     align-items: center;
