@@ -63,7 +63,13 @@ export function load(conf: Partial<typeof config>) {
             setSetting(key as keyof typeof config, conf[key as keyof typeof config]!);
         }
         else if (key === "keybind") {
-            config.keybind = [...config.keybind, ...conf.keybind!];
+            // Dedup on append: skip keybinds already present. load() runs on every import
+            // source (share, clipboard, file, session restore); without this, restoring a
+            // persisted session — whose diff already carries the non-default keybinds —
+            // would re-append them each cycle and duplicate custom binds. Palette (below)
+            // merges per-index and is naturally idempotent.
+            const additions = conf.keybind!.filter(k => !config.keybind.includes(k));
+            if (additions.length) config.keybind = [...config.keybind, ...additions];
         }
         else if (key === "palette") {
             for (let p = 0; p < conf.palette!.length; p++) {
@@ -89,6 +95,11 @@ export function setSetting<K extends keyof SettingValues>(key: K, value: Setting
 export function resetSetting(key: keyof SettingValues) {
     const defaultValue = defaults[key];
     setSetting(key, Array.isArray(defaultValue) ? [...defaultValue] : defaultValue);
+}
+
+/** Reset every setting to its registry default. Config-state only — touches nothing else. */
+export function resetAllSettings() {
+    for (const key in defaults) resetSetting(key as keyof SettingValues);
 }
 
 export function isNonDefault(key: keyof SettingValues): boolean {
