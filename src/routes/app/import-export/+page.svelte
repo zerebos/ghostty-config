@@ -2,9 +2,10 @@
     import Group from "$lib/components/settings/Group.svelte";
     import Item from "$lib/components/settings/Item.svelte";
     import Separator from "$lib/components/settings/Separator.svelte";
-    import {diff} from "$lib/stores/config.svelte";
+    import {diff, load, resetAllSettings} from "$lib/stores/config.svelte";
+    import {clearPersistedSession} from "$lib/stores/persistence.svelte";
     // import {alert as showAlert} from "$lib/stores/modals.svelte";
-    import {serialize} from "$lib/utils/parse";
+    import {parse, serialize} from "$lib/utils/parse";
     import {buildShareUrl, encodeConfig, MAX_SHARE_URL_LENGTH} from "$lib/utils/share";
     import Page from "$lib/views/Page.svelte";
     import Button from "$lib/components/Button.svelte";
@@ -81,6 +82,27 @@
         URL.revokeObjectURL(url);
         success("Config file downloaded");
     }, 300);
+
+
+    // Reset all — the app's explicit global reset. Refresh used to be the de-facto "reset
+    // everything" gesture; session persistence removed that, so this restores it deliberately.
+    // Guarded by an Undo action on the success toast (captured diff is re-imported on undo).
+    function resetAll() {
+        if (!hasExportableConfig) return;
+
+        const captured = serialize(currentConfigDiff, false);
+        clearPersistedSession();
+        resetAllSettings();
+
+        success({
+            message: "All settings reset to defaults",
+            duration: 8000,
+            action: {
+                label: "Undo",
+                onClick: () => load(parse(captured))
+            }
+        });
+    }
 
 
     // Share Composer Modal Logic
@@ -163,6 +185,17 @@
                     title={hasExportableConfig ? "Share your config" : "No changes yet!"}
                     disabled={!hasExportableConfig}
                 >Share</Button>
+            </div>
+        </Item>
+    </Group>
+    <Group title="Reset">
+        <Item name="Reset All Settings" note="Return every setting to its default. You can undo this right after.">
+            <div class="button-group">
+                <Button
+                    onclick={resetAll}
+                    title={hasExportableConfig ? "Reset all settings to defaults" : "No changes yet!"}
+                    disabled={!hasExportableConfig}
+                >Reset All</Button>
             </div>
         </Item>
     </Group>

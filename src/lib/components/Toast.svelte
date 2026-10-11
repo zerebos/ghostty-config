@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {dismissToast} from "$lib/stores/toasts.svelte";
+    import {dismissToast, type ToastAction} from "$lib/stores/toasts.svelte";
     import {sequoiaEase} from "$lib/utils/animations";
     import {fly} from "svelte/transition";
 
@@ -7,19 +7,25 @@
         id: string;
         type: "success" | "error";
         message: string;
+        action?: ToastAction;
     }
 
-    const {id, type, message}: Props = $props();
+    const {id, type, message, action}: Props = $props();
 
     function handleDismiss() {
         dismissToast(id);
     }
 
+    function handleAction() {
+        action?.onClick();
+        dismissToast(id);
+    }
+
 </script>
 
-<div class="toast-container" role="status" aria-live="polite">
-    <!-- eslint-disable-next-line svelte/no-unused-class-name -->
-    <button type="button" class="toast toast-{type}" onclick={handleDismiss} transition:fly={{y: -44, duration: 300, easing: sequoiaEase}}>
+<!-- eslint-disable-next-line svelte/no-unused-class-name -->
+<div class="toast-container toast-{type}" role="status" aria-live="polite" transition:fly={{y: -44, duration: 300, easing: sequoiaEase}}>
+    <button type="button" class="toast" onclick={handleDismiss}>
         <div class="toast-icon">
             {#if type === "success"}
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,22 +45,17 @@
         </div>
         <div class="toast-message">{message}</div>
     </button>
+    {#if action}
+        <button type="button" class="toast-action" onclick={handleAction}>{action.label}</button>
+    {/if}
 </div>
 
 <style>
     .toast-container {
         display: flex;
-    }
-
-    .toast {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
+        align-items: stretch;
         min-width: 280px;
         max-width: 400px;
-        width: 100%;
-        border: none;
         border-radius: var(--radius-level-3);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
@@ -62,14 +63,11 @@
             0 4px 16px rgba(0, 0, 0, 0.3),
             0 0 0 1px rgba(255, 255, 255, 0.1) inset,
             0 1px 2px rgba(0, 0, 0, 0.5);
-        cursor: pointer;
         transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-        /* animation: slideIn 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); */
-        font-family: inherit;
-        text-align: left;
+        color: #ffffff;
     }
 
-    .toast:hover {
+    .toast-container:hover {
         transform: translateY(-2px);
         box-shadow:
             0 6px 20px rgba(0, 0, 0, 0.35),
@@ -77,13 +75,55 @@
             0 1px 2px rgba(0, 0, 0, 0.5);
     }
 
-    .toast:focus {
-        outline: none;
-        transform: translateY(-2px);
+    .toast-container:focus-within {
         box-shadow:
             0 6px 20px rgba(0, 0, 0, 0.35),
             0 0 0 2px var(--color-input-accent),
             0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .toast {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        flex: 1;
+        min-width: 0;
+        border: none;
+        border-radius: inherit;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font-family: inherit;
+        text-align: left;
+    }
+
+    .toast:focus {
+        outline: none;
+    }
+
+    .toast-action {
+        flex-shrink: 0;
+        border: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 0 var(--radius-level-3) var(--radius-level-3) 0;
+        /* background: rgba(255, 255, 255, 0.12); */
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 0 16px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+
+    .toast-action:hover {
+        background: rgba(255, 255, 255, 0.22);
+    }
+
+    .toast-action:focus {
+        outline: none;
     }
 
     .toast-success {
@@ -92,7 +132,6 @@
             rgba(52, 199, 89, 0.85) 0%,
             rgba(48, 176, 79, 0.85) 100%
         );
-        color: #ffffff;
     }
 
     .toast-error {
@@ -101,7 +140,6 @@
             rgba(255, 69, 58, 0.85) 0%,
             rgba(235, 61, 50, 0.85) 100%
         );
-        color: #ffffff;
     }
 
     .toast-icon {
