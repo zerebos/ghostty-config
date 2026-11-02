@@ -10,6 +10,7 @@
     import registry from "$lib/settings/registry";
     import navigation from "$lib/settings/navigation";
     import config, {isNonDefault, resetSetting, setSetting} from "$lib/stores/config.svelte";
+    import {isVisible} from "$lib/stores/filter.svelte";
     import {activeThemeName, colorTier, effectiveColors, isSchemeColorKey, paletteTier, themeSelection} from "$lib/stores/theme.svelte";
     import Text from "$lib/components/settings/Text.svelte";
     import Number from "$lib/components/settings/Number.svelte";
@@ -92,7 +93,14 @@
         {:else if category.id === "colors"}
             <Admonition size="1.5rem">You can reset a color to its default value by right clicking!</Admonition>
         {/if}
+        {#if !category.groups.some(group => group.settings.some(isVisible))}
+            <div class="filter-empty">
+                <p>All settings on this page are hidden by the platform filter.</p>
+            </div>
+        {/if}
         {#each category.groups as group (group.id)}
+            {#if group.settings.some(isVisible)}
+            {@const visibleSettings = group.settings.filter(isVisible)}
             <Group title={group.name} note={"note" in group ? group.note : undefined}>
                 {@const previewKey = "preview" in group ? group.preview : undefined}
                 {#if previewKey && previews[previewKey]}
@@ -100,7 +108,7 @@
                     <Preview />
                     <Separator />
                 {/if}
-                {#each group.settings as settingId, i (i)}
+                {#each visibleSettings as settingId, i (i)}
                     {@const setting = registry[settingId] as SettingsRegistry[keyof SettingsRegistry]}
                     {@const widget = setting.widget}
                     {#if i !== 0}<Separator />{/if}
@@ -167,9 +175,21 @@
                     </Item>
                 {/each}
             </Group>
+            {/if}
         {/each}
     {:else}
         <h1>What Happened?</h1>
         <p>You shouldn't be here! If you followed a link, please report the bug on GitHub. Otherwise, go ahead and start browsing on the left.</p>
     {/if}
 </Page>
+
+<style>
+.filter-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: var(--font-color-muted);
+    text-align: center;
+}
+</style>
